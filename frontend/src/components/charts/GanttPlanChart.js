@@ -16,7 +16,7 @@ const LEFT_PAD = 96;
 
 // Leyenda de tipos de microciclo (Material palette)
 const MICRO_LEGEND = [
-  { t: 'ordinario', c: '#D4AF37', l: 'Ordinario/Carga' },
+  { t: 'ordinario', c: '#3B82F6', l: 'Ordinario/Carga' },
   { t: 'choque', c: '#EF4444', l: 'Choque/Impacto' },
   { t: 'competitivo', c: '#F59E0B', l: 'Competitivo' },
   { t: 'recuperacion', c: '#A78BFA', l: 'Recuperación' },
@@ -87,7 +87,7 @@ const GanttPlanChart = memo(function GanttPlanChart() {
           </span>
         ))}
         <span className="flex items-center gap-1.5 text-[10px] font-medium text-slate-500">
-          <span className="w-2.5 h-2.5 rounded-sm bg-[#D4AF37]" />Sesiones
+          <span className="w-2.5 h-2.5 rounded-sm bg-sky-500" />Sesiones
         </span>
       </div>
 

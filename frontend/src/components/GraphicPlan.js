@@ -89,13 +89,13 @@ const INTENSITY_LEVELS = [
   { id: 'high', label: 'Alta', range: '85%-95%', color: 'bg-orange-500', volumeLabel: 'Sub-máximo' },
   { id: 'medium', label: 'Media', range: '70%-80%', color: 'bg-yellow-500', volumeLabel: 'Medio' },
   { id: 'low', label: 'Baja', range: '55%-65%', color: 'bg-green-500', volumeLabel: 'Sub-medio' },
-  { id: 'recovery', label: 'Recuperación', range: 'Hasta 50%', color: 'bg-[#D4AF37]', volumeLabel: 'Bajo' }
+  { id: 'recovery', label: 'Recuperación', range: 'Hasta 50%', color: 'bg-blue-400', volumeLabel: 'Bajo' }
 ];
 
 // Preparation types
 const PREPARATION_TYPES = [
-  { id: 'general_physical', label: 'Preparación física general', color: 'bg-[#D4AF37]' },
-  { id: 'specific_physical', label: 'Preparación física específica', color: 'bg-[#D4AF37]' },
+  { id: 'general_physical', label: 'Preparación física general', color: 'bg-blue-200' },
+  { id: 'specific_physical', label: 'Preparación física específica', color: 'bg-blue-300' },
   { id: 'technical', label: 'Preparación técnica', color: 'bg-green-200' },
   { id: 'tactical', label: 'Preparación táctica', color: 'bg-yellow-200' },
   { id: 'psychological', label: 'Preparación psicológica', color: 'bg-purple-200' },
@@ -108,12 +108,12 @@ const PHYSICAL_COMPONENTS = [
   { id: 'strength', label: 'Fuerza', color: 'bg-orange-100' },
   { id: 'speed', label: 'Velocidad', color: 'bg-yellow-100' },
   { id: 'coordination', label: 'Capacidades coordinativas', color: 'bg-green-100' },
-  { id: 'flexibility', label: 'Flexibilidad', color: 'bg-[#D4AF37]' }
+  { id: 'flexibility', label: 'Flexibilidad', color: 'bg-blue-100' }
 ];
 
 // Activity types
 const ACTIVITY_TYPES = [
-  { id: 'training', label: 'Entrenamiento', color: 'bg-[#D4AF37]' },
+  { id: 'training', label: 'Entrenamiento', color: 'bg-blue-200' },
   { id: 'doping_test', label: 'Control de dopaje', color: 'bg-red-200' },
   { id: 'main_competition', label: 'Competencia principal', color: 'bg-green-400' },
   { id: 'secondary_competition', label: 'Competencia secundaria', color: 'bg-green-200' },
@@ -128,14 +128,14 @@ const MONITORING_AREAS = [
   { id: 'biomechanical', label: 'Biomecánica', color: 'bg-emerald-100' },
   { id: 'technical', label: 'Control técnico', color: 'bg-yellow-100' },
   { id: 'tactical', label: 'Control táctico', color: 'bg-green-100' },
-  { id: 'psychological', label: 'Control psicológico', color: 'bg-[#D4AF37]' },
+  { id: 'psychological', label: 'Control psicológico', color: 'bg-blue-100' },
   { id: 'theoretical', label: 'Control teórico', color: 'bg-purple-100' }
 ];
 
 // Macrocycle types
 const MACROCYCLE_TYPES = [
-  { id: 'preparatory_general', label: 'Preparatorio General', color: 'bg-[#D4AF37]' },
-  { id: 'preparatory_specific', label: 'Preparatorio Específico', color: 'bg-[#D4AF37]' },
+  { id: 'preparatory_general', label: 'Preparatorio General', color: 'bg-blue-300' },
+  { id: 'preparatory_specific', label: 'Preparatorio Específico', color: 'bg-blue-400' },
   { id: 'precompetitive', label: 'Precompetitivo', color: 'bg-yellow-300' },
   { id: 'competitive', label: 'Competitivo', color: 'bg-green-400' },
   { id: 'transition', label: 'Transición', color: 'bg-orange-300' }
@@ -144,7 +144,7 @@ const MACROCYCLE_TYPES = [
 // Mesocycle types
 const MESOCYCLE_TYPES = [
   { id: 'entrante', label: 'Entrante', color: 'bg-slate-200' },
-  { id: 'basico_desarrollador', label: 'Básico desarrollador', color: 'bg-[#D4AF37]' },
+  { id: 'basico_desarrollador', label: 'Básico desarrollador', color: 'bg-blue-200' },
   { id: 'basico_estabilizador', label: 'Básico estabilizador', color: 'bg-cyan-200' },
   { id: 'precompetitivo', label: 'Precompetitivo', color: 'bg-yellow-200' },
   { id: 'competitivo', label: 'Competitivo', color: 'bg-green-200' },
@@ -154,7 +154,7 @@ const MESOCYCLE_TYPES = [
 // Microcycle types
 const MICROCYCLE_TYPES = [
   { id: 'corriente', label: 'Corriente', color: 'bg-gray-200' },
-  { id: 'carga', label: 'Carga', color: 'bg-[#D4AF37]' },
+  { id: 'carga', label: 'Carga', color: 'bg-blue-200' },
   { id: 'choque', label: 'Choque', color: 'bg-red-200' },
   { id: 'competitivo', label: 'Competitivo', color: 'bg-green-200' },
   { id: 'aproximacion', label: 'Aproximación', color: 'bg-yellow-200' },
@@ -1702,7 +1702,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   };
 
   // ═══ SPARKLINE ROW: Mini inline chart replacing colored cells ═══
-  const SparklineRow = ({ label, section, rowId, color = '#D4AF37', maxVal = 5 }) => {
+  const SparklineRow = ({ label, section, rowId, color = '#3B82F6', maxVal = 5 }) => {
     const values = displayedWeeks.map(w => planData[section]?.[`${rowId}_${w}`] || 0);
     const hasData = values.some(v => v > 0);
 
@@ -1730,7 +1730,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   };
 
   // ═══ BOOLEAN SPARKLINE ROW: Markers for events/monitoring ═══
-  const BooleanSparklineRow = ({ label, section, rowId, color = '#D4AF37', icon }) => {
+  const BooleanSparklineRow = ({ label, section, rowId, color = '#3B82F6', icon }) => {
     return (
       <tr>
         <td className="sticky left-0 bg-gray-50 px-2 py-0 text-xs border border-gray-300 z-10" style={{ width: 160 }}>
@@ -1761,7 +1761,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   const renderLoadCell = (section, rowId, weekIndex) => {
     const key = `${rowId}_${weekIndex}`;
     const value = planData[section]?.[key] || 0;
-    const levels = ['', 'bg-[#D4AF37]', 'bg-green-300', 'bg-yellow-400', 'bg-orange-500', 'bg-red-600'];
+    const levels = ['', 'bg-blue-200', 'bg-green-300', 'bg-yellow-400', 'bg-orange-500', 'bg-red-600'];
     
     return (
       <td
@@ -1782,7 +1782,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     return single ? [single] : [];
   };
 
-  const renderBooleanCell = (section, rowId, weekIndex, activeColor = 'bg-[#D4AF37]', label = '') => {
+  const renderBooleanCell = (section, rowId, weekIndex, activeColor = 'bg-blue-500', label = '') => {
     const key = `${rowId}_${weekIndex}`;
     const dates = getCellDates(section, rowId, weekIndex);
     const isActive = !!planData[section]?.[key] || dates.length > 0;
@@ -2031,7 +2031,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
@@ -2039,7 +2039,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   return (
     <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-white overflow-auto p-4' : ''}`}>
       <Card className="shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] text-white rounded-t-lg">
+        <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-t-lg">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-6 h-6" />{t('graphicPlan.plan_grafico_de_periodizacion')}</CardTitle>
@@ -2099,7 +2099,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
               </Button>
               <Button
                 size="sm"
-                className="bg-[#D4AF37] hover:bg-[#D4AF37]"
+                className="bg-indigo-500 hover:bg-indigo-600"
                 onClick={handleExportAsImage}
                 disabled={exportingImage}
                 data-testid="export-image-btn"
@@ -2123,11 +2123,11 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
         <CardContent className="p-4" data-testid="graphic-plan-content">
           {/* Modo Equipo: las fechas se replican a todos los atletas del equipo */}
           {Array.isArray(teamAthleteIds) && teamAthleteIds.length > 0 && (
-            <div className="mb-4 p-3 rounded-lg border border-[#B8912A] bg-[#D4AF37] flex items-start gap-3" data-testid="graphic-team-mode-banner">
-              <Users className="w-5 h-5 text-[#B8912A] flex-shrink-0 mt-0.5" />
+            <div className="mb-4 p-3 rounded-lg border border-blue-300 bg-blue-50 flex items-start gap-3" data-testid="graphic-team-mode-banner">
+              <Users className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-bold text-[#B8912A]">Modo Equipo{teamName ? ` · ${teamName}` : ''}</p>
-                <p className="text-xs text-[#B8912A]">Las fechas de Eventos/Competencias y Monitoreo que asignes se replicarán al calendario de los {teamAthleteIds.length} atletas del equipo.</p>
+                <p className="text-sm font-bold text-blue-800">Modo Equipo{teamName ? ` · ${teamName}` : ''}</p>
+                <p className="text-xs text-blue-700">Las fechas de Eventos/Competencias y Monitoreo que asignes se replicarán al calendario de los {teamAthleteIds.length} atletas del equipo.</p>
               </div>
             </div>
           )}
@@ -2296,7 +2296,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                   </td>
                   {displayedWeeks.map(week => {
                     const typeId = planData.periods?.[week];
-                    const colors = { preparatorio: 'bg-[#D4AF37]', competitivo: 'bg-green-200', transicion: 'bg-orange-200' };
+                    const colors = { preparatorio: 'bg-blue-200', competitivo: 'bg-green-200', transicion: 'bg-orange-200' };
                     const labels = { preparatorio: 'Prep', competitivo: 'Comp', transicion: 'Trans' };
                     return (
                       <td
@@ -2345,8 +2345,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 </tr>
 
                 {/* CYCLE SECTION */}
-                <tr className="bg-[#D4AF37]">
-                  <td colSpan={displayedWeeks.length + 1} className="px-2 py-1 font-bold text-[#B8912A] border border-gray-300">
+                <tr className="bg-blue-50">
+                  <td colSpan={displayedWeeks.length + 1} className="px-2 py-1 font-bold text-blue-800 border border-gray-300">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
                       Ciclo
@@ -2427,7 +2427,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                       if (microsCount === 0) return;
                       const mesoWeeks = Array.from({ length: microsCount }, (_, idx) => weekCounter + idx);
                       const startWeek = mesoWeeks[0];
-                      const colorPalette = ['#10b981', '#D4AF37', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+                      const colorPalette = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
                       const fallbackColor = colorPalette[(mi * 3 + mei) % colorPalette.length];
                       mesoWeeks.forEach(w => {
                         weekToMeso[w] = {
@@ -2598,7 +2598,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                   </td>
                   {displayedWeeks.map(week => {
                     const checks = MONITORING_AREAS.filter(a => planData.monitoring?.[`${a.id}_${week}`]);
-                    const colors = { medical: '#DC2626', anthropometric: '#06B6D4', physical: '#EA580C', biomechanical: '#10B981', technical: '#CA8A04', tactical: '#16A34A', psychological: '#D4AF37', theoretical: '#9333EA' };
+                    const colors = { medical: '#DC2626', anthropometric: '#06B6D4', physical: '#EA580C', biomechanical: '#10B981', technical: '#CA8A04', tactical: '#16A34A', psychological: '#2563EB', theoretical: '#9333EA' };
                     return (
                       <td key={`mon-${week}`} className="border border-gray-300 p-0 text-center" style={{ height: 24 }}>
                         {checks.length > 0 && (
@@ -2615,7 +2615,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
                 {/* MONITORING AREA sub-rows with colored squares */}
                 {MONITORING_AREAS.map(area => {
-                  const monColors = { medical: 'bg-red-500', anthropometric: 'bg-cyan-500', physical: 'bg-orange-500', biomechanical: 'bg-emerald-500', technical: 'bg-yellow-500', tactical: 'bg-green-500', psychological: 'bg-[#D4AF37]', theoretical: 'bg-purple-500' };
+                  const monColors = { medical: 'bg-red-500', anthropometric: 'bg-cyan-500', physical: 'bg-orange-500', biomechanical: 'bg-emerald-500', technical: 'bg-yellow-500', tactical: 'bg-green-500', psychological: 'bg-blue-500', theoretical: 'bg-purple-500' };
                   return (
                     <tr key={`mon-${area.id}`} className="bg-cyan-50/50">
                       <td className="sticky left-0 bg-cyan-50/50 px-2 py-0 text-[10px] border border-gray-300 z-10 pl-4" style={{ width: 160 }}>
@@ -2643,14 +2643,14 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                     data: loadChartDataFull,
                     dataKeys: [
                       { key: 'carga', name: 'Carga %', color: '#EF4444' },
-                      { key: 'recuperacion', name: 'Recuperacion %', color: '#D4AF37' }
+                      { key: 'recuperacion', name: 'Recuperacion %', color: '#3B82F6' }
                     ],
                     chartType: 'bar',
                     yAxisDomain: [0, 100]
                   }}
                 />
                 <InlineChartRow label="Carga %" data={loadChartData} dataKey="carga" color="#EF4444" maxVal={100} onCellClick={handleCellClick} section="load_chart" />
-                <InlineChartRow label="Recuperación %" data={loadChartData} dataKey="recuperacion" color="#D4AF37" maxVal={100} onCellClick={handleCellClick} section="load_chart" />
+                <InlineChartRow label="Recuperación %" data={loadChartData} dataKey="recuperacion" color="#3B82F6" maxVal={100} onCellClick={handleCellClick} section="load_chart" />
 
                 {/* CHART 2: Volumen, Intensidad y Densidad */}
                 <ChartSectionHeader
@@ -2677,14 +2677,14 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 <ChartSectionHeader
                   title={t('graphicPlan.preparacion_por_componentes')}
                   icon={Dumbbell}
-                  bgColor="bg-[#D4AF37]"
-                  textColor="text-[#B8912A]"
+                  bgColor="bg-indigo-50"
+                  textColor="text-indigo-800"
                   chartConfig={{
                     title: 'Preparacion por Componentes',
                     icon: Dumbbell,
                     data: preparationChartDataFull,
                     dataKeys: [
-                      { key: 'general_physical', name: 'Física General', color: '#D4AF37' },
+                      { key: 'general_physical', name: 'Física General', color: '#2563EB' },
                       { key: 'specific_physical', name: 'Física Específica', color: '#6366F1' },
                       { key: 'technical', name: 'Técnica', color: '#16A34A' },
                       { key: 'tactical', name: 'Táctica', color: '#F59E0B' },
@@ -2695,7 +2695,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                     yAxisDomain: [0, 100]
                   }}
                 />
-                <InlineChartRow label="Física General" data={preparationChartData} dataKey="general_physical" color="#D4AF37" maxVal={100} onCellClick={handleCellClick} section="preparation" />
+                <InlineChartRow label="Física General" data={preparationChartData} dataKey="general_physical" color="#2563EB" maxVal={100} onCellClick={handleCellClick} section="preparation" />
                 <InlineChartRow label="Física Específica" data={preparationChartData} dataKey="specific_physical" color="#6366F1" maxVal={100} onCellClick={handleCellClick} section="preparation" />
                 <InlineChartRow label="Técnica" data={preparationChartData} dataKey="technical" color="#16A34A" maxVal={100} onCellClick={handleCellClick} section="preparation" />
                 <InlineChartRow label="Táctica" data={preparationChartData} dataKey="tactical" color="#F59E0B" maxVal={100} onCellClick={handleCellClick} section="preparation" />
@@ -2717,7 +2717,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                       { key: 'strength', name: 'Fuerza', color: '#EA580C' },
                       { key: 'speed', name: 'Velocidad', color: '#CA8A04' },
                       { key: 'coordination', name: 'Coordinación', color: '#16A34A' },
-                      { key: 'flexibility', name: 'Flexibilidad', color: '#D4AF37' }
+                      { key: 'flexibility', name: 'Flexibilidad', color: '#3B82F6' }
                     ]),
                     chartType: 'line',
                     yAxisDomain: anyValueMode(PHYS_UNIT_ROWS) ? [0, 'auto'] : [0, 100]
@@ -2727,7 +2727,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                 <InlineChartRow label="Fuerza" data={physicalChartData} dataKey="strength" color="#EA580C" maxVal={100} onCellClick={handleCellClick} section="physical" enableUnits />
                 <InlineChartRow label="Velocidad" data={physicalChartData} dataKey="speed" color="#CA8A04" maxVal={100} onCellClick={handleCellClick} section="physical" enableUnits />
                 <InlineChartRow label="Coordinación" data={physicalChartData} dataKey="coordination" color="#16A34A" maxVal={100} onCellClick={handleCellClick} section="physical" enableUnits />
-                <InlineChartRow label="Flexibilidad" data={physicalChartData} dataKey="flexibility" color="#D4AF37" maxVal={100} onCellClick={handleCellClick} section="physical" enableUnits />
+                <InlineChartRow label="Flexibilidad" data={physicalChartData} dataKey="flexibility" color="#3B82F6" maxVal={100} onCellClick={handleCellClick} section="physical" enableUnits />
 
                 {/* CHART 4: Duración y Actividad Semanal */}
                 <ChartSectionHeader
@@ -2741,7 +2741,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                     data: durationChartDataFull,
                     dataKeys: [
                       { key: 'calentamiento', name: 'Calentamiento', color: '#FBBF24' },
-                      { key: 'principal', name: 'Parte principal', color: '#D4AF37' },
+                      { key: 'principal', name: 'Parte principal', color: '#3B82F6' },
                       { key: 'vueltaCalma', name: 'Vuelta a la calma', color: '#14B8A6' }
                     ],
                     chartType: 'bar',
@@ -2749,7 +2749,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                   }}
                 />
                 <InlineChartRow label="Calentamiento (min)" data={durationChartData} dataKey="calentamiento" color="#FBBF24" maxVal="auto" editableValue onEditValue={setDurationValue} />
-                <InlineChartRow label="Parte principal (min)" data={durationChartData} dataKey="principal" color="#D4AF37" maxVal="auto" editableValue onEditValue={setDurationValue} />
+                <InlineChartRow label="Parte principal (min)" data={durationChartData} dataKey="principal" color="#3B82F6" maxVal="auto" editableValue onEditValue={setDurationValue} />
                 <InlineChartRow label="Vuelta a la calma (min)" data={durationChartData} dataKey="vueltaCalma" color="#14B8A6" maxVal="auto" editableValue onEditValue={setDurationValue} />
 
               </tbody>
@@ -2761,8 +2761,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
             <DialogContent className="max-w-3xl p-0 overflow-hidden">
               <div className="px-5 py-3 border-b border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#D4AF37]/15 border border-[#D4AF37]/40 flex items-center justify-center">
-                    <BarChart3 className="w-5 h-5 text-[#D4AF37]" />
+                  <div className="w-9 h-9 rounded-lg bg-[#CCFF00]/15 border border-[#CCFF00]/40 flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-[#CCFF00]" />
                   </div>
                   <div>
                     <h3 className="font-bold text-base tracking-tight">{t('graphicPlan.proyeccion_mev_mav_mrv')}</h3>
@@ -2824,7 +2824,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                   let lastPhase = null;
                   let bandStart = 0;
                   const phaseColors = {
-                    preparatory_general: '#D4AF37', preparatory_specific: '#8B5CF6',
+                    preparatory_general: '#3B82F6', preparatory_specific: '#8B5CF6',
                     precompetitive: '#F59E0B', competitive: '#10B981', transition: '#94A3B8'
                   };
                   for (let w = 1; w <= totalWeeks; w++) {
@@ -2924,7 +2924,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       <Dialog open={!!shareUrlModal} onOpenChange={() => setShareUrlModal(null)}>
         <DialogContent className="max-w-md p-0 overflow-hidden">
           <div className="px-5 py-3 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
-            <h3 className="font-bold text-base flex items-center gap-2"><Share2 className="w-4 h-4 text-[#D4AF37]" /> Enlace de la gráfica</h3>
+            <h3 className="font-bold text-base flex items-center gap-2"><Share2 className="w-4 h-4 text-[#CCFF00]" /> Enlace de la gráfica</h3>
             <p className="text-[11px] text-slate-300">Copia este enlace para compartir (solo lectura).</p>
           </div>
           <div className="p-4 space-y-3">
@@ -2951,8 +2951,8 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
             <>
               <div className="px-6 py-3 border-b border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#D4AF37]/15 border border-[#D4AF37]/40 flex items-center justify-center">
-                    {expandedChart.icon && <expandedChart.icon className="w-5 h-5 text-[#D4AF37]" />}
+                  <div className="w-10 h-10 rounded-xl bg-[#CCFF00]/15 border border-[#CCFF00]/40 flex items-center justify-center">
+                    {expandedChart.icon && <expandedChart.icon className="w-5 h-5 text-[#CCFF00]" />}
                   </div>
                   <div>
                     <h3 className="font-bold text-lg tracking-tight">{expandedChart.title}</h3>

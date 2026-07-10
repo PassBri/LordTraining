@@ -13,7 +13,7 @@ const CustomTooltip = ({ active, payload }) => {
     <div className="bg-white rounded-xl shadow-xl border border-slate-200 p-3 min-w-[160px]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
       <div className="text-[12px] font-bold text-slate-800 mb-1.5">{d.capacidad}</div>
       <div className="space-y-1 text-[10px]">
-        <div className="flex justify-between"><span className="text-[#B8912A]">Actual</span><span className="font-bold text-[#B8912A]">{d.actual} series/sem</span></div>
+        <div className="flex justify-between"><span className="text-blue-400">Actual</span><span className="font-bold text-blue-600">{d.actual} series/sem</span></div>
         <div className="flex justify-between"><span className="text-emerald-400">MEV</span><span className="font-bold text-emerald-600">{d.MEV}</span></div>
         <div className="flex justify-between"><span className="text-cyan-400">MAV</span><span className="font-bold text-cyan-600">{d.MAV}</span></div>
         <div className="flex justify-between"><span className="text-red-400">MRV</span><span className="font-bold text-red-600">{d.MRV}</span></div>
@@ -61,7 +61,7 @@ const CapacidadRadarChart = memo(function CapacidadRadarChart() {
             <Tooltip content={<CustomTooltip />} />
             <Radar name="MRV (Limite)" dataKey="MRV" stroke="#EF4444" fill="#EF4444" fillOpacity={0.08} strokeDasharray="4 3" strokeWidth={1.5} />
             <Radar name="MAV (Objetivo)" dataKey="MAV" stroke="#10B981" fill="#10B981" fillOpacity={0.06} strokeDasharray="5 3" strokeWidth={1.5} />
-            <Radar name="Actual" dataKey="actual" stroke="#D4AF37" fill="#D4AF37" fillOpacity={0.2} strokeWidth={2} dot={{ r: 3, fill: '#D4AF37', stroke: 'white', strokeWidth: 1 }} />
+            <Radar name="Actual" dataKey="actual" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.2} strokeWidth={2} dot={{ r: 3, fill: '#3B82F6', stroke: 'white', strokeWidth: 1 }} />
             <Legend iconType="line" wrapperStyle={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif" }} />
           </RadarChart>
         </ResponsiveContainer>

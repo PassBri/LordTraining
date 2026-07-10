@@ -13,7 +13,7 @@ const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEN
 const TYPE_META = {
   medical:        { title: 'Médico',         color: '#EF4444', icon: Heart },
   anthropometric: { title: 'Antropometría',  color: '#06B6D4', icon: Ruler },
-  physical:       { title: 'Físico',         color: '#D4AF37', icon: Dumbbell },
+  physical:       { title: 'Físico',         color: '#3B82F6', icon: Dumbbell },
   biomechanical:  { title: 'Biomecánica',    color: '#10B981', icon: Activity },
   technical:      { title: 'Técnico',        color: '#8B5CF6', icon: Target },
   tactical:       { title: 'Táctico',        color: '#F59E0B', icon: Layers },
@@ -122,7 +122,7 @@ const EvaluationEvolution = ({ activePlan, athletes = [], selectedAthleteId }) =
     <div className="p-4 space-y-4 overflow-y-auto h-full bg-[#fafaf8]" data-testid="eval-evolution">
       {/* Toolbar */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex items-center gap-3 sticky top-0 z-10">
-        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-violet-500 to-[#D4AF37]">
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-violet-500 to-indigo-600">
           <TrendingUp className="w-6 h-6 text-white" />
         </div>
         <div className="flex-1">

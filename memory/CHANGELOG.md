@@ -1,5 +1,10 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-10 — Fix: revertir colores de gráficas/Datos (el re-skin dorado saturaba)
+- El remapeo azul→oro había sobre-saturado las vistas de **Datos** (filas del Plan Gráfico todas doradas) y borrado los **acentos significativos de las gráficas** (Volumen/Intensidad/Densidad, fases, ciclos).
+- **Solución**: se revirtieron al estado previo al re-skin (commit `6f58d33`) SOLO los componentes de visualización: `GraphicPlan.js`, `PeriodizationComplete.js`, `PeriodizationViews.jsx`, `PeriodizationComparator/Models/Planner/Wizard`, `TrainingLoad/Stages`, `InteractiveChart`, `DashboardGeneral`, `LoadMetricsDashboard`, `LoadPanel`, `AdvancedMetrics`, `AthleteProgress`, `EvaluationEvolution`, `ComprehensiveTrainingPlanner`, `ControlPanel` y todo `components/charts/*`. Recuperan sus colores originales (macro azul, meso cian, micro rojo/verde, fases, etc.).
+- Se **conservó** el re-skin dorado de marca en login/dashboard/navegación/botones (index.css + resto de UI) y la feature de **badges de nivel**. Se preservaron las correcciones previas de Plan Gráfico (independencia Vol/Int y Carga/Recuperación). Verificado por screenshot.
+
 ## 2026-07-10 — Badges de nivel de élite (medallas) por score de evaluación
 - **Nuevo `components/LevelBadge.jsx`** (reutilizable, `getLevel` + `LevelBadge`): mapea el score de evaluación (0-100) a un nivel con estética de medalla: 💎 Diamante (≥90), 🥇 Oro (75-89), 🥈 Plata (60-74), 🥉 Bronce (40-59), 🛡️ En desarrollo (<40). Iconos lucide distintos por nivel, gradiente metálico y glow sutil. Tamaños sm/md/lg, `showLabel`, tooltip con pts. `data-testid=level-badge-<key>`.
 - **Integración Evaluación (`EvaluationSection.js`)**: badge en la tarjeta hero '% Promedio' (usa `globalAvg`), visible cuando hay aspectos con valor (`data-testid=eval-level-badge`).

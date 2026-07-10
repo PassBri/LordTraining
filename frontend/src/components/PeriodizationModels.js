@@ -322,14 +322,14 @@ const PeriodizationModels = ({ athleteId }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="bg-gradient-to-r from-[#D4AF37] to-purple-700 text-white p-8 rounded-xl shadow-lg">
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-8 rounded-xl shadow-lg">
         <h1 className="text-2xl md:text-3xl font-bold mb-3">Modelos de Periodización</h1>
         <p className="opacity-90 text-sm md:text-base">
           Selecciona y personaliza el modelo de periodización según la metodología del entrenamiento deportivo
@@ -338,7 +338,7 @@ const PeriodizationModels = ({ athleteId }) => {
 
       <Tabs value={selectedModel} onValueChange={setSelectedModel} className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-8">
-          <TabsTrigger value="traditional" className="data-[state=active]:bg-[#D4AF37]" data-testid="tab-traditional">
+          <TabsTrigger value="traditional" className="data-[state=active]:bg-blue-100" data-testid="tab-traditional">
             <LayoutPanelTop className="h-4 w-4 mr-2" />
             <span className="hidden sm:inline">Tradicional</span>
             <span className="sm:hidden">Trad.</span>
@@ -356,9 +356,9 @@ const PeriodizationModels = ({ athleteId }) => {
 
         {/* MODELO TRADICIONAL */}
         <TabsContent value="traditional" className="space-y-6">
-          <div className="bg-[#D4AF37] p-4 rounded-lg mb-6">
-            <h3 className="font-semibold text-[#B8912A] mb-2">Modelo Tradicional (Matveyev)</h3>
-            <p className="text-sm text-[#B8912A]">
+          <div className="bg-blue-50 p-4 rounded-lg mb-6">
+            <h3 className="font-semibold text-blue-800 mb-2">Modelo Tradicional (Matveyev)</h3>
+            <p className="text-sm text-blue-700">
               Basado en la periodización clásica con fases bien diferenciadas: preparación general, 
               específica, competitiva y transitoria. Ideal para deportes con una competencia principal anual.
             </p>
@@ -366,8 +366,8 @@ const PeriodizationModels = ({ athleteId }) => {
           
           {Object.entries(planData.traditional.phases).map(([phase, phaseData]) => (
             <Card key={phase} className="border-l-4 border-l-blue-500 shadow-md">
-              <CardHeader className="bg-[#D4AF37]">
-                <CardTitle className="flex items-center gap-2 text-[#B8912A]">
+              <CardHeader className="bg-blue-50">
+                <CardTitle className="flex items-center gap-2 text-blue-700">
                   <Target className="h-5 w-5" />
                   {phaseLabels[phase] || phase}
                 </CardTitle>
@@ -484,7 +484,7 @@ const PeriodizationModels = ({ athleteId }) => {
           Restablecer
         </Button>
         <Button 
-          className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white gap-2"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
           onClick={handleSave}
           disabled={saving}
           data-testid="save-periodization-btn"

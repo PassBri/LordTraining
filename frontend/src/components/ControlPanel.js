@@ -29,7 +29,7 @@ import { useShallow } from 'zustand/react/shallow';
 // Capacidad → color (igual que en Plan Gráfico / SessionCalendar)
 const CAP_COLORS = {
   fuerza: '#F97316', resistencia: '#EF4444', velocidad: '#EAB308',
-  flexibilidad: '#D4AF37', coordinacion: '#10B981', tecnica: '#8B5CF6',
+  flexibilidad: '#3B82F6', coordinacion: '#10B981', tecnica: '#8B5CF6',
   tactica: '#EC4899', recuperacion: '#06B6D4', default: '#64748B',
 };
 const capColor = (cap) => {
@@ -43,37 +43,37 @@ const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEN
 
 // Colores para gráficos
 const COLORS = {
-  primary: '#D4AF37',
+  primary: '#3B82F6',
   secondary: '#10B981',
   accent: '#F59E0B',
   danger: '#EF4444',
   purple: '#8B5CF6',
   pink: '#EC4899',
   phases: {
-    'Prep. General': '#D4AF37',
+    'Prep. General': '#3B82F6',
     'Prep. Específico': '#10B981',
     'Precompetitivo': '#F59E0B',
     'Competitivo': '#EF4444',
     'Transición': '#8B5CF6',
-    'preparatory_general': '#D4AF37',
+    'preparatory_general': '#3B82F6',
     'preparatory_specific': '#10B981',
     'precompetitive': '#F59E0B',
     'competitive': '#EF4444',
     'transition': '#8B5CF6',
     // Nombres adicionales para bloques
     'Bloque Competitivo': '#EF4444',
-    'Bloque de Fuerza': '#D4AF37',
+    'Bloque de Fuerza': '#3B82F6',
     'Bloque de Potencia': '#F59E0B',
     'Bloque de Velocidad': '#10B981',
     'Preparatorio General': '#6366F1',
     'Preparatorio Específico': '#14B8A6',
-    'General': '#D4AF37',
+    'General': '#3B82F6',
     'Específico': '#10B981'
   }
 };
 
 // Array de colores para distribución cuando no hay coincidencia
-const PHASE_COLORS = ['#D4AF37', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#6366F1'];
+const PHASE_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#6366F1'];
 
 // Mensajes motivacionales
 const MOTIVATIONAL_MESSAGES = [
@@ -301,7 +301,7 @@ const ControlPanel = ({
 
     // Objetivos reales del plan (corto/mediano/largo plazo + por aspecto)
     const ASPECT_LABELS = { general: 'General', fisicaGeneral: 'Física general', fisicaEspecial: 'Física especial', tecnica: 'Técnica', tactica: 'Táctica', psicologica: 'Psicológica', teorica: 'Teórica', reglamento: 'Reglamento' };
-    const TERM_COLORS = { 'Corto plazo': '#F59E0B', 'Mediano plazo': '#10B981', 'Largo plazo': '#D4AF37' };
+    const TERM_COLORS = { 'Corto plazo': '#F59E0B', 'Mediano plazo': '#10B981', 'Largo plazo': '#3B82F6' };
     fetch(`${API_URL}/api/plan-data/objectives/${planId}`, { headers })
       .then(r => r.ok ? r.json() : null)
       .then(obj => {
@@ -1026,7 +1026,7 @@ const ControlPanel = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-11 h-11 bg-slate-900 rounded-xl flex items-center justify-center">
-                <LayoutDashboard className="w-5 h-5 text-[#D4AF37]" />
+                <LayoutDashboard className="w-5 h-5 text-[#CCFF00]" />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-slate-900">{t('dashboard.controlPanel.title')}</h2>
@@ -1132,7 +1132,7 @@ const ControlPanel = ({
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                   trainingLoadRatio.status === 'optimal' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
                   trainingLoadRatio.status === 'warning' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                  trainingLoadRatio.status === 'danger' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-[#D4AF37] text-[#B8912A] border border-[#B8912A]'
+                  trainingLoadRatio.status === 'danger' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-blue-50 text-blue-700 border border-blue-200'
                 }`}>
                   {trainingLoadRatio.status === 'optimal' ? t('dashboard.controlPanel.statusOptimal') :
                    trainingLoadRatio.status === 'warning' ? t('dashboard.controlPanel.statusWarning') :
@@ -1228,7 +1228,7 @@ const ControlPanel = ({
 
             {/* Total Planes */}
             <Card 
-              className="bg-white border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-[#B8912A] transition-all duration-200"
+              className="bg-white border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-blue-200 transition-all duration-200"
               onClick={() => onNavigate && onNavigate('datos', null)}
               data-testid="plans-stat-card"
             >
@@ -1238,7 +1238,7 @@ const ControlPanel = ({
                     <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">{t('dashboard.controlPanel.myPlans')}</p>
                     <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>{trainingPlans.length}</p>
                   </div>
-                  <div className="w-9 h-9 bg-[#D4AF37] rounded-lg flex items-center justify-center">
+                  <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
                     <Activity className="w-4 h-4 text-[#007AFF]" />
                   </div>
                 </div>
@@ -1247,7 +1247,7 @@ const ControlPanel = ({
 
             {/* Total Atletas */}
             <Card 
-              className="bg-white border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-[#B8912A] transition-all duration-200"
+              className="bg-white border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-blue-200 transition-all duration-200"
               onClick={() => onNavigate && onNavigate('datos', 'athletes')}
               data-testid="athletes-stat-card"
             >
@@ -1266,7 +1266,7 @@ const ControlPanel = ({
 
             {/* Eventos */}
             <Card 
-              className="bg-white border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-[#B8912A] transition-all duration-200"
+              className="bg-white border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-blue-200 transition-all duration-200"
               onClick={() => onNavigate && onNavigate('datos', 'competitions')}
               data-testid="events-stat-card"
             >
@@ -1321,7 +1321,7 @@ const ControlPanel = ({
                     <p className="text-slate-400 text-[11px] font-medium uppercase tracking-wider">{t('dashboard.controlPanel.adherence')}</p>
                     <p className="text-2xl font-bold mt-0.5 text-slate-900" style={{fontFamily:"'Barlow Condensed',sans-serif"}}>{panelStats?.completion_rate || 92}%</p>
                   </div>
-                  <div className="w-9 h-9 bg-[#D4AF37] rounded-lg flex items-center justify-center">
+                  <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
                     <TrendingUp className="w-4 h-4 text-[#007AFF]" />
                   </div>
                 </div>
@@ -1457,7 +1457,7 @@ const ControlPanel = ({
           <Card className="shadow-lg border-0 bg-white" data-testid="panel-objectives">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <Target className="w-5 h-5 text-[#B8912A]" />
+                <Target className="w-5 h-5 text-blue-500" />
                 {t('dashboard.controlPanel.objectivesTitle')}
               </CardTitle>
             </CardHeader>
@@ -1482,7 +1482,7 @@ const ControlPanel = ({
                     <span className="text-sm text-slate-700">{obj.text}</span>
                     {obj.indicador && <p className="text-xs text-slate-400 mt-0.5">📊 {obj.indicador}</p>}
                   </div>
-                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#B8912A] flex-shrink-0 mt-1 transition-colors" />
+                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-500 flex-shrink-0 mt-1 transition-colors" />
                 </button>
               ))}
             </CardContent>
@@ -1676,7 +1676,7 @@ const ControlPanel = ({
                       <button
                         key={d}
                         onClick={() => daySessions.length > 0 && setSelectedCalendarDay({ date: dateObj, sessions: daySessions })}
-                        className={`relative w-9 h-9 rounded-lg flex items-center justify-center text-xs font-medium transition-all ${cls} ${daySessions.length > 0 ? 'cursor-pointer hover:scale-110' : 'cursor-default'} ${isToday ? 'ring-2 ring-[#B8912A]' : ''}`}
+                        className={`relative w-9 h-9 rounded-lg flex items-center justify-center text-xs font-medium transition-all ${cls} ${daySessions.length > 0 ? 'cursor-pointer hover:scale-110' : 'cursor-default'} ${isToday ? 'ring-2 ring-blue-400' : ''}`}
                         title={daySessions.length > 0 ? `${daySessions.length} ${t('dashboard.controlPanel.sessionCount')} · ${status === 'completed' ? t('dashboard.controlPanel.legendCompleted') : status === 'missed' ? t('dashboard.controlPanel.legendMissed') : t('dashboard.controlPanel.legendScheduled')}` : t('dashboard.controlPanel.noSession')}
                         data-testid={`panel-day-${dateStr}`}
                       >
@@ -1786,7 +1786,7 @@ const ControlPanel = ({
                         {pr.value}<span className="text-sm text-slate-500 ml-1">{pr.unit}</span>
                       </p>
                       {pr.improvement && (
-                        <p className={`text-xs font-medium flex items-center justify-end gap-1 ${String(pr.improvement).startsWith('-') ? 'text-[#B8912A]' : 'text-emerald-600'}`}>
+                        <p className={`text-xs font-medium flex items-center justify-end gap-1 ${String(pr.improvement).startsWith('-') ? 'text-blue-600' : 'text-emerald-600'}`}>
                           <ArrowUpRight className="w-3 h-3" />
                           {pr.improvement}
                         </p>
@@ -1806,7 +1806,7 @@ const ControlPanel = ({
         <DialogContent className="max-w-md bg-white" data-testid="panel-day-detail-modal">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 capitalize">
-              <CalendarDays className="w-5 h-5 text-[#B8912A]" />
+              <CalendarDays className="w-5 h-5 text-blue-600" />
               {selectedCalendarDay && selectedCalendarDay.date.toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </DialogTitle>
           </DialogHeader>
@@ -1829,8 +1829,8 @@ const ControlPanel = ({
                   {(macro || meso || micro) && (
                     <div className="mt-2 mb-2 flex flex-wrap items-center gap-1.5 text-[10px]">
                       {macro && <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 font-semibold uppercase tracking-wider">M{macro.numero}: {macro.nombre || 'Macro'}</span>}
-                      {meso && <span className="px-2 py-0.5 rounded-full bg-[#D4AF37] text-[#B8912A] font-semibold uppercase tracking-wider">{meso.tipo || meso.nombre || `Meso ${meso.numero}`}</span>}
-                      {micro && <span className="px-2 py-0.5 rounded-full bg-[#D4AF37] text-[#B8912A] font-semibold uppercase tracking-wider">{t('sessionCalendar.week')} {micro.numero_semana} · {micro.tipo || 'choque'}</span>}
+                      {meso && <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold uppercase tracking-wider">{meso.tipo || meso.nombre || `Meso ${meso.numero}`}</span>}
+                      {micro && <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold uppercase tracking-wider">{t('sessionCalendar.week')} {micro.numero_semana} · {micro.tipo || 'choque'}</span>}
                     </div>
                   )}
                   <div className="grid grid-cols-2 gap-2 text-[11px]">
@@ -1853,7 +1853,7 @@ const ControlPanel = ({
                   {s.notas && <p className="mt-2 text-[12px] text-slate-600 italic leading-snug border-l-2 border-slate-200 pl-2">"{s.notas}"</p>}
                   <Button
                     onClick={() => { setSelectedCalendarDay(null); onNavigate && onNavigate('datos', 'period-structure', { week: micro?.numero_semana, date: s.fecha, sessionName: s.nombre }); }}
-                    variant="ghost" size="sm" className="mt-3 w-full text-[11px] text-[#B8912A] hover:bg-[#D4AF37] h-8"
+                    variant="ghost" size="sm" className="mt-3 w-full text-[11px] text-blue-700 hover:bg-blue-50 h-8"
                     data-testid={`panel-open-session-${s.id}`}
                   >
                     <Activity className="w-3 h-3 mr-1.5" /> {t('sessionCalendar.openInPeriodization')} →
@@ -1888,7 +1888,7 @@ const ControlPanel = ({
                   onCheckedChange={(checked) => setExportOptions({...exportOptions, include_summary: checked})}
                 />
                 <Label htmlFor="summary" className="flex items-center gap-2 cursor-pointer">
-                  <BarChart3 className="w-4 h-4 text-[#B8912A]" />
+                  <BarChart3 className="w-4 h-4 text-blue-500" />
                   {t('dashboard.controlPanel.exportSummary')}
                 </Label>
               </div>

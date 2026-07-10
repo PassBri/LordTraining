@@ -22,7 +22,7 @@ const CustomTooltip = ({ active, payload }) => {
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px]">
         <div><span className="text-slate-400">Carga diaria</span> <span className="font-bold text-slate-700">{d.carga_diaria}</span></div>
-        <div><span className="text-slate-400">Aguda (7d)</span> <span className="font-bold text-[#B8912A]">{d.carga_aguda}</span></div>
+        <div><span className="text-slate-400">Aguda (7d)</span> <span className="font-bold text-blue-600">{d.carga_aguda}</span></div>
         <div><span className="text-slate-400">Cronica (28d)</span> <span className="font-bold text-slate-500">{d.carga_cronica}</span></div>
       </div>
     </div>
@@ -72,7 +72,7 @@ const ACWRChart = memo(function ACWRChart() {
             {/* Barras carga diaria */}
             <Bar yAxisId="left" dataKey="carga_diaria" fill="#CBD5E1" radius={[2, 2, 0, 0]} maxBarSize={8} />
             {/* Linea aguda 7d */}
-            <Line yAxisId="left" type="monotone" dataKey="carga_aguda" stroke="#D4AF37" strokeWidth={2} dot={false} />
+            <Line yAxisId="left" type="monotone" dataKey="carga_aguda" stroke="#3B82F6" strokeWidth={2} dot={false} />
             {/* Linea cronica 28d */}
             <Line yAxisId="left" type="monotone" dataKey="carga_cronica" stroke="#94A3B8" strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
             {/* Linea ACWR */}

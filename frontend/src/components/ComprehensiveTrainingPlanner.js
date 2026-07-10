@@ -49,7 +49,7 @@ const cycles = {
   macro: {
     title: "Macrociclos",
     types: [
-      { id: "preparatorio", name: "Preparatorio", color: "bg-[#D4AF37] border-[#B8912A]" },
+      { id: "preparatorio", name: "Preparatorio", color: "bg-blue-100 border-blue-300" },
       { id: "precompetitivo", name: "Precompetitivo", color: "bg-yellow-100 border-yellow-300" },
       { id: "competitivo", name: "Competitivo", color: "bg-green-100 border-green-300" },
       { id: "transicion", name: "Transición", color: "bg-orange-100 border-orange-300" }
@@ -59,9 +59,9 @@ const cycles = {
     title: "Mesociclos",
     types: [
       { id: "entrante", name: "Entrante", color: "bg-slate-100 border-slate-300" },
-      { id: "basico-desarrollador", name: "Básico Desarrollador", color: "bg-[#D4AF37] border-[#B8912A]" },
+      { id: "basico-desarrollador", name: "Básico Desarrollador", color: "bg-blue-100 border-blue-300" },
       { id: "basico-estabilizador", name: "Básico Estabilizador", color: "bg-cyan-100 border-cyan-300" },
-      { id: "prep-control", name: "Preparatorio de Control", color: "bg-[#D4AF37] border-[#B8912A]" },
+      { id: "prep-control", name: "Preparatorio de Control", color: "bg-indigo-100 border-indigo-300" },
       { id: "precompetitivo", name: "Precompetitivo", color: "bg-yellow-100 border-yellow-300" },
       { id: "competitivo", name: "Competitivo", color: "bg-green-100 border-green-300" },
       { id: "recuperacion", name: "Recuperación", color: "bg-purple-100 border-purple-300" }
@@ -71,7 +71,7 @@ const cycles = {
     title: "Microciclos",
     types: [
       { id: "corriente", name: "Corriente", color: "bg-gray-100 border-gray-300" },
-      { id: "carga", name: "Carga", color: "bg-[#D4AF37] border-[#B8912A]" },
+      { id: "carga", name: "Carga", color: "bg-blue-100 border-blue-300" },
       { id: "choque", name: "Choque", color: "bg-red-100 border-red-300" },
       { id: "competitivo", name: "Competitivo", color: "bg-green-100 border-green-300" },
       { id: "aproximacion", name: "Aproximación", color: "bg-yellow-100 border-yellow-300" },
@@ -231,7 +231,7 @@ const ComprehensiveTrainingPlanner = ({ athleteId }) => {
     toast.info('Plan restablecido');
   };
 
-  const SectionHeader = ({ title, icon: Icon, section, color = "text-[#B8912A]" }) => (
+  const SectionHeader = ({ title, icon: Icon, section, color = "text-blue-700" }) => (
     <button
       onClick={() => toggleSection(section)}
       className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
@@ -247,7 +247,7 @@ const ComprehensiveTrainingPlanner = ({ athleteId }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
@@ -265,13 +265,13 @@ const ComprehensiveTrainingPlanner = ({ athleteId }) => {
                   key={key}
                   onClick={() => setSelectedPlanType(key)}
                   className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
-                    selectedPlanType === key ? 'border-[#B8912A] bg-[#D4AF37]' : 'border-gray-200 hover:border-gray-300'
+                    selectedPlanType === key ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
                   }`}
                   data-testid={`plan-type-${key}`}
                 >
-                  <Icon className={`h-5 w-5 ${selectedPlanType === key ? 'text-[#B8912A]' : 'text-gray-500'}`} />
+                  <Icon className={`h-5 w-5 ${selectedPlanType === key ? 'text-blue-600' : 'text-gray-500'}`} />
                   <div className="text-left">
-                    <div className={`font-semibold text-sm ${selectedPlanType === key ? 'text-[#B8912A]' : 'text-gray-700'}`}>
+                    <div className={`font-semibold text-sm ${selectedPlanType === key ? 'text-blue-700' : 'text-gray-700'}`}>
                       {type.title}
                     </div>
                     <div className="text-xs text-gray-500">{type.description}</div>
@@ -397,7 +397,7 @@ const ComprehensiveTrainingPlanner = ({ athleteId }) => {
                 return (
                   <div key={comp.id} className="p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <Icon className="h-4 w-4 text-[#B8912A]" />
+                      <Icon className="h-4 w-4 text-blue-600" />
                       <span className="font-medium text-sm text-gray-800">{comp.title}</span>
                     </div>
                     <Select
@@ -470,7 +470,7 @@ const ComprehensiveTrainingPlanner = ({ athleteId }) => {
         <Button variant="outline" className="gap-2" onClick={handleReset} data-testid="reset-plan-btn">
           <RefreshCw className="h-4 w-4" /> Restablecer
         </Button>
-        <Button className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white gap-2" onClick={handleSave} disabled={saving} data-testid="save-plan-btn">
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2" onClick={handleSave} disabled={saving} data-testid="save-plan-btn">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           Guardar Plan
         </Button>

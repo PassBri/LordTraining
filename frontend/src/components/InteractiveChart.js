@@ -15,7 +15,7 @@ import {
 
 // Colores predefinidos para las series
 const SERIES_COLORS = {
-  volumen: '#D4AF37',
+  volumen: '#3B82F6',
   intensidad: '#EF4444',
   densidad: '#10B981',
   recuperacion: '#8B5CF6',
@@ -26,7 +26,7 @@ const SERIES_COLORS = {
 
 // Configuración de gradientes para gráficos de área
 const GRADIENTS = {
-  volumen: { start: '#D4AF37', end: '#D4AF3740' },
+  volumen: { start: '#3B82F6', end: '#3B82F640' },
   intensidad: { start: '#EF4444', end: '#EF444440' },
   densidad: { start: '#10B981', end: '#10B98140' },
   recuperacion: { start: '#8B5CF6', end: '#8B5CF640' },
@@ -286,7 +286,7 @@ const InteractiveChart = ({
       tooltip: <Tooltip 
         content={<CustomTooltip />} 
         cursor={{ 
-          stroke: isFullscreenMode ? '#D4AF37' : '#D4AF37', 
+          stroke: isFullscreenMode ? '#60A5FA' : '#3B82F6', 
           strokeWidth: 1, 
           strokeDasharray: '4 4' 
         }}
@@ -310,7 +310,7 @@ const InteractiveChart = ({
         <Brush 
           dataKey={xAxisKey} 
           height={40} 
-          stroke="#D4AF37"
+          stroke="#3B82F6"
           fill={isFullscreenMode ? '#1F2937' : '#EFF6FF'}
           startIndex={brushRange.startIndex}
           endIndex={brushRange.endIndex}
@@ -323,8 +323,8 @@ const InteractiveChart = ({
             <Area 
               type="monotone" 
               dataKey={dataKeys[0]?.key || 'value'} 
-              stroke="#D4AF3780"
-              fill="#D4AF3720"
+              stroke="#3B82F680"
+              fill="#3B82F620"
               strokeWidth={1}
             />
           </AreaChart>
@@ -338,8 +338,8 @@ const InteractiveChart = ({
         {dataKeys.map(dk => {
           const gradientKey = dk.key.toLowerCase();
           const gradient = GRADIENTS[gradientKey] || { 
-            start: dk.color || SERIES_COLORS[gradientKey] || '#D4AF37', 
-            end: (dk.color || SERIES_COLORS[gradientKey] || '#D4AF37') + '40' 
+            start: dk.color || SERIES_COLORS[gradientKey] || '#3B82F6', 
+            end: (dk.color || SERIES_COLORS[gradientKey] || '#3B82F6') + '40' 
           };
           return (
             <linearGradient key={dk.key} id={`gradient-${dk.key}`} x1="0" y1="0" x2="0" y2="1">
@@ -394,7 +394,7 @@ const InteractiveChart = ({
       return (
         <ReferenceLine
           x={crosshairData.x}
-          stroke="#D4AF37"
+          stroke="#60A5FA"
           strokeWidth={1}
           strokeDasharray="4 4"
         />
@@ -417,7 +417,7 @@ const InteractiveChart = ({
                 dataKey={dk.key}
                 name={dk.name}
                 hide={hiddenSeries.has(dk.key)}
-                fill={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#D4AF37'}
+                fill={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                 radius={[4, 4, 0, 0]}
               />
             ))}
@@ -443,9 +443,9 @@ const InteractiveChart = ({
                 dataKey={dk.key}
                 name={dk.name}
                 hide={hiddenSeries.has(dk.key)}
-                stroke={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#D4AF37'}
+                stroke={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                 strokeWidth={2}
-                dot={{ r: 4, fill: dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#D4AF37' }}
+                dot={{ r: 4, fill: dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6' }}
                 activeDot={{ r: 6, strokeWidth: 2, stroke: '#fff' }}
                 connectNulls={true}
               />
@@ -473,7 +473,7 @@ const InteractiveChart = ({
                 dataKey={dk.key}
                 name={dk.name}
                 hide={hiddenSeries.has(dk.key)}
-                stroke={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#D4AF37'}
+                stroke={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                 fill={`url(#gradient-${dk.key})`}
                 strokeWidth={2}
                 connectNulls={true}
@@ -500,7 +500,7 @@ const InteractiveChart = ({
                 dataKey={dk.key}
                 name={dk.name}
                 hide={hiddenSeries.has(dk.key)}
-                fill={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#D4AF37'}
+                fill={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
               />
             ))}
             {renderReferenceLines()}
@@ -528,7 +528,7 @@ const InteractiveChart = ({
                     dataKey={dk.key}
                     name={dk.name}
                 hide={hiddenSeries.has(dk.key)}
-                    fill={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#D4AF37'}
+                    fill={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                     radius={[4, 4, 0, 0]}
                     opacity={idx === 1 ? 0.8 : 1}
                   />
@@ -541,9 +541,9 @@ const InteractiveChart = ({
                   dataKey={dk.key}
                   name={dk.name}
                 hide={hiddenSeries.has(dk.key)}
-                  stroke={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#D4AF37'}
+                  stroke={dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6'}
                   strokeWidth={3}
-                  dot={{ r: 4, fill: dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#D4AF37' }}
+                  dot={{ r: 4, fill: dk.color || SERIES_COLORS[dk.key.toLowerCase()] || '#3B82F6' }}
                   connectNulls={true}
                 />
               );
@@ -586,7 +586,7 @@ const InteractiveChart = ({
         size="sm" 
         className={`h-8 w-8 p-0 ${
           showCrosshair 
-            ? (isFullscreenMode ? 'bg-[#D4AF37]/20 text-[#B8912A]' : 'bg-[#D4AF37] text-[#B8912A]')
+            ? (isFullscreenMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600')
             : (isFullscreenMode ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-700')
         }`}
         onClick={() => setShowCrosshair(!showCrosshair)}
@@ -609,7 +609,7 @@ const InteractiveChart = ({
           {/* Título y controles principales */}
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-base">
-              {IconComponent && <IconComponent className="w-5 h-5 text-[#B8912A]" />}
+              {IconComponent && <IconComponent className="w-5 h-5 text-blue-500" />}
               {title}
               {showLiveIndicator && (
                 <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full ml-2">
@@ -651,7 +651,7 @@ const InteractiveChart = ({
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`h-8 w-8 p-0 ${showSettings ? 'bg-[#D4AF37] text-[#B8912A]' : 'text-slate-500 hover:text-slate-700'}`}
+                  className={`h-8 w-8 p-0 ${showSettings ? 'bg-blue-100 text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
                   onClick={() => setShowSettings(!showSettings)}
                   title={t('chart.settings')}
                 >
@@ -661,7 +661,7 @@ const InteractiveChart = ({
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-8 w-8 p-0 text-slate-500 hover:text-[#B8912A] hover:bg-[#D4AF37]"
+                  className="h-8 w-8 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50"
                   onClick={() => setIsFullscreen(true)}
                   title={t('chart.fullscreen')}
                 >
@@ -685,7 +685,7 @@ const InteractiveChart = ({
                       onClick={() => setTimeRange(range.id)}
                       className={`px-2 py-1 text-xs font-medium rounded-md transition-all ${
                         timeRange === range.id
-                          ? 'bg-white text-[#B8912A] shadow-sm'
+                          ? 'bg-white text-blue-600 shadow-sm'
                           : 'text-slate-500 hover:text-slate-700'
                       }`}
                       title={t(range.labelKey)}
@@ -710,7 +710,7 @@ const InteractiveChart = ({
                         onClick={() => setChartType(type.id)}
                         className={`flex items-center gap-1 px-1.5 py-1 rounded-md transition-all ${
                           chartType === type.id
-                            ? 'bg-white text-[#B8912A] shadow-sm'
+                            ? 'bg-white text-blue-600 shadow-sm'
                             : 'text-slate-500 hover:text-slate-700'
                         }`}
                         title={t(type.labelKey)}
@@ -748,7 +748,7 @@ const InteractiveChart = ({
                       onClick={() => setChartType(type.id)}
                       className={`flex items-center gap-1 px-1.5 py-1 rounded transition-all ${
                         chartType === type.id
-                          ? 'bg-white text-[#B8912A] shadow-sm'
+                          ? 'bg-white text-blue-600 shadow-sm'
                           : 'text-slate-400 hover:text-slate-600'
                       }`}
                       title={t(type.labelKey)}
@@ -770,7 +770,7 @@ const InteractiveChart = ({
                     onClick={() => setTimeRange(range.id)}
                     className={`px-1.5 py-0.5 text-[10px] font-medium rounded transition-all ${
                       timeRange === range.id
-                        ? 'bg-white text-[#B8912A] shadow-sm'
+                        ? 'bg-white text-blue-600 shadow-sm'
                         : 'text-slate-400 hover:text-slate-600'
                     }`}
                     title={t(range.labelKey)}
@@ -823,7 +823,7 @@ const InteractiveChart = ({
           {/* Header del modal fullscreen */}
           <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700">
             <div className="flex items-center gap-4">
-              {IconComponent && <IconComponent className="w-6 h-6 text-[#B8912A]" />}
+              {IconComponent && <IconComponent className="w-6 h-6 text-blue-400" />}
               <h2 className="text-xl font-bold text-white">{title}</h2>
               {showLiveIndicator && (
                 <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/30">
@@ -844,7 +844,7 @@ const InteractiveChart = ({
                       onClick={() => setChartType(type.id)}
                       className={`p-2 rounded-md transition-all ${
                         chartType === type.id
-                          ? 'bg-[#D4AF37] text-white'
+                          ? 'bg-blue-500 text-white'
                           : 'text-slate-400 hover:text-white hover:bg-slate-600'
                       }`}
                       title={t(type.labelKey)}
@@ -864,7 +864,7 @@ const InteractiveChart = ({
                     onClick={() => setTimeRange(range.id)}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                       timeRange === range.id
-                        ? 'bg-[#D4AF37] text-white'
+                        ? 'bg-blue-500 text-white'
                         : 'text-slate-400 hover:text-white hover:bg-slate-600'
                     }`}
                     title={t(range.labelKey)}
@@ -897,7 +897,7 @@ const InteractiveChart = ({
                 size="sm" 
                 className={`h-9 w-9 p-0 ${
                   showCrosshair 
-                    ? 'bg-[#D4AF37]/20 text-[#B8912A]' 
+                    ? 'bg-blue-500/20 text-blue-400' 
                     : 'text-slate-400 hover:text-white hover:bg-slate-700'
                 }`}
                 onClick={() => setShowCrosshair(!showCrosshair)}
@@ -971,14 +971,14 @@ const InteractiveChart = ({
             <div className="flex items-center justify-between text-xs text-slate-400">
               <div className="flex items-center gap-4">
                 <span className="font-mono">
-                  {t('chart.showing')} <span className="text-[#B8912A] font-bold">{brushRange.endIndex - brushRange.startIndex + 1}</span> {t('chart.of')} {filteredData.length} {t('chart.periods')}
+                  {t('chart.showing')} <span className="text-blue-400 font-bold">{brushRange.endIndex - brushRange.startIndex + 1}</span> {t('chart.of')} {filteredData.length} {t('chart.periods')}
                 </span>
                 <span className="text-slate-600">|</span>
                 <span>{t('chart.period')} <span className="text-slate-300">{(() => { const r = TIME_RANGES.find(r => r.id === timeRange); return r ? t(r.labelKey) : ''; })()}</span></span>
                 {crosshairData && (
                   <>
                     <span className="text-slate-600">|</span>
-                    <span className="text-[#B8912A]">
+                    <span className="text-blue-400">
                       {crosshairData.x}: {crosshairData.values.map(v => `${v.name}: ${v.value?.toFixed(1)}`).join(' • ')}
                     </span>
                   </>

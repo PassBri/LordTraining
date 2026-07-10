@@ -7,7 +7,7 @@ import {
   CartesianGrid, Tooltip, Legend,
 } from 'recharts';
 
-const COMPARE_COLORS = ['#D4AF37', '#D4AF37', '#EF4444'];
+const COMPARE_COLORS = ['#CCFF00', '#3B82F6', '#EF4444'];
 
 const PeriodizationComparator = ({ open, onOpenChange, models = [], onRemoveModel }) => {
   // Normalize phases: build data for chart where each phase is a tick

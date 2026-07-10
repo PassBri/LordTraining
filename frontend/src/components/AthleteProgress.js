@@ -45,7 +45,7 @@ export default function AthleteProgress({ athleteId }) {
     const val = toNum(r.headline.value);
     if (val == null) continue;
     const key = `${r.calculator}|${r.headline.label || r.title}`;
-    if (!groups[key]) groups[key] = { calculator: r.calculator, title: r.title, label: r.headline.label, unit: r.headline.unit, color: r.color || '#D4AF37', module: r.module, points: [] };
+    if (!groups[key]) groups[key] = { calculator: r.calculator, title: r.title, label: r.headline.label, unit: r.headline.unit, color: r.color || '#3B82F6', module: r.module, points: [] };
     groups[key].points.push({ date: (r.created_at || '').slice(0, 10), value: val, note: r.note, plan_name: r.plan_name });
   }
   const series = Object.values(groups);

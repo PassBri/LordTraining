@@ -128,8 +128,8 @@ const TrainingStages = ({ athleteId }) => {
       description: "Fase fundamental donde se construyen las bases del rendimiento deportivo según los principios de progresión y adaptación",
       stages: ["general", "specific"],
       icon: Target,
-      color: "text-[#B8912A]",
-      bgColor: "bg-[#D4AF37]",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
       borderColor: "border-l-blue-500"
     },
     {
@@ -269,14 +269,14 @@ const TrainingStages = ({ athleteId }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] text-white p-8 rounded-xl shadow-lg">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8 rounded-xl shadow-lg">
         <h1 className="text-2xl md:text-3xl font-bold mb-3">
           Planificación de Etapas de Entrenamiento
         </h1>
@@ -427,7 +427,7 @@ const TrainingStages = ({ athleteId }) => {
           Restablecer
         </Button>
         <Button 
-          className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white gap-2"
+          className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
           onClick={handleSave}
           disabled={saving}
           data-testid="save-stages-btn"

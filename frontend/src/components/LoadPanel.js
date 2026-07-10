@@ -102,7 +102,7 @@ export default function LoadPanel({ activePlan }) {
             sessions: sesCount,
             duration: Math.round(sumDuration),
             meso: meso.name || t('loadPanel.mesoDefault'),
-            mesoColor: meso.color || '#D4AF37',
+            mesoColor: meso.color || '#0ea5e9',
           });
           weekCounter++;
         });
@@ -142,7 +142,7 @@ export default function LoadPanel({ activePlan }) {
 
   const acwrZone = (acwr) => {
     if (acwr === 0) return { label: t('loadPanel.zoneNoData'), color: '#94a3b8', bg: '#f1f5f9' };
-    if (acwr < 0.8) return { label: t('loadPanel.zoneDetraining'), color: '#D4AF37', bg: '#e0f2fe', desc: t('loadPanel.zoneDetrainingDesc') };
+    if (acwr < 0.8) return { label: t('loadPanel.zoneDetraining'), color: '#0EA5E9', bg: '#e0f2fe', desc: t('loadPanel.zoneDetrainingDesc') };
     if (acwr <= 1.3) return { label: t('loadPanel.zoneOptimal'), color: '#10B981', bg: '#d1fae5', desc: t('loadPanel.zoneOptimalDesc') };
     if (acwr <= 1.5) return { label: t('loadPanel.zoneCaution'), color: '#F59E0B', bg: '#fef3c7', desc: t('loadPanel.zoneCautionDesc') };
     return { label: t('loadPanel.zoneOverload'), color: '#EF4444', bg: '#fee2e2', desc: t('loadPanel.zoneOverloadDesc') };
@@ -177,8 +177,8 @@ export default function LoadPanel({ activePlan }) {
       {/* Plan info banner — confirma de dónde se calcula la carga */}
       <div className="flex items-center justify-between bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl px-5 py-3 text-white shadow-md">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-[#D4AF37]/15 border border-[#D4AF37]/40 flex items-center justify-center">
-            <Flame className="w-5 h-5 text-[#D4AF37]" />
+          <div className="w-10 h-10 rounded-lg bg-[#CCFF00]/15 border border-[#CCFF00]/40 flex items-center justify-center">
+            <Flame className="w-5 h-5 text-[#CCFF00]" />
           </div>
           <div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-slate-400 font-bold">{t('loadPanel.bannerEyebrow')}</div>
@@ -210,11 +210,11 @@ export default function LoadPanel({ activePlan }) {
         </Card>
         {/* Carga crónica */}
         <Card className="overflow-hidden border-0 shadow-md" data-testid="kpi-chronic-load">
-          <div className="h-1 bg-gradient-to-r from-[#D4AF37] to-[#D4AF37]" />
+          <div className="h-1 bg-gradient-to-r from-blue-500 to-indigo-600" />
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[#D4AF37] flex items-center justify-center">
-                <Shield className="w-4 h-4 text-[#B8912A]" />
+              <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                <Shield className="w-4 h-4 text-blue-600" />
               </div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('loadPanel.chronicLoad')}</span>
             </div>
@@ -240,18 +240,18 @@ export default function LoadPanel({ activePlan }) {
         <Card className="overflow-hidden border-0 shadow-md" data-testid="kpi-trend">
           <div className={`h-1 bg-gradient-to-r ${
             stats.trend === 'creciente' ? 'from-amber-400 to-orange-500'
-            : stats.trend === 'decreciente' ? 'from-[#D4AF37] to-cyan-500'
+            : stats.trend === 'decreciente' ? 'from-sky-400 to-cyan-500'
             : 'from-slate-300 to-slate-400'
           }`} />
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                 stats.trend === 'creciente' ? 'bg-amber-50'
-                : stats.trend === 'decreciente' ? 'bg-[#D4AF37]'
+                : stats.trend === 'decreciente' ? 'bg-sky-50'
                 : 'bg-slate-100'
               }`}>
                 {stats.trend === 'creciente' ? <TrendingUp className="w-4 h-4 text-amber-600" />
-                : stats.trend === 'decreciente' ? <TrendingDown className="w-4 h-4 text-[#B8912A]" />
+                : stats.trend === 'decreciente' ? <TrendingDown className="w-4 h-4 text-sky-600" />
                 : <BarChart3 className="w-4 h-4 text-slate-500" />}
               </div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('loadPanel.trendTitle')}</span>
@@ -323,7 +323,7 @@ export default function LoadPanel({ activePlan }) {
       <Card>
         <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-[#B8912A]" />
+            <Calendar className="w-4 h-4 text-indigo-600" />
             <h3 className="text-sm font-bold text-slate-800">{t('loadPanel.mesoLoadTitle')}</h3>
           </div>
           <span className="text-[10px] text-slate-400">{t('loadPanel.mesoLoadSub')}</span>
@@ -342,7 +342,7 @@ export default function LoadPanel({ activePlan }) {
               <div className="space-y-2">
                 {groups.map((g, i) => {
                   const pct = Math.round((g.total / totalAll) * 100);
-                  const colors = ['#10B981', '#D4AF37', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+                  const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
                   const color = colors[i % colors.length];
                   return (
                     <div key={g.name} className="flex items-center gap-3" data-testid={`meso-load-${i}`}>

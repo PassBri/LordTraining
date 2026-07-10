@@ -40,7 +40,7 @@ const calculateStrain = (weeklyLoad, monotony) => {
 
 const getACWRZone = (acwr) => {
   const v = parseFloat(acwr);
-  if (v < 0.8) return { zone: 'undertraining', label: 'Baja Carga', color: '#D4AF37', bg: '#EFF6FF', icon: TrendingDown, risk: 'Desentrenamiento' };
+  if (v < 0.8) return { zone: 'undertraining', label: 'Baja Carga', color: '#3B82F6', bg: '#EFF6FF', icon: TrendingDown, risk: 'Desentrenamiento' };
   if (v <= 1.3) return { zone: 'optimal', label: 'Zona Optima', color: '#10B981', bg: '#D1FAE5', icon: CheckCircle, risk: 'Bajo Riesgo' };
   if (v <= 1.5) return { zone: 'caution', label: 'Precaucion', color: '#F59E0B', bg: '#FEF3C7', icon: AlertTriangle, risk: 'Riesgo Moderado' };
   return { zone: 'danger', label: 'Peligro', color: '#EF4444', bg: '#FEE2E2', icon: Zap, risk: 'Alto Riesgo Lesion' };
@@ -257,7 +257,7 @@ const LoadMetricsDashboard = ({ activePlan }) => {
       {/* ═══ KPI Cards ═══ */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3" data-testid="kpi-cards">
         <MetricCard label="ACWR" value={currentACWR} icon={Shield} color={currentZone.color} trend={parseFloat(currentACWR) > 1.3 ? 'up' : 'down'} trendValue={currentZone.risk} />
-        <MetricCard label="Carga Semanal" value={currentWeek?.load || 0} unit="UA" icon={BarChart3} color="#D4AF37" trend={loadTrend > 0 ? 'up' : 'down'} trendValue={`${loadTrend}%`} />
+        <MetricCard label="Carga Semanal" value={currentWeek?.load || 0} unit="UA" icon={BarChart3} color="#3B82F6" trend={loadTrend > 0 ? 'up' : 'down'} trendValue={`${loadTrend}%`} />
         <MetricCard label="Monotonia" value={avgMonotony} icon={Activity} color={parseFloat(avgMonotony) > 2 ? '#F59E0B' : '#10B981'} />
         <MetricCard label="Strain" value={avgStrain} unit="UA" icon={Heart} color={avgStrain > 6000 ? '#EF4444' : '#10B981'} />
         <MetricCard label="Carga Media" value={avgLoad} unit="UA" icon={TrendingUp} color="#8B5CF6" />
@@ -286,7 +286,7 @@ const LoadMetricsDashboard = ({ activePlan }) => {
         </div>
         {/* Current position indicator */}
         <div className="relative h-3 rounded-full overflow-hidden flex">
-          <div className="flex-[0.8] bg-[#D4AF37]" />
+          <div className="flex-[0.8] bg-blue-100" />
           <div className="flex-[0.5] bg-emerald-100" />
           <div className="flex-[0.2] bg-amber-100" />
           <div className="flex-[0.5] bg-red-100" />
@@ -309,7 +309,7 @@ const LoadMetricsDashboard = ({ activePlan }) => {
             <TrendingUp className="w-4 h-4 text-slate-400" /> ACWR Timeline
           </h3>
           <div className="flex items-center gap-3 text-[10px]">
-            <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[#D4AF37]" /> Carga</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-[#3B82F6]" /> Carga</span>
             <span className="flex items-center gap-1"><span className="w-3 h-1.5 rounded-full bg-slate-800" /> ACWR</span>
           </div>
         </div>
@@ -319,8 +319,8 @@ const LoadMetricsDashboard = ({ activePlan }) => {
               <ComposedChart data={weeklyData}>
                 <defs>
                   <linearGradient id="loadGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="#D4AF37" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -328,10 +328,10 @@ const LoadMetricsDashboard = ({ activePlan }) => {
                 <YAxis yAxisId="load" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={{ stroke: '#e2e8f0' }} />
                 <YAxis yAxisId="acwr" orientation="right" domain={[0, 2.5]} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={{ stroke: '#e2e8f0' }} />
                 <Tooltip content={<CustomTooltip />} />
-                <ReferenceLine yAxisId="acwr" y={0.8} stroke="#D4AF37" strokeDasharray="4 4" strokeWidth={1} />
+                <ReferenceLine yAxisId="acwr" y={0.8} stroke="#3B82F6" strokeDasharray="4 4" strokeWidth={1} />
                 <ReferenceLine yAxisId="acwr" y={1.3} stroke="#10B981" strokeDasharray="4 4" strokeWidth={1} />
                 <ReferenceLine yAxisId="acwr" y={1.5} stroke="#EF4444" strokeDasharray="4 4" strokeWidth={1} />
-                <Area yAxisId="load" type="monotone" dataKey="load" fill="url(#loadGrad)" stroke="#D4AF37" strokeWidth={2} name="Carga" />
+                <Area yAxisId="load" type="monotone" dataKey="load" fill="url(#loadGrad)" stroke="#3B82F6" strokeWidth={2} name="Carga" />
                 <Line yAxisId="acwr" type="monotone" dataKey="acwr" stroke="#0f172a" strokeWidth={2.5} dot={{ r: 3, fill: '#0f172a' }} name="ACWR" />
               </ComposedChart>
             </ResponsiveContainer>
