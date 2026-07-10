@@ -520,15 +520,10 @@ def _norm_aspect_pct(a: Dict[str, Any]) -> Optional[float]:
     return max(0.0, min(100.0, (v - mn) / (mx - mn) * 100))
 
 
-@router.post("/group")
-async def group_evaluation(payload: GroupEvalPayload, user=Depends(get_current_user_dep())):
-    """Agregación grupal: toma el control MÁS RECIENTE de cada atleta del grupo
-    para (plan, tipo) y calcula promedio del equipo, ranking interno, promedio
-    por aspecto/categoría y áreas críticas (promedio < 60%)."""
-    if payload.evaluation_type not in EVAL_META:
-        raise HTTPException(400, f"Tipo inválido: {payload.evaluation_type}")
-    uid = _uid(user)
-    athlete_ids = [a for a in (payload.athlete_ids or []) if a]
+async def _compute_group_data(uid: str, plan_id: str, evaluation_type: str,
+                              athlete_ids: List[str]) -> Dict[str, Any]:
+    """Núcleo de la agregación grupal (reutilizado por JSON/PDF/Excel/IA)."""
+    athlete_ids = [a for a in (athlete_ids or []) if a]
     if not athlete_ids:
         return {"group_size": 0, "with_data": 0, "team_avg": 0,
                 "ranking": [], "aspects": [], "categories": [], "critical": []}
@@ -546,8 +541,8 @@ async def group_evaluation(payload: GroupEvalPayload, user=Depends(get_current_u
 
     for aid in athlete_ids:
         doc = await _evals.find_one(
-            {"plan_id": payload.plan_id, "user_id": uid,
-             "evaluation_type": payload.evaluation_type, "athlete_id": aid},
+            {"plan_id": plan_id, "user_id": uid,
+             "evaluation_type": evaluation_type, "athlete_id": aid},
             {"_id": 0}, sort=[("date", -1), ("updated_at", -1)]
         )
         entry = {"athlete_id": aid, "name": name_map.get(aid, aid),
@@ -607,6 +602,213 @@ async def group_evaluation(payload: GroupEvalPayload, user=Depends(get_current_u
         "categories": categories_out,
         "critical": critical,
     }
+
+
+@router.post("/group")
+async def group_evaluation(payload: GroupEvalPayload, user=Depends(get_current_user_dep())):
+    """Agregación grupal (JSON) para la vista Modo Equipo."""
+    if payload.evaluation_type not in EVAL_META:
+        raise HTTPException(400, f"Tipo inválido: {payload.evaluation_type}")
+    return await _compute_group_data(_uid(user), payload.plan_id,
+                                     payload.evaluation_type, payload.athlete_ids)
+
+
+# ---------- 6c. FASE B — Reportes Modo Grupal (PDF / Excel / IA) ----------
+
+class GroupReportPayload(GroupEvalPayload):
+    group_label: Optional[str] = ""
+    lang: str = "es"
+
+
+def _pct_color(p) -> str:
+    return "#10B981" if p >= 80 else ("#F59E0B" if p >= 60 else "#EF4444")
+
+
+def _build_group_html(meta: dict, plan_name: str, group_label: str, data: dict) -> str:
+    color = meta["color"]
+    rows_rank = "".join(
+        f"""<tr>
+          <td style="text-align:center;font-weight:800;color:{'#0f172a' if r['has_data'] else '#94a3b8'}">{r['rank'] if r['has_data'] else '—'}</td>
+          <td>{_esc(r['name'])}</td>
+          <td style="text-align:center">{r['measured']}/{r['total']}</td>
+          <td style="text-align:right;font-weight:800;color:{_pct_color(r['global_pct']) if r['has_data'] else '#94a3b8'}">{str(r['global_pct'])+'%' if r['has_data'] else 'Sin datos'}</td>
+        </tr>""" for r in data["ranking"]
+    )
+    rows_asp = "".join(
+        f"""<tr><td>{_esc(a['label'])}</td><td style="color:#64748b">{_esc(a['category'])}</td>
+          <td style="text-align:right;font-weight:700;color:{_pct_color(a['avg_pct'])}">{a['avg_pct']}%</td></tr>"""
+        for a in data["aspects"]
+    )
+    crit = data.get("critical") or []
+    crit_html = ""
+    if crit:
+        crit_items = "".join(f"<li><strong>{_esc(c['label'])}</strong> — {c['avg_pct']}% <span style='color:#94a3b8'>({_esc(c['category'])})</span></li>" for c in crit)
+        crit_html = f"""<div style="background:#FEF2F2;border-left:4px solid #EF4444;padding:12px 16px;border-radius:8px;margin:16px 0">
+          <h3 style="margin:0 0 6px;color:#B91C1C;font-size:13px">⚠ Áreas críticas del equipo (&lt; 60%)</h3>
+          <ul style="margin:0;padding-left:18px;color:#7F1D1D;font-size:12px">{crit_items}</ul></div>"""
+    return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+      @page {{ size:A4; margin:1.4cm; }}
+      body {{ font-family:'Helvetica Neue',Arial,sans-serif; color:#1e293b; font-size:12px; }}
+      .hero {{ background:linear-gradient(135deg,{color},#0f172a); color:#fff; padding:22px 24px; border-radius:14px; }}
+      .hero h1 {{ margin:0; font-size:22px; }} .hero p {{ margin:4px 0 0; opacity:.85; font-size:12px; }}
+      .kpis {{ display:flex; gap:12px; margin:18px 0; }}
+      .kpi {{ flex:1; border:1px solid #e2e8f0; border-radius:12px; padding:12px; text-align:center; }}
+      .kpi .n {{ font-size:26px; font-weight:800; }} .kpi .l {{ font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:#64748b; }}
+      table {{ width:100%; border-collapse:collapse; margin-top:8px; }}
+      th {{ text-align:left; font-size:10px; text-transform:uppercase; color:#64748b; border-bottom:2px solid #e2e8f0; padding:6px 8px; }}
+      td {{ padding:6px 8px; border-bottom:1px solid #f1f5f9; font-size:12px; }}
+      h2 {{ font-size:14px; margin:20px 0 4px; color:{color}; }}
+      .foot {{ margin-top:24px; text-align:center; color:#94a3b8; font-size:10px; }}
+    </style></head><body>
+      <div class="hero"><h1>{meta['icon']} {_esc(meta['title'])} · Reporte Grupal</h1>
+        <p>{_esc(plan_name)} · Grupo: {_esc(group_label) or '—'} · {data['group_size']} atletas ({data['with_data']} con datos)</p></div>
+      <div class="kpis">
+        <div class="kpi"><div class="n" style="color:{color}">{data['team_avg']}%</div><div class="l">Promedio equipo</div></div>
+        <div class="kpi"><div class="n">{data['group_size']}</div><div class="l">Atletas</div></div>
+        <div class="kpi"><div class="n" style="color:{color}">{len(data['aspects'])}</div><div class="l">Aspectos</div></div>
+        <div class="kpi"><div class="n" style="color:#EF4444">{len(crit)}</div><div class="l">Áreas críticas</div></div>
+      </div>
+      {crit_html}
+      <h2>Ranking interno</h2>
+      <table><thead><tr><th style="text-align:center">#</th><th>Atleta</th><th style="text-align:center">Medidos</th><th style="text-align:right">Global</th></tr></thead><tbody>{rows_rank}</tbody></table>
+      <h2>Promedio grupal por aspecto</h2>
+      <table><thead><tr><th>Aspecto</th><th>Categoría</th><th style="text-align:right">Promedio</th></tr></thead><tbody>{rows_asp}</tbody></table>
+      <div class="foot">Generado por <strong>LordTraining</strong> · LordTraining.app</div>
+    </body></html>"""
+
+
+@router.post("/group/pdf")
+async def group_pdf(payload: GroupReportPayload, user=Depends(get_current_user_dep())):
+    if payload.evaluation_type not in EVAL_META:
+        raise HTTPException(400, f"Tipo inválido: {payload.evaluation_type}")
+    uid = _uid(user)
+    data = await _compute_group_data(uid, payload.plan_id, payload.evaluation_type, payload.athlete_ids)
+    if not data["group_size"]:
+        raise HTTPException(400, "No hay atletas en el grupo")
+    meta = EVAL_META[payload.evaluation_type]
+    plan_name = await _get_plan_name(payload.plan_id)
+    html = _build_group_html(meta, plan_name, payload.group_label or "", data)
+    if payload.lang and payload.lang != "es":
+        html = translate_html(html, payload.lang)
+    pdf = await _render_pdf(html)
+    fname = f"reporte-grupal-{payload.evaluation_type}.pdf"
+    return Response(content=pdf, media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="{fname}"'})
+
+
+@router.post("/group/xlsx")
+async def group_xlsx(payload: GroupReportPayload, user=Depends(get_current_user_dep())):
+    if payload.evaluation_type not in EVAL_META:
+        raise HTTPException(400, f"Tipo inválido: {payload.evaluation_type}")
+    uid = _uid(user)
+    data = await _compute_group_data(uid, payload.plan_id, payload.evaluation_type, payload.athlete_ids)
+    if not data["group_size"]:
+        raise HTTPException(400, "No hay atletas en el grupo")
+    meta = EVAL_META[payload.evaluation_type]
+    plan_name = await _get_plan_name(payload.plan_id)
+
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    import io
+    wb = Workbook()
+    hdr_fill = PatternFill("solid", fgColor=meta["color"].lstrip("#"))
+    hdr_font = Font(bold=True, color="FFFFFF")
+    bold = Font(bold=True)
+    center = Alignment(horizontal="center")
+    thin = Border(bottom=Side(style="thin", color="E2E8F0"))
+
+    # Hoja Resumen
+    ws = wb.active
+    ws.title = "Resumen"
+    ws["A1"] = f"{meta['title']} · Reporte Grupal"; ws["A1"].font = Font(bold=True, size=14)
+    ws["A2"] = f"Plan: {plan_name}"; ws["A3"] = f"Grupo: {payload.group_label or '—'}"
+    ws["A5"] = "Promedio equipo"; ws["B5"] = f"{data['team_avg']}%"
+    ws["A6"] = "Atletas"; ws["B6"] = data["group_size"]
+    ws["A7"] = "Con datos"; ws["B7"] = data["with_data"]
+    ws["A8"] = "Aspectos evaluados"; ws["B8"] = len(data["aspects"])
+    ws["A9"] = "Áreas críticas (<60%)"; ws["B9"] = len(data["critical"])
+    for r in range(5, 10):
+        ws[f"A{r}"].font = bold
+    ws.column_dimensions["A"].width = 26; ws.column_dimensions["B"].width = 16
+
+    # Hoja Ranking
+    wr = wb.create_sheet("Ranking")
+    heads = ["#", "Atleta", "Medidos", "Total", "Global %", "Fecha"]
+    for c, h in enumerate(heads, 1):
+        cell = wr.cell(row=1, column=c, value=h); cell.fill = hdr_fill; cell.font = hdr_font; cell.alignment = center
+    for i, r in enumerate(data["ranking"], 2):
+        wr.cell(row=i, column=1, value=r["rank"] if r["has_data"] else "—")
+        wr.cell(row=i, column=2, value=r["name"])
+        wr.cell(row=i, column=3, value=r["measured"])
+        wr.cell(row=i, column=4, value=r["total"])
+        wr.cell(row=i, column=5, value=r["global_pct"] if r["has_data"] else None)
+        wr.cell(row=i, column=6, value=r.get("date") or "")
+    for col, w in zip("ABCDEF", [6, 28, 10, 10, 12, 14]):
+        wr.column_dimensions[col].width = w
+
+    # Hoja Aspectos
+    wa = wb.create_sheet("Aspectos")
+    for c, h in enumerate(["Aspecto", "Categoría", "Promedio %"], 1):
+        cell = wa.cell(row=1, column=c, value=h); cell.fill = hdr_fill; cell.font = hdr_font; cell.alignment = center
+    for i, a in enumerate(data["aspects"], 2):
+        wa.cell(row=i, column=1, value=a["label"])
+        wa.cell(row=i, column=2, value=a["category"])
+        wa.cell(row=i, column=3, value=a["avg_pct"])
+    for col, w in zip("ABC", [34, 20, 12]):
+        wa.column_dimensions[col].width = w
+
+    buf = io.BytesIO(); wb.save(buf); buf.seek(0)
+    fname = f"reporte-grupal-{payload.evaluation_type}.xlsx"
+    return Response(content=buf.getvalue(),
+                    media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    headers={"Content-Disposition": f'attachment; filename="{fname}"'})
+
+
+@router.post("/group/ai-analysis")
+async def group_ai_analysis(payload: GroupReportPayload, user=Depends(get_current_user_dep())):
+    if payload.evaluation_type not in EVAL_META:
+        raise HTTPException(400, f"Tipo inválido: {payload.evaluation_type}")
+    uid = _uid(user)
+    data = await _compute_group_data(uid, payload.plan_id, payload.evaluation_type, payload.athlete_ids)
+    if not data["with_data"]:
+        raise HTTPException(400, "El grupo no tiene datos de evaluación suficientes para el análisis")
+    meta = EVAL_META[payload.evaluation_type]
+    key = os.environ.get("EMERGENT_LLM_KEY")
+    if not key:
+        raise HTTPException(500, "LLM no configurado")
+
+    top = data["ranking"][:3]
+    bottom = [r for r in data["ranking"] if r["has_data"]][-3:]
+    aspects_txt = "\n".join(f"- {a['label']} ({a['category']}): {a['avg_pct']}%" for a in data["aspects"])
+    ranking_txt = "\n".join(f"{r['rank']}. {r['name']}: {r['global_pct']}%" for r in top if r["has_data"])
+    crit_txt = ", ".join(c["label"] for c in data["critical"]) or "ninguna"
+    prompt = f"""Eres un preparador físico de élite. Analiza esta evaluación GRUPAL ({meta['title']}) del grupo "{payload.group_label or 'equipo'}".
+
+Promedio del equipo: {data['team_avg']}% ({data['with_data']}/{data['group_size']} atletas con datos).
+Áreas críticas (<60%): {crit_txt}.
+
+Promedio por aspecto:
+{aspects_txt}
+
+Top del ranking:
+{ranking_txt}
+
+Entrega un análisis conciso en español con estas secciones (usa encabezados en negrita con **):
+1. **Diagnóstico grupal** (2-3 frases sobre el estado general del equipo).
+2. **Fortalezas** (aspectos por encima del 75%).
+3. **Prioridades de mejora** (áreas críticas y cómo abordarlas).
+4. **Recomendaciones de entrenamiento** (3-4 acciones concretas para el grupo).
+Sé práctico y específico. No inventes datos que no estén arriba."""
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(api_key=key, session_id=f"group-{payload.plan_id}-{payload.evaluation_type}",
+                       system_message="Eres un experto en ciencias del deporte y análisis de equipos.").with_model("openai", "gpt-4o-mini")
+        analysis = await chat.send_message(UserMessage(text=prompt))
+    except Exception as e:
+        raise HTTPException(500, f"Error del análisis IA: {e}")
+    return {"analysis": analysis, "team_avg": data["team_avg"],
+            "group_size": data["group_size"], "with_data": data["with_data"]}
+
 
 
 # ---------- 7. CATCH-ALL: GET por (plan, type) — DEBE SER EL ÚLTIMO ----------

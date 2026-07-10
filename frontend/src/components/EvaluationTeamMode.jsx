@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import {
   Loader2, Users, Trophy, AlertTriangle, TrendingUp, Medal, Layers,
+  FileText, FileSpreadsheet, Sparkles,
 } from 'lucide-react';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com') === -1 ? process.env.REACT_APP_BACKEND_URL : (typeof window !== 'undefined' ? window.location.origin : process.env.REACT_APP_BACKEND_URL));
@@ -23,6 +25,8 @@ const EvaluationTeamMode = ({ activePlan, evalType, color, title, athletes = [] 
   const [nationalTeams, setNationalTeams] = useState([]);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState('');
+  const [aiResult, setAiResult] = useState(null);
 
   // Mapa team_id -> categoría
   const teamCategoryMap = useMemo(() => {
@@ -119,7 +123,46 @@ const EvaluationTeamMode = ({ activePlan, evalType, color, title, athletes = [] 
 
   useEffect(() => { fetchGroup(); }, [fetchGroup]);
 
+  // Reset análisis IA al cambiar de grupo/tipo
+  useEffect(() => { setAiResult(null); }, [selectedGroup, evalType, groupMode]);
+
   const currentLabel = groupOptions.find(o => o.value === selectedGroup)?.label || '';
+
+  const exportReport = useCallback(async (kind) => {
+    if (!activePlan || !groupAthletes.length) return;
+    setExporting(kind);
+    try {
+      const token = localStorage.getItem('train_token');
+      const lang = localStorage.getItem('train_language') || 'es';
+      const body = JSON.stringify({
+        plan_id: activePlan.id,
+        evaluation_type: evalType,
+        athlete_ids: groupAthletes.map(a => a.id),
+        group_label: currentLabel,
+        lang,
+      });
+      const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+      if (kind === 'ai') {
+        const r = await fetch(`${API_URL}/api/plan-data/evaluations-export/group/ai-analysis`, { method: 'POST', headers, body });
+        if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || 'Error IA'); }
+        setAiResult(await r.json());
+        toast.success('Análisis IA generado');
+      } else {
+        const ep = kind === 'pdf' ? 'group/pdf' : 'group/xlsx';
+        const ext = kind === 'pdf' ? 'pdf' : 'xlsx';
+        const r = await fetch(`${API_URL}/api/plan-data/evaluations-export/${ep}`, { method: 'POST', headers, body });
+        if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || 'Error al exportar'); }
+        const blob = await r.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `reporte-grupal-${evalType}.${ext}`;
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        toast.success(kind === 'pdf' ? 'PDF descargado' : 'Excel descargado');
+      }
+    } catch (e) {
+      toast.error(e.message || 'No se pudo exportar');
+    } finally { setExporting(''); }
+  }, [activePlan, evalType, groupAthletes, currentLabel]);
 
   return (
     <div className="space-y-4" data-testid={`eval-${evalType}-team-mode`}>
@@ -166,6 +209,39 @@ const EvaluationTeamMode = ({ activePlan, evalType, color, title, athletes = [] 
 
       {!loading && data && groupAthletes.length > 0 && (
         <>
+          {/* Toolbar de reportes grupales (Fase B) */}
+          <div className="flex items-center gap-2 flex-wrap" data-testid={`eval-${evalType}-group-toolbar`}>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-auto">Reportes del grupo · {currentLabel}</span>
+            <button onClick={() => exportReport('pdf')} disabled={!!exporting}
+              data-testid={`eval-${evalType}-export-pdf`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-sm disabled:opacity-50" style={{ background: '#EF4444' }}>
+              {exporting === 'pdf' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />} PDF
+            </button>
+            <button onClick={() => exportReport('xlsx')} disabled={!!exporting}
+              data-testid={`eval-${evalType}-export-xlsx`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-sm disabled:opacity-50" style={{ background: '#10B981' }}>
+              {exporting === 'xlsx' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileSpreadsheet className="w-3.5 h-3.5" />} Excel
+            </button>
+            <button onClick={() => exportReport('ai')} disabled={!!exporting}
+              data-testid={`eval-${evalType}-export-ai`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-sm disabled:opacity-50" style={{ background: '#8B5CF6' }}>
+              {exporting === 'ai' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />} Análisis IA
+            </button>
+          </div>
+
+          {/* Resultado del análisis IA grupal */}
+          {aiResult && (
+            <Card className="border-0 shadow-sm border-l-4 border-l-violet-500" data-testid={`eval-${evalType}-ai-result`}>
+              <CardHeader className="py-3 bg-white">
+                <CardTitle className="text-sm flex items-center gap-2 text-violet-700"><Sparkles className="w-4 h-4" /> Análisis IA del grupo</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: (aiResult.analysis || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>') }} />
+              </CardContent>
+            </Card>
+          )}
+
           {/* KPIs grupales */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="rounded-2xl p-4 text-white shadow-md" style={{ background: `linear-gradient(135deg, ${color}, #0f172a)` }} data-testid={`eval-${evalType}-team-avg`}>

@@ -211,6 +211,32 @@ def _criteria_for(sport: Optional[str]):
 
 CLUB_STANDARD = 70  # referencia configurable del club (overall objetivo)
 
+# Estándar de rendimiento esperado por NIVEL del deportista (0-100).
+# El score del prospecto se compara contra el estándar de SU nivel, no uno global.
+LEVEL_STANDARDS = {
+    "principiante": 50,
+    "amateur": 60,
+    "semiprofesional": 70,
+    "profesional": 80,
+    "elite": 90,
+}
+# Alias legacy → 5 niveles
+_LEVEL_ALIAS = {
+    "beginner": "principiante", "intermediate": "semiprofesional",
+    "advanced": "profesional", "elite": "elite", "profesional": "profesional",
+    "amateur": "amateur", "semiprofesional": "semiprofesional", "principiante": "principiante",
+}
+
+
+def _norm_level(level):
+    if not level:
+        return "amateur"
+    return _LEVEL_ALIAS.get(str(level).strip().lower(), "amateur")
+
+
+def _level_standard(level):
+    return LEVEL_STANDARDS.get(_norm_level(level), CLUB_STANDARD)
+
 
 # ───────────────────────── MODELOS ─────────────────────────
 class VideoLink(BaseModel):
@@ -242,6 +268,7 @@ class ProspectIn(BaseModel):
     # Deportivo
     sport: Optional[str] = None
     sport_name: Optional[str] = None
+    level: Optional[str] = "amateur"   # principiante|amateur|semiprofesional|profesional|elite
     position: Optional[str] = None
     current_club: Optional[str] = None
     height_cm: Optional[int] = None
@@ -298,7 +325,7 @@ def _clean(doc):
 
 # ───────────────────────── CRUD ─────────────────────────
 @router.get("/criteria")
-async def get_criteria(sport: Optional[str] = None, user=Depends(get_current_user_dep())):
+async def get_criteria(sport: Optional[str] = None, level: Optional[str] = None, user=Depends(get_current_user_dep())):
     uid = _uid(user)
     blocks = copy.deepcopy(_criteria_for(sport))
     block_by_key = {b["key"]: b for b in blocks}
@@ -311,7 +338,9 @@ async def get_criteria(sport: Optional[str] = None, user=Depends(get_current_use
         blk = block_by_key.get(c.get("block"))
         if blk:
             blk["criteria"].append({"key": c["key"], "label": c["label"], "custom": True, "scope": c["scope"], "id": c["id"]})
-    return {"sport": sport, "club_standard": CLUB_STANDARD, "blocks": blocks}
+    return {"sport": sport, "club_standard": CLUB_STANDARD,
+            "level": _norm_level(level), "level_standard": _level_standard(level),
+            "level_standards": LEVEL_STANDARDS, "blocks": blocks}
 
 
 class CustomCriterionIn(BaseModel):
@@ -490,11 +519,16 @@ async def save_evaluation(pid: str, payload: EvaluationIn, user=Depends(get_curr
     if not p:
         raise HTTPException(404, "Prospecto no encontrado")
     overall, cat_avgs = _compute_overall(payload.scores)
+    level = _norm_level(p.get("level"))
+    level_std = _level_standard(level)
     evaluation = {
         "scores": payload.scores,
         "category_averages": cat_avgs,
         "overall": overall,
         "club_standard": CLUB_STANDARD,
+        "level": level,
+        "level_standard": level_std,
+        "meets_level_standard": overall >= level_std,
         "evaluator": payload.evaluator,
         "notes": payload.notes,
         "custom_labels": payload.custom_labels,
@@ -560,8 +594,12 @@ async def ai_recommendation(pid: str, payload: AIRequest, user=Depends(get_curre
         "logros": p.get("achievements"), "stats": p.get("key_stats"),
         "valor_comercial": p.get("market_value"), "patrocinios": p.get("sponsorships"),
         "trayectoria": p.get("transfers"),
-        "score_general": ev.get("overall"), "estandar_club": CLUB_STANDARD,
+        "score_general": ev.get("overall"),
+        "nivel": _norm_level(p.get("level")),
+        "estandar_del_nivel": _level_standard(p.get("level")),
     }
+    _lvl = _norm_level(p.get("level"))
+    _lstd = _level_standard(p.get("level"))
 
     system = (
         "Eres un Director de Scouting de élite con 20 años de experiencia detectando talento deportivo. "
@@ -576,7 +614,7 @@ PERFIL: {json.dumps(profile, ensure_ascii=False)}
 PUNTAJES POR CRITERIO (0-100): {scores_txt or 'sin evaluación detallada'}
 ESTADÍSTICAS DEPORTIVAS REALES: {stats_txt or 'sin estadísticas registradas aún'}
 
-Usa las estadísticas reales como evidencia principal cuando existan. Compara contra el estándar del club ({CLUB_STANDARD}).
+Usa las estadísticas reales como evidencia principal cuando existan. El prospecto es de nivel "{_lvl}"; compara su score contra el estándar esperado para ESE nivel ({_lstd}), no contra un estándar global.
 Devuelve EXACTAMENTE este JSON:
 {{
   "verdict": "RECRUIT | MONITOR | PASS",
@@ -586,7 +624,7 @@ Devuelve EXACTAMENTE este JSON:
   "strengths": ["fortaleza 1", "fortaleza 2", "fortaleza 3"],
   "weaknesses": ["área de mejora 1", "área de mejora 2"],
   "development_plan": ["recomendación de desarrollo 1", "recomendación 2", "recomendación 3"],
-  "comparison_vs_standard": "cómo se compara vs el estándar del club ({CLUB_STANDARD})",
+  "comparison_vs_standard": "cómo se compara vs el estándar de su nivel {_lvl} ({_lstd})",
   "fit_score": <0-100>
 }}"""
 
@@ -668,6 +706,8 @@ def _public_view(p: dict) -> dict:
             "category_averages": ev.get("category_averages"),
             "overall": ev.get("overall"),
             "club_standard": ev.get("club_standard", CLUB_STANDARD),
+            "level": ev.get("level") or _norm_level(p.get("level")),
+            "level_standard": ev.get("level_standard") or _level_standard(p.get("level")),
         } if ev else None,
         "ai": {
             "verdict": ai.get("verdict"),
@@ -1278,8 +1318,8 @@ def _verdict_hex(v):
     return '#10b981' if v == 'RECRUIT' else '#f59e0b' if v == 'MONITOR' else '#ef4444' if v == 'PASS' else '#64748b'
 
 
-def _bar_hex(v):
-    return '#10b981' if v >= CLUB_STANDARD else '#f59e0b' if v >= CLUB_STANDARD - 15 else '#ef4444'
+def _bar_hex(v, std=CLUB_STANDARD):
+    return '#10b981' if v >= std else '#f59e0b' if v >= std - 15 else '#ef4444'
 
 
 def _build_scout_pdf(p: dict, photo_bytes: Optional[bytes], public_url: Optional[str],
@@ -1427,13 +1467,15 @@ def _build_scout_pdf(p: dict, photo_bytes: Optional[bytes], public_url: Optional
     blocks = _criteria_for(p.get('sport'))
     cat_label = {b["key"]: b["label"] for b in blocks}
     section("Evaluación por área")
+    _lvl = _norm_level(p.get('level'))
+    _lstd = ev.get('level_standard') or _level_standard(p.get('level'))
     if cat_avgs:
         track_w = W - 2 * M - 120
         for ckey, avg in cat_avgs.items():
             ensure(22)
             y = state["y"]
             pct = max(0, min(100, avg))
-            col = HexColor(_bar_hex(pct))
+            col = HexColor(_bar_hex(pct, _lstd))
             text(M, y, cat_label.get(ckey, ckey), 10, ink, True)
             rtext(M + 110 + track_w, y, str(pct), 10, col, True)
             c.setFillColor(border)
@@ -1441,7 +1483,7 @@ def _build_scout_pdf(p: dict, photo_bytes: Optional[bytes], public_url: Optional
             c.setFillColor(col)
             c.roundRect(M + 100, y - 2, max(2, track_w * pct / 100.0), 7, 3, fill=1, stroke=0)
             state["y"] = y - 18
-        text(M, state["y"], f"Estándar del club: {CLUB_STANDARD}", 9, muted)
+        text(M, state["y"], f"Estándar del nivel {_lvl}: {_lstd}", 9, muted)
         state["y"] -= 16
     else:
         text(M, state["y"], "Sin evaluación registrada.", 9, muted)

@@ -40,6 +40,21 @@ Ejemplos de respuestas útiles:
 - "Progresión sugerida: Sem1: 60%, Sem2: 65%, Sem3: 70%, Sem4: descarga 50%"
 """
 
+def _elite_ctx(ctx: dict) -> str:
+    """Añade el nivel de élite (medalla) del atleta al contexto si está disponible."""
+    score = ctx.get('evaluation_score')
+    elite = ctx.get('elite_level')
+    if score is None and not elite:
+        return ""
+    line = "\n- Nivel de élite (evaluación)"
+    if elite:
+        line += f": {elite}"
+    if score is not None:
+        line += f" ({score}/100 pts)"
+    line += ". Ajusta la exigencia, volumen e intensidad de tus recomendaciones a este nivel de rendimiento."
+    return line
+
+
 class ChatRequest(BaseModel):
     message: str
     session_id: str
@@ -75,7 +90,7 @@ DATOS DEL ATLETA ACTUAL:
 - Nivel: {ctx.get('level', 'No especificado')}
 - Edad: {ctx.get('age', 'No especificada')}
 - Peso: {ctx.get('weight', 'No especificado')} kg
-- Objetivos: {ctx.get('objectives', 'No especificados')}
+- Objetivos: {ctx.get('objectives', 'No especificados')}{_elite_ctx(ctx)}
 
 Usa estos datos para personalizar tus sugerencias.
 ---

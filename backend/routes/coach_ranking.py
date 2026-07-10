@@ -103,6 +103,38 @@ async def athlete_ranking(
     return {"ranking": rows, "total": len(rows)}
 
 
+def _elite_level(score) -> Optional[dict]:
+    if score is None:
+        return None
+    for mn, key, label in [(90, "diamond", "Diamante"), (75, "gold", "Oro"),
+                           (60, "silver", "Plata"), (40, "bronze", "Bronce"),
+                           (-1, "rookie", "En desarrollo")]:
+        if score >= mn:
+            return {"key": key, "label": label}
+    return None
+
+
+@router.get("/athlete-score/{athlete_id}")
+async def athlete_score(athlete_id: str, user: dict = Depends(get_current_user), db=Depends(get_db)):
+    """Score de evaluación (0–100) + nivel de élite (medalla) de un atleta."""
+    uid = user["id"]
+    acc = {"sum": 0.0, "n": 0}
+    ecur = db.plan_evaluations_v2.find({"user_id": uid, "athlete_id": athlete_id}, {"_id": 0})
+    for d in await ecur.to_list(length=5000):
+        pct = _eval_pct(d)
+        if pct is not None:
+            acc["sum"] += pct; acc["n"] += 1
+    score = round(acc["sum"] / acc["n"]) if acc["n"] else None
+    lvl = _elite_level(score)
+    return {
+        "athlete_id": athlete_id,
+        "evaluation_score": score,
+        "evaluations_count": acc["n"],
+        "elite_level": lvl["label"] if lvl else None,
+        "elite_level_key": lvl["key"] if lvl else None,
+    }
+
+
 class WeeklyAlert(BaseModel):
     title: str = ""
     message: str = ""

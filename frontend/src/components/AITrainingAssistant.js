@@ -33,6 +33,7 @@ const AITrainingAssistant = ({
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [suggestedPrompts, setSuggestedPrompts] = useState([]);
+  const [eliteInfo, setEliteInfo] = useState(null);
   const chatEndRef = useRef(null);
   const sessionId = useRef(`session-${Date.now()}`);
 
@@ -45,6 +46,23 @@ const AITrainingAssistant = ({
   useEffect(() => {
     fetchSuggestedPrompts();
   }, []);
+
+  // Fetch elite level (medalla) of the selected athlete
+  useEffect(() => {
+    const aid = selectedAthlete?.id;
+    if (!aid) { setEliteInfo(null); return; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = localStorage.getItem('train_token');
+        const res = await fetch(`${API_URL}/api/coach/athlete-score/${aid}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        if (res.ok && !cancelled) setEliteInfo(await res.json());
+      } catch (e) { /* silencioso */ }
+    })();
+    return () => { cancelled = true; };
+  }, [selectedAthlete?.id]);
 
   const fetchSuggestedPrompts = async () => {
     try {
@@ -84,7 +102,9 @@ const AITrainingAssistant = ({
             level: selectedAthlete.level,
             age: selectedAthlete.age,
             weight: selectedAthlete.weight,
-            objectives: selectedAthlete.objectives
+            objectives: selectedAthlete.objectives,
+            evaluation_score: eliteInfo?.evaluation_score ?? null,
+            elite_level: eliteInfo?.elite_level ?? null
           } : null
         })
       });
@@ -127,7 +147,10 @@ const AITrainingAssistant = ({
           type: actionType,
           sport: sport,
           level: level,
-          context: selectedAthlete?.name ? `Atleta: ${selectedAthlete.name}` : null
+          context: [
+            selectedAthlete?.name ? `Atleta: ${selectedAthlete.name}` : null,
+            eliteInfo?.elite_level ? `Nivel de élite: ${eliteInfo.elite_level}${eliteInfo.evaluation_score != null ? ` (${eliteInfo.evaluation_score}/100)` : ''}` : null
+          ].filter(Boolean).join('. ') || null
         })
       });
       

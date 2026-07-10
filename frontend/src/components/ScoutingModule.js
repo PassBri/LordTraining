@@ -60,7 +60,7 @@ export const SCOUTING_TABS = SCOUTING_TABS_SHARED;
 const TABS = SCOUTING_TABS_SHARED;
 
 const emptyProspect = () => ({
-  name: '', sport: 'football', sport_name: 'Fútbol', position: '', current_club: '', age: '',
+  name: '', sport: 'football', sport_name: 'Fútbol', level: 'amateur', position: '', current_club: '', age: '',
   nationality: '', gender: '', height_cm: '', weight_kg: '', dominant_side: '', email: '', phone: '',
   guardian_contact: '', photo_path: null, bio: '', social_links: {}, video_links: [], achievements: [],
   key_stats: {}, tags: [], stage: 'prospect', outcome: null,
@@ -289,7 +289,7 @@ function EvaluationTab({ prospects, onSaved }) {
     return init;
   };
   const loadCriteria = async (preserve) => {
-    const c = await api(`/criteria?sport=${prospect.sport || ''}`);
+    const c = await api(`/criteria?sport=${prospect.sport || ''}&level=${prospect.level || 'amateur'}`);
     const pc = prospect.evaluation?.custom_labels || {};
     c.blocks.forEach(b => {
       Object.entries(pc[b.key] || {}).forEach(([k, lbl]) => {
@@ -310,7 +310,8 @@ function EvaluationTab({ prospects, onSaved }) {
 
   const allVals = Object.values(scores).flatMap(o => Object.values(o));
   const overall = allVals.length ? Math.round(allVals.reduce((a, b) => a + b, 0) / allVals.length) : 0;
-  const std = criteria?.club_standard ?? 70;
+  const std = criteria?.level_standard ?? criteria?.club_standard ?? 70;
+  const stdLevel = criteria?.level || prospect?.level || 'amateur';
 
   const addCriterion = async () => {
     const { block, label, scope } = addForm;
@@ -420,7 +421,7 @@ function EvaluationTab({ prospects, onSaved }) {
             <div className="bg-white rounded-xl border border-slate-200 p-5 text-center">
               <div className="text-xs font-bold text-slate-400 uppercase">{tt('Score General')}</div>
               <div className="text-6xl font-black my-1" style={{ color: scoreColor(overall) }}>{overall}</div>
-              <div className="text-[11px] text-slate-500">{tt('Estándar del club:')} <b>{std}</b></div>
+              <div className="text-[11px] text-slate-500">{tt('Estándar nivel')} <b className="capitalize">{stdLevel}</b>: <b>{std}</b></div>
               <div className="mt-2 h-2 bg-slate-100 rounded-full overflow-hidden relative">
                 <div className="h-full" style={{ width: `${overall}%`, background: scoreColor(overall) }} />
                 <div className="absolute top-0 h-full w-0.5 bg-slate-900" style={{ left: `${std}%` }} title={tt('Estándar')} />
@@ -981,6 +982,18 @@ function ProspectForm({ initial, onClose, onSaved }) {
               </Select>
             </Field>
             <Field label={tt('Posición')}><Input value={f.position} onChange={e => set('position', e.target.value)} className="bg-white" /></Field>
+            <Field label={tt('Nivel')}>
+              <Select value={f.level || 'amateur'} onValueChange={v => set('level', v)}>
+                <SelectTrigger className="bg-white" data-testid="form-level"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="principiante">{tt('Principiante')}</SelectItem>
+                  <SelectItem value="amateur">{tt('Amateur')}</SelectItem>
+                  <SelectItem value="semiprofesional">{tt('Semiprofesional')}</SelectItem>
+                  <SelectItem value="profesional">{tt('Profesional')}</SelectItem>
+                  <SelectItem value="elite">{tt('Élite')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
             <Field label={tt('Club actual')}><Input value={f.current_club} onChange={e => set('current_club', e.target.value)} className="bg-white" /></Field>
             <Field label={tt('Edad')}><Input type="number" value={f.age} onChange={e => set('age', e.target.value)} className="bg-white" /></Field>
             <Field label={tt('Nacionalidad')}><Input value={f.nationality} onChange={e => set('nationality', e.target.value)} className="bg-white" /></Field>
