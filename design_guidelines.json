@@ -1,92 +1,114 @@
 {
-  "global_guidelines": {
-    "brand_identity": "LordTraining - High-end sports periodization/coaching SaaS.",
-    "core_accents": {
-      "lime": "#CCFF00",
-      "gold": "#C9A84C"
+  "theme": "dark",
+  "typography": {
+    "headings": {
+      "family": "Outfit, sans-serif",
+      "weights": ["400", "500", "600", "700"],
+      "tracking": "tracking-tight",
+      "instruction": "Replace Barlow Condensed with Outfit in the classic theme. Use tracking-tight or tracking-tighter for all headings to achieve the premium startup look. Apply font-display or font-outfit class."
+    },
+    "body": {
+      "family": "Inter, sans-serif",
+      "weights": ["400", "500"],
+      "line_height": "leading-relaxed",
+      "instruction": "Keep Inter for body text. Ensure text colors are muted (text-zinc-400) to create stark contrast with white headings."
     }
   },
-  "themes": {
-    "light": {
-      "description": "Clean, readable Notion/Linear style. Solves contrast failures.",
-      "tokens": {
-        "bg_base": "#F9FAFB",
-        "surface": "#FFFFFF",
-        "surface_elevated": "#F3F4F6",
-        "text_primary": "#050A14",
-        "text_secondary": "#4B5563",
-        "border": "#E5E7EB",
-        "accent_ink": "#0A0F1E"
-      },
-      "accent_rules": "Lime (#CCFF00) fails WCAG on white. Reserve Lime for dark CTA bands, footers, or hover states on dark buttons. Use navy/ink (#0A0F1E) as the primary accent color on light surfaces."
+  "colors": {
+    "background": {
+      "base": "#09090b",
+      "surface": "#18181b",
+      "surface_hover": "#27272a"
     },
-    "futuristic": {
-      "description": "Refined matte graphite-ceramic aesthetic. Neutral grays, sophisticated, ZERO blue.",
-      "tokens": {
-        "bg_base": "#121212",
-        "surface": "#1C1C1C",
-        "surface_elevated": "#262626",
-        "text_primary": "#F5F5F7",
-        "text_secondary": "#A1A1AA",
-        "border": "#333333",
-        "shadow_treatment": "inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.5)",
-        "radius": "0.5rem"
-      },
-      "typography_overrides": {
-        "hero_clamp": "clamp(2rem, 3vw + 1rem, 3rem)",
-        "h2_clamp": "clamp(1.5rem, 2vw + 1rem, 2.25rem)",
-        "reasoning": "Tighter, tasteful type sizes prevent layout breakage and deliver a premium, controlled futuristic look."
-      },
-      "accent_rules": "Use the Lime accent extremely sparingly (e.g., small glowing dot indicators or a single 1px active line) to maintain the graphite-ceramic mood."
+    "text": {
+      "primary": "#ffffff",
+      "secondary": "#a1a1aa",
+      "tertiary": "#71717a"
     },
-    "classic": {
-      "description": "Base dark navy with signature lime and gold. (Sanity Pass)",
-      "tokens": {
-        "bg_base": "#050A14",
-        "surface": "#0A0F1E",
-        "surface_elevated": "#111827",
-        "text_primary": "#F8FAFC",
-        "text_secondary": "#94A3B8",
-        "border": "#1E293B"
-      },
-      "sanity_pass": "Overall solid. Ensure Lime text on navy has sufficient font-weight (font-medium+) for legibility. Keep surface elevations distinct."
+    "accent": {
+      "primary": "#ffffff",
+      "secondary": "#D4AF37",
+      "tertiary": "#A3E635",
+      "instruction": "Primary CTAs must be Pure White bg with Black text. The LordTraining Gold (#D4AF37) is used for premium highlights, icons, or the active state to match the logo. The legacy Neon Lime (#A3E635) is heavily restrained, used ONLY for micro-indicators like success dots or chart data lines."
     },
-    "material": {
-      "description": "Elevation and shadow-driven theme. (Sanity Pass)",
-      "tokens": {
-        "bg_base": "#0F172A",
-        "surface": "#1E293B",
-        "surface_elevated": "#334155",
-        "text_primary": "#F1F5F9",
-        "text_secondary": "#94A3B8",
-        "border": "#475569"
-      },
-      "sanity_pass": "Ensure drop shadows are colored with the brand hue (rgba(5,10,20, 0.4)) rather than pure black to avoid muddying the colors."
+    "border": {
+      "subtle": "rgba(255, 255, 255, 0.08)",
+      "strong": "rgba(255, 255, 255, 0.15)"
     }
   },
-  "components": {
-    "multi_sport_tactical_board": {
-      "problem": "Rainbow/childish look due to vivid sport-specific gradients.",
-      "solution": "Professional, restrained approach.",
-      "guidelines": {
-        "board_surface": "Desaturate and unify. Use the theme's 'surface_elevated' consistently across ALL sports.",
-        "pitch_lines": "Use a subtle monochrome tint (e.g., 'text_secondary' at 20-30% opacity) for court lines.",
-        "interactive_elements": "Reserve vivid colors exclusively for player nodes, routes, and arrows using the brand Lime (#CCFF00) and Gold (#C9A84C).",
-        "sport_differentiation": "Differentiate sports using small muted icons or a 2px colored top-border, rather than flooding the entire card background."
+  "visual_enhancers": {
+    "shadows": "Remove all heavy neon glows. Use subtle ambient lighting: shadow-[0_4px_30px_rgba(0,0,0,0.5)] or an extremely faint white glow shadow-[0_0_20px_rgba(255,255,255,0.03)].",
+    "borders": "Adopt a Technical Grid Look. 1px borders using border-white/10 on almost all cards, buttons, and sections.",
+    "radii": "Restrained roundness. Use rounded-xl for main bento cards, rounded-lg for buttons and smaller inputs.",
+    "background_effects": "Use a subtle radial gradient in the Hero background to simulate a spotlight: bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-800/20 via-zinc-950 to-zinc-950."
+  },
+  "layouts": {
+    "spacing": "Generous Spacing. Use py-24 or py-32 for section padding. For bento grids, use gap-4 or gap-6.",
+    "bento_grid": "For Features and Scouting, use pure HTML/Tailwind bento grids with direct children elements. Mix col-span-1 and col-span-2 for asymmetry.",
+    "alignment": "Left-align mostly. Center-align the Hero text, but keep feature descriptions and scouting points strictly left-aligned."
+  },
+  "motion": {
+    "hover_states": "Cards should have a slight lift (-translate-y-1) and an increase in border opacity (border-white/20).",
+    "buttons": "Scale down slightly on active (active:scale-95). Transition transform and background-color over 0.2s ease.",
+    "marquee": "Use react-fast-marquee. Extremely slow speed (20-30). Text must be low contrast (text-zinc-800) so it acts as texture, not a distraction."
+  },
+  "sections_blueprint": {
+    "1_Navbar": "Glassmorphism: backdrop-blur-xl bg-zinc-950/70. 1px bottom border border-white/5. 'Iniciar Sesión' -> text-zinc-300 hover:text-white. 'Crear Cuenta' -> bg-white text-black hover:bg-zinc-200 rounded-full px-4 py-2.",
+    "2_Hero": "Spotlight background. Headline: text-5xl md:text-7xl font-semibold tracking-tighter text-white. Subtitle: text-lg text-zinc-400 max-w-2xl mx-auto. CTAs: Primary white, Secondary outline transparent. Right side dashboard: 1px border, bg-zinc-900/50, restrained lime/gold data lines.",
+    "3_Scouting_New": "Bento-style layout. Title left-aligned. 'Pills' for audiences (rounded-full border border-white/10 text-xs). 6 benefits as a list with subtle gold checkmarks. Floating cards on the scout image using framer-motion.",
+    "4_Marquee_Sports": "Editorial Ribbon. text-4xl font-bold text-zinc-800 uppercase tracking-widest. Slow drift.",
+    "5_Multi_Sport": "Cards with bg-zinc-900/30, border border-white/5. Grayscale SVG pitches that colorize (subtle tint) on hover.",
+    "6_Features_Bento": "Classic Linear-style Bento Grid. Mix tall and wide cards. Inner padding p-8. Use Lucide icons tinted with gold or white.",
+    "7_Audiences_Trust": "Logos strictly grayscale opacity-40 hover:opacity-100 transition-opacity.",
+    "8_How_It_Works": "Vertical timeline. Line is border-l border-white/10. Steps have a white/10 dot that glows white on hover.",
+    "9_Pricing": "3 columns. Monthly/Annual toggle is a pill shape bg-zinc-900 p-1. Center 'Pro' card has border-white/20 and a subtle radial gradient background to pop out.",
+    "10_Testimonials": "Horizontal scroll or grid. Cards bg-zinc-900/40, border border-white/5. Client names in white, roles in zinc-500.",
+    "11_Footer": "Massive py-32. Huge 'LORDTRAINING' watermark text at the very bottom text-[10vw] text-zinc-900. Links in zinc-400 hover:white."
+  },
+  "media": {
+    "image_urls": [
+      {
+        "url": "https://images.unsplash.com/photo-1585757318177-0570a997dc3a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwyfHxzb2NjZXIlMjBjb2FjaCUyMHRhY3RpY3N8ZW58MHx8fHwxNzgzNjUzOTExfDA&ixlib=rb-4.1.0&q=85",
+        "category": "hero_or_scouting",
+        "description": "Coach holding tactics board. Use as background or context image if custom SVG is missing."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODh8MHwxfHNlYXJjaHwyfHxzcG9ydHMlMjBkYXRhJTIwYW5hbHl0aWNzfGVufDB8fHx8MTc4MzY1MzkxMXww&ixlib=rb-4.1.0&q=85",
+        "category": "features_data",
+        "description": "Sports data analytics on screen. Use for analytics feature card."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1509928015542-fcc9b3bcd048?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNzl8MHwxfHNlYXJjaHwxfHxzdGFkaXVtJTIwbGlnaHRzJTIwZGFya3xlbnwwfHx8fDE3ODM2NTM5MTF8MA&ixlib=rb-4.1.0&q=85",
+        "category": "background",
+        "description": "Dark stadium lights. Ideal for a moody, high-end hero background overlay."
       }
-    },
-    "testimonials": {
-      "problem": "Light theme renders dark-on-dark due to hardcoded background classes.",
-      "solution": "Remove hardcoded navy classes. Ensure cards inherit 'surface' or 'surface_elevated' variables natively so they adapt correctly when switching to Light theme."
-    }
+    ]
   },
+  "3d_libraries": {
+    "instruction": "Framer Motion is sufficient for UI transitions and floating scouting cards. Do not introduce Three.js or heavy 3D unless specifically replacing the hero data viz."
+  },
+  "accessibility": {
+    "contrast": "Ensure all text on dark backgrounds meets APCA standards. Muted text should not drop below text-zinc-500. Use text-white for primary information.",
+    "interactive": "All buttons, tabs, and toggles must have visible focus rings: focus:ring-2 focus:ring-white/20 focus:outline-none.",
+    "testing": "All interactive and key informational elements MUST include a data-testid attribute (e.g., data-testid='cta-hero-register')."
+  },
+  "component_path": "/app/frontend/src/pages/LandingPage.js",
   "instructions_to_main_agent": [
-    "Create or update /app/frontend/src/index.css to implement the four CSS variable groups: .lt-theme[data-landing-theme='classic'], 'light', 'futuristic', 'material'.",
-    "Map Tailwind utility classes to these CSS variables to remove hardcoding (e.g. replacing hardcoded Tailwind colors with var(--surface)).",
-    "Refactor the testimonials carousel and pricing cards to use theme-aware variables instead of hardcoded dark classes that break the Light theme.",
-    "Implement the clamped typography variables explicitly in the 'futuristic' theme selector (Hero clamp to max 3rem).",
-    "Refactor the multi-sport tactical board to remove rainbow gradients. Apply a uniform theme surface with low-opacity pitch lines and accent-only interactive nodes.",
-    "Ensure every interactive element (buttons, tabs, theme-toggles) has a 'data-testid' attribute.",
-    "Apply 'accent_ink' logic for the Light theme to avoid WCAG contrast failures with the Lime color."
+    "DO NOT do a structural rewrite of LandingPage.js. Map these styles strictly to the existing sections and elements.",
+    "Modify CSS variables in landingThemes.css for the 'classic' theme: e.g., --bg-color: #09090b, --primary-color: #ffffff.",
+    "Use Tailwind utility classes directly in the JSX for specific overrides (like tracking-tight, backdrop-blur-xl).",
+    "Replace Barlow Condensed with Outfit. Add Google Font link if needed, or update tailwind config.",
+    "Ensure 't(...)' i18n calls are strictly untouched.",
+    "Add data-testid attributes to all CTAs and interactive elements to facilitate robust automated testing.",
+    "Do not use complete transparent background in header. Use backdrop-blur-xl bg-zinc-950/70.",
+    "Apply styles to .js files only as this is a React JS project."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Maintain all component logical structures and React hooks.",
+    "Do not break any existing feature toggles or multilinguism.",
+    "Embrace 'Tactical Minimalism': Dark surfaces, pure white typography, hair-line borders, and zero muddy gradients.",
+    "You MUST NOT apply universal transition. Always add transitions for specific interactive elements.",
+    "Create depth through layered design elements with z-index hierarchy and glass-morphism effects.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap."
   ]
 }
