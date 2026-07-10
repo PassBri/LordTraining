@@ -1,5 +1,17 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-10 — Landing: rediseño "Tactical Minimalism" (más profesional/startup)
+- **Dirección de diseño** (blueprint del design_agent en `/app/design_guidelines.json`): look premium estilo Vercel/Linear. Se reemplazó el estilo "neón/gamer" por uno sobrio y elegante.
+- **Paleta neutralizada**: fondos de slate (azulado) → **zinc/obsidiana neutro** (#09090b/#18181b/#27272a) en todo `LandingPage.js` (global slate→zinc).
+- **Acento dorado**: el verde lima neón `#CCFF00` → **dorado `#D4AF37`** (armoniza con el busto dorado del logo). Lima eliminado del landing.
+- **CTAs primarios en blanco**: "Crear Cuenta", "Empezar gratis", "Comenzar ahora", etc. ahora `bg-white text-black` (se usó valor arbitrario `bg-[#FFFFFF]` para vencer el `bg-primary` por defecto del `Button` de shadcn por orden de CSS).
+- **Tipografía**: títulos pasan de Barlow Condensed → **Outfit** (grotesque geométrica premium) cambiando la constante `BC` + `@import` en `index.css`. Inter se mantiene para cuerpo.
+- **Motor de temas actualizado**: los overrides de los temas alternativos (light/futurista/material) y el mapeo global en `landing/*.css` se repuntaron de `slate-*` → `zinc-*`; el tema `classic` se excluyó del mapeo global (`:not([data-landing-theme="classic"])`) para conservar el nuevo look tal cual. Tokens del classic actualizados a la paleta obsidiana/dorada.
+- Estructura y contenido i18n (t('landing.*')) INTACTOS. Verificado por screenshots: hero, scouting, funciones (bento), precios y footer. Compila limpio.
+
+## 2026-07-10 — Landing: sección Scouting multiidioma (12 idiomas)
+- La nueva sección "Scouting & Talent Identification" pasó de texto hardcodeado a i18n real vía `t('landing.scouting.*')` (30+ claves) en los 12 idiomas (script `i18n_tools.py translate` + `i18n_scouting_spec.json`). Título ES ajustado a "Scouting e Identificación de Talento". "Scouting"/"LordTraining" no se traducen.
+
 ## 2026-07-10 — Plan Gráfico (independencia + auto-cálculo) + Landing: sección Scouting + Timeline Periodización
 - **Plan Gráfico · Volumen e Intensidad INDEPENDIENTES**: `_buildVolIntData` (GraphicPlan.js) ahora calcula la base de volumen e intensidad por separado y aplica overrides manuales de forma independiente (antes, editar volumen ponía la intensidad en 0). Además la fila **Intensidad %** ahora soporta entrada numérica de porcentaje (mismo control de unidad `%`/toggle `~`/`#` que Volumen; `VOLINT_UNIT_ROWS` incluye 'intensidad'). Verificado testing_agent iter_114 (100%).
 - **Plan Gráfico · Magnitud de Carga y Recuperación INDEPENDIENTES + auto-cálculo**: `_buildLoadData` reescrito igual patrón. Carga % ahora se auto-calcula desde vol/int reales del micro v2 (`0.55·vol + 0.45·int`) → varía por semana en vez de saturarse en 100%. Recuperación % se auto-calcula (complemento) y ya no aparece vacía. Editar una no afecta la otra.

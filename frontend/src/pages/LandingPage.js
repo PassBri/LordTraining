@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 
-const BC = "'Barlow Condensed', sans-serif";
+const BC = "'Outfit', sans-serif";
 const INT = "'Inter', sans-serif";
 
 /* ═══ SCROLL REVEAL HOOK ═══ */
@@ -54,11 +54,11 @@ const Reveal = ({ children, delay = 0, direction = 'up', className = '', ...prop
 /* ═══ SECTION TAG — Material Design ═══ */
 const SectionTag = ({ children, center = true }) => (
   <div className={`flex items-center gap-3 mb-4 ${center ? 'justify-center' : ''}`}>
-    <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#CCFF00]/60" />
-    <span className="text-[13px] font-black uppercase tracking-[0.18em] text-[#CCFF00] relative" style={{fontFamily:BC, textShadow:'0 0 20px rgba(204,255,0,0.3)'}}>
+    <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#D4AF37]/60" />
+    <span className="text-[13px] font-black uppercase tracking-[0.18em] text-[#D4AF37] relative" style={{fontFamily:BC, textShadow:'0 0 20px rgba(212,175,55,0.3)'}}>
       {children}
     </span>
-    <div className="h-px w-8 bg-gradient-to-l from-transparent to-[#CCFF00]/60" />
+    <div className="h-px w-8 bg-gradient-to-l from-transparent to-[#D4AF37]/60" />
   </div>
 );
 
@@ -76,7 +76,7 @@ const AnimatedBarChart = ({ label, color1, color2, delay = 0, values }) => {
     <div className="flex flex-col items-center gap-2">
       <div className="flex items-center gap-2 mb-1">
         <div className="w-2 h-2 rounded-full" style={{background:color1}} />
-        <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold" style={{fontFamily:BC}}>{label}</span>
+        <span className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold" style={{fontFamily:BC}}>{label}</span>
       </div>
       <div className="flex items-end gap-[3px] h-36 w-full px-1">
         {data.map((d, i) => (
@@ -88,7 +88,7 @@ const AnimatedBarChart = ({ label, color1, color2, delay = 0, values }) => {
       </div>
       <div className="flex justify-between w-full px-1">
         {['S1','S4','S8','S12'].map(s => (
-          <span key={s} className="text-[7px] text-slate-600" style={{fontFamily:BC}}>{s}</span>
+          <span key={s} className="text-[7px] text-zinc-600" style={{fontFamily:BC}}>{s}</span>
         ))}
       </div>
     </div>
@@ -126,28 +126,28 @@ const PeriodizationMiniChart = ({ t }) => {
   const denData = [60,55,52,48,58,55,50,65,60,55,48,70,65,60,52,72,68,60,55,75,70,65,58,80];
   const phases = [
     {n:t('landing.chart.accumulation'),c:'#3B82F6'},
-    {n:t('landing.chart.transformation'),c:'#CCFF00'},
+    {n:t('landing.chart.transformation'),c:'#D4AF37'},
     {n:t('landing.chart.realization'),c:'#F43F5E'}
   ];
   const wkLabels = Array.from({length:24},(_,i) => i%4===0 ? `S${i+1}` : '');
 
   return (
     <div className="relative w-full">
-      <div className="bg-slate-800/60 backdrop-blur-md rounded-2xl border border-slate-700/40 p-6 lg:p-7 shadow-2xl">
+      <div className="bg-zinc-800/60 backdrop-blur-md rounded-2xl border border-zinc-700/40 p-6 lg:p-7 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#CCFF00] rounded-lg flex items-center justify-center">
-              <Activity className="w-4 h-4 text-slate-900" />
+            <div className="w-8 h-8 bg-[#D4AF37] rounded-lg flex items-center justify-center">
+              <Activity className="w-4 h-4 text-zinc-900" />
             </div>
             <div>
               <span className="text-[13px] font-bold text-white block leading-none" style={{fontFamily:BC}}>{t('landing.chart.title')}</span>
-              <span className="text-[9px] text-slate-500">{t('landing.chart.subtitle')} — 24 {t('landing.chart.weeks')}</span>
+              <span className="text-[9px] text-zinc-500">{t('landing.chart.subtitle')} — 24 {t('landing.chart.weeks')}</span>
             </div>
           </div>
           <div className="flex gap-2">
             <span className="px-2.5 py-1 bg-blue-500/20 text-blue-400 rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"/>{t('landing.chart.vol')}</span>
-            <span className="px-2.5 py-1 bg-[#CCFF00]/20 text-[#CCFF00] rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]"/>{t('landing.chart.int')}</span>
+            <span className="px-2.5 py-1 bg-[#D4AF37]/20 text-[#D4AF37] rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"/>{t('landing.chart.int')}</span>
             <span className="px-2.5 py-1 bg-rose-500/20 text-rose-400 rounded-md text-[9px] font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-400"/>{t('landing.chart.den')}</span>
           </div>
         </div>
@@ -169,7 +169,7 @@ const PeriodizationMiniChart = ({ t }) => {
                   onMouseEnter={() => setHoverIdx(i)}>
                   <div className="w-full flex items-end gap-[1px] h-full">
                     <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${volData[i]}%`, background:'#3B82F6', opacity: isHover ? 1 : 0.7, transform: isHover ? 'scaleX(1.3)' : 'scaleX(1)'}} />
-                    <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${intData[i]}%`, background:'#CCFF00', opacity: isHover ? 1 : 0.65, transform: isHover ? 'scaleX(1.3)' : 'scaleX(1)'}} />
+                    <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${intData[i]}%`, background:'#D4AF37', opacity: isHover ? 1 : 0.65, transform: isHover ? 'scaleX(1.3)' : 'scaleX(1)'}} />
                     <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${denData[i]}%`, background:'#F43F5E', opacity: isHover ? 1 : 0.6, transform: isHover ? 'scaleX(1.3)' : 'scaleX(1)'}} />
                   </div>
                   {/* Crosshair line */}
@@ -185,15 +185,15 @@ const PeriodizationMiniChart = ({ t }) => {
               left: `${(hoverIdx / 24) * 100}%`,
               transform: hoverIdx > 16 ? 'translateX(-100%)' : hoverIdx > 8 ? 'translateX(-50%)' : 'translateX(0)'
             }}>
-              <div className="bg-slate-900/95 backdrop-blur-lg border border-slate-600/60 rounded-lg px-3 py-2 shadow-xl min-w-[120px]">
-                <div className="text-[9px] text-slate-400 font-bold mb-1.5" style={{fontFamily:BC}}>{t('landing.chart.week')} {hoverIdx+1}</div>
+              <div className="bg-zinc-900/95 backdrop-blur-lg border border-zinc-600/60 rounded-lg px-3 py-2 shadow-xl min-w-[120px]">
+                <div className="text-[9px] text-zinc-400 font-bold mb-1.5" style={{fontFamily:BC}}>{t('landing.chart.week')} {hoverIdx+1}</div>
                 <div className="space-y-1">
                   <div className="flex items-center justify-between gap-3">
                     <span className="flex items-center gap-1 text-[9px] text-blue-400"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"/>{t('landing.chart.volume')}</span>
                     <span className="text-[10px] font-black text-white" style={{fontFamily:BC}}>{volData[hoverIdx]}%</span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="flex items-center gap-1 text-[9px] text-[#CCFF00]"><span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]"/>{t('landing.chart.intensity')}</span>
+                    <span className="flex items-center gap-1 text-[9px] text-[#D4AF37]"><span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"/>{t('landing.chart.intensity')}</span>
                     <span className="text-[10px] font-black text-white" style={{fontFamily:BC}}>{intData[hoverIdx]}%</span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
@@ -208,23 +208,23 @@ const PeriodizationMiniChart = ({ t }) => {
         {/* Week labels */}
         <div className="flex justify-between px-0.5">
           {wkLabels.map((s,i) => (
-            <span key={i} className={`flex-1 text-center text-[6px] font-bold ${hoverIdx === i ? 'text-[#CCFF00]' : 'text-slate-600'}`} style={{fontFamily:BC}}>{s}</span>
+            <span key={i} className={`flex-1 text-center text-[6px] font-bold ${hoverIdx === i ? 'text-[#D4AF37]' : 'text-zinc-600'}`} style={{fontFamily:BC}}>{s}</span>
           ))}
         </div>
         {/* Bottom stats row */}
-        <div className="flex items-center gap-3 mt-4 pt-3 border-t border-slate-700/40">
+        <div className="flex items-center gap-3 mt-4 pt-3 border-t border-zinc-700/40">
           <div className="flex-shrink-0 mr-1">
             <ReadinessGauge size={52} t={t} />
           </div>
           {[
             {l:t('landing.chart.totalLoad'),v:'2,847 UA',c:'text-blue-400'},
-            {l:'ACWR',v:'0.87',c:'text-[#CCFF00]'},
+            {l:'ACWR',v:'0.87',c:'text-[#D4AF37]'},
             {l:t('landing.chart.monotony'),v:'1.24',c:'text-rose-400'},
             {l:t('landing.chart.adherence'),v:'94%',c:'text-emerald-400'},
           ].map(s => (
             <div key={s.l} className="flex-1 text-center group cursor-default">
               <div className={`text-[14px] font-black leading-none ${s.c} group-hover:scale-110 transition-transform`} style={{fontFamily:BC}}>{s.v}</div>
-              <div className="text-[7px] text-slate-500 mt-1">{s.l}</div>
+              <div className="text-[7px] text-zinc-500 mt-1">{s.l}</div>
             </div>
           ))}
         </div>
@@ -243,14 +243,14 @@ const MarqueeStrip = ({ t }) => {
     'KARVONEN', t('landing.marquee.m_competition')
   ];
   return (
-    <div className="overflow-hidden py-3 bg-gradient-to-r from-[#0a0f19] via-[#1a2033] to-[#0a0f19] border-y border-[#CCFF00]/15" style={{maskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)'}}>
+    <div className="overflow-hidden py-3 bg-gradient-to-r from-[#18181b] via-[#27272a] to-[#18181b] border-y border-[#D4AF37]/15" style={{maskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)'}}>
       <div className="flex animate-marquee-slow whitespace-nowrap">
         {[...Array(3)].map((_, rep) => (
           <React.Fragment key={rep}>
             {items.map((txt, i) => (
               <span key={`${rep}-${i}`} className="inline-flex items-center gap-3 px-4 text-[14px] md:text-[17px] font-black uppercase tracking-[0.08em]" style={{fontFamily:BC}}>
-                <span className={i % 3 === 0 ? 'text-[#CCFF00]' : 'text-white/35'}>{txt}</span>
-                <span className="text-[#CCFF00]/35 text-[10px]">●</span>
+                <span className={i % 3 === 0 ? 'text-[#D4AF37]' : 'text-white/35'}>{txt}</span>
+                <span className="text-[#D4AF37]/35 text-[10px]">●</span>
               </span>
             ))}
           </React.Fragment>
@@ -266,7 +266,7 @@ const MarqueeStrip = ({ t }) => {
 
 const DataRings = () => (
   <div className="relative w-[52px] h-[52px]">
-    {[{r:24,c:'#007AFF',off:20},{r:18,c:'#CCFF00',off:35},{r:12,c:'#F43F5E',off:15}].map(({r,c,off},i) => (
+    {[{r:24,c:'#007AFF',off:20},{r:18,c:'#D4AF37',off:35},{r:12,c:'#F43F5E',off:15}].map(({r,c,off},i) => (
       <svg key={i} className="absolute inset-0" viewBox="0 0 52 52">
         <circle cx="26" cy="26" r={r} fill="none" stroke={c} strokeWidth="2.5" strokeDasharray={`${(2*Math.PI*r*(100-off)/100)} ${2*Math.PI*r}`} strokeLinecap="round" transform="rotate(-90 26 26)" opacity="0.8" />
       </svg>
@@ -280,15 +280,15 @@ const ReadinessGauge = ({ size = 96, t }) => {
     <div className="flex flex-col items-center gap-1 group cursor-default">
       <div className="relative group-hover:scale-105 transition-transform" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
-          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#1e293b" strokeWidth="4" />
-          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#CCFF00" strokeWidth="4" strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" />
+          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#27272a" strokeWidth="4" />
+          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#D4AF37" strokeWidth="4" strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-2xl font-black text-white leading-none" style={{fontFamily:BC}}>85</span>
-          <span className="text-[8px] text-[#CCFF00] mt-0.5 font-bold">{t ? t('landing.chart.optimal') : 'ÓPTIMO'}</span>
+          <span className="text-[8px] text-[#D4AF37] mt-0.5 font-bold">{t ? t('landing.chart.optimal') : 'ÓPTIMO'}</span>
         </div>
       </div>
-      <span className="text-[8px] text-slate-400 font-bold" style={{fontFamily:BC}}>{t ? t('landing.chart.readiness') : 'READINESS'}</span>
+      <span className="text-[8px] text-zinc-400 font-bold" style={{fontFamily:BC}}>{t ? t('landing.chart.readiness') : 'READINESS'}</span>
     </div>
   );
 };
@@ -313,7 +313,7 @@ const ShowcaseChart = ({ t }) => {
           return (
             <div key={i} className="flex-1 flex items-end gap-[1px] h-full cursor-crosshair relative" onMouseEnter={() => setHIdx(i)}>
               <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${p}%`, background:'#3B82F6', opacity: h ? 1 : 0.6}} />
-              <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${executed[i]}%`, background:'#CCFF00', opacity: h ? 1 : 0.5}} />
+              <div className="flex-1 rounded-t-sm transition-all duration-150" style={{height:`${executed[i]}%`, background:'#D4AF37', opacity: h ? 1 : 0.5}} />
               {h && <div className="absolute top-0 left-1/2 w-px h-full bg-white/25 -translate-x-1/2 pointer-events-none" />}
             </div>
           );
@@ -321,11 +321,11 @@ const ShowcaseChart = ({ t }) => {
       </div>
       {hIdx !== null && (
         <div className="absolute z-20 pointer-events-none" style={{top:'-4px', left:`${(hIdx/12)*100}%`, transform: hIdx > 8 ? 'translateX(-100%)' : 'translateX(0)'}}>
-          <div className="bg-slate-900/95 backdrop-blur-lg border border-slate-600/60 rounded-lg px-2.5 py-1.5 shadow-xl">
-            <div className="text-[10px] text-slate-400 mb-1" style={{fontFamily:BC}}>{t('landing.chart.week')} {hIdx+1}</div>
+          <div className="bg-zinc-900/95 backdrop-blur-lg border border-zinc-600/60 rounded-lg px-2.5 py-1.5 shadow-xl">
+            <div className="text-[10px] text-zinc-400 mb-1" style={{fontFamily:BC}}>{t('landing.chart.week')} {hIdx+1}</div>
             <div className="flex items-center gap-3 text-[11px]">
               <span className="text-blue-400 font-bold">{t('landing.chart.planned')}: {planned[hIdx]}%</span>
-              <span className="text-[#CCFF00] font-bold">{t('landing.chart.executed')}: {executed[hIdx]}%</span>
+              <span className="text-[#D4AF37] font-bold">{t('landing.chart.executed')}: {executed[hIdx]}%</span>
             </div>
           </div>
         </div>
@@ -336,15 +336,15 @@ const ShowcaseChart = ({ t }) => {
 
 /* ═══ TESTIMONIALS CAROUSEL ═══ */
 const TESTIMONIAL_META = [
-  { id:1, initials:'CM', name:'C.M.', segment:'coach', color:'#c8f700' },
+  { id:1, initials:'CM', name:'C.M.', segment:'coach', color:'#D4AF37' },
   { id:2, initials:'AR', name:'A.R.', segment:'club', color:'#378ADD' },
   { id:3, initials:'DT', name:'D.T.', segment:'federation', color:'#E24B4A' },
   { id:4, initials:'MV', name:'M.V.', segment:'club', color:'#378ADD' },
   { id:5, initials:'LP', name:'L.P.', segment:'school', color:'#7F77DD' },
   { id:6, initials:'RG', name:'R.G.', segment:'federation', color:'#E24B4A' },
-  { id:7, initials:'JF', name:'J.F.', segment:'coach', color:'#c8f700' },
+  { id:7, initials:'JF', name:'J.F.', segment:'coach', color:'#D4AF37' },
   { id:8, initials:'SC', name:'S.C.', segment:'school', color:'#7F77DD' },
-  { id:9, initials:'BM', name:'B.M.', segment:'coach', color:'#c8f700' },
+  { id:9, initials:'BM', name:'B.M.', segment:'coach', color:'#D4AF37' },
   { id:10, initials:'HQ', name:'H.Q.', segment:'federation', color:'#E24B4A' },
 ];
 
@@ -376,7 +376,7 @@ const TestimonialsCarousel = ({ t }) => {
   }, [totalPages]);
 
   return (
-    <section className="pt-24 pb-10 px-6 bg-slate-950 relative overflow-hidden" data-testid="testimonials-section">
+    <section className="pt-24 pb-10 px-6 bg-zinc-950 relative overflow-hidden" data-testid="testimonials-section">
       <div className="max-w-[1120px] mx-auto relative z-10">
         {/* Header with nav arrows */}
         <Reveal direction="up">
@@ -384,13 +384,13 @@ const TestimonialsCarousel = ({ t }) => {
           <div className="flex items-end justify-between mb-10">
             <div>
               <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-2" style={{fontFamily:INT}}>{t('landing.social.title')}</h2>
-              <p className="text-[14px] text-slate-400">{t('landing.social.subtitle')}</p>
+              <p className="text-[14px] text-zinc-400">{t('landing.social.subtitle')}</p>
             </div>
             <div className="hidden md:flex gap-2">
-              <button onClick={() => scroll('prev')} className="w-10 h-10 rounded-full border border-slate-700 flex items-center justify-center text-slate-400 hover:border-[#CCFF00] hover:text-[#CCFF00] transition-colors" data-testid="testimonial-prev" aria-label="Previous">
+              <button onClick={() => scroll('prev')} className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:border-[#D4AF37] hover:text-[#D4AF37] transition-colors" data-testid="testimonial-prev" aria-label="Previous">
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <button onClick={() => scroll('next')} className="w-10 h-10 rounded-full border border-slate-700 flex items-center justify-center text-slate-400 hover:border-[#CCFF00] hover:text-[#CCFF00] transition-colors" data-testid="testimonial-next" aria-label="Next">
+              <button onClick={() => scroll('next')} className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:border-[#D4AF37] hover:text-[#D4AF37] transition-colors" data-testid="testimonial-next" aria-label="Next">
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
@@ -410,12 +410,12 @@ const TestimonialsCarousel = ({ t }) => {
                 </div>
                 {/* Author */}
                 <div className="flex items-center gap-3 pt-4 border-t" style={{borderColor:'rgba(255,255,255,0.06)'}}>
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-bold flex-shrink-0" style={{background: tm.color, color: tm.color === '#c8f700' ? '#0f172a' : '#fff'}}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-bold flex-shrink-0" style={{background: tm.color, color: tm.color === '#D4AF37' ? '#0f172a' : '#fff'}}>
                     {tm.initials}
                   </div>
                   <div className="min-w-0">
                     <p className="text-[13px] font-semibold text-white">{tm.name}</p>
-                    <p className="text-[12px] text-slate-400 leading-snug">{t(`landing.social.t${tm.id}_role`)}</p>
+                    <p className="text-[12px] text-zinc-400 leading-snug">{t(`landing.social.t${tm.id}_role`)}</p>
                   </div>
                 </div>
               </div>
@@ -431,12 +431,12 @@ const TestimonialsCarousel = ({ t }) => {
               if (!el) return;
               const cardW = el.querySelector('[data-card]')?.offsetWidth || 370;
               el.scrollTo({ left: i * (cardW + 16) * 3, behavior: 'smooth' });
-            }} className={`h-1.5 rounded-full transition-all duration-300 ${i === activeIdx ? 'w-6 bg-[#CCFF00]' : 'w-1.5 bg-slate-700 hover:bg-slate-600'}`} aria-label={`Page ${i + 1}`} data-testid={`testimonial-dot-${i}`} />
+            }} className={`h-1.5 rounded-full transition-all duration-300 ${i === activeIdx ? 'w-6 bg-[#D4AF37]' : 'w-1.5 bg-zinc-700 hover:bg-zinc-600'}`} aria-label={`Page ${i + 1}`} data-testid={`testimonial-dot-${i}`} />
           ))}
         </div>
 
         {/* Disclaimer */}
-        <p className="text-[11px] text-slate-600 text-center mt-6">{t('landing.social.disclaimer')}</p>
+        <p className="text-[11px] text-zinc-600 text-center mt-6">{t('landing.social.disclaimer')}</p>
       </div>
     </section>
   );
@@ -470,20 +470,20 @@ const ScoutingSection = ({ t }) => {
   ];
 
   return (
-    <section id="scouting" className="py-20 px-6 bg-slate-950 relative overflow-hidden" data-testid="scouting-section">
+    <section id="scouting" className="py-20 px-6 bg-zinc-950 relative overflow-hidden" data-testid="scouting-section">
       {/* ambient glow */}
-      <div className="absolute top-1/3 -left-32 w-96 h-96 rounded-full bg-[#CCFF00]/[0.04] blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 -left-32 w-96 h-96 rounded-full bg-[#D4AF37]/[0.04] blur-3xl pointer-events-none" />
       <div className="max-w-[1120px] mx-auto relative z-10">
         {/* Header */}
         <Reveal direction="up" className="text-center mb-12">
           <SectionTag>{t('landing.scouting.tag')}</SectionTag>
           <h2 className="text-[28px] md:text-[40px] font-bold text-white leading-[1.12] mb-3" style={{fontFamily:INT}} data-testid="scouting-title">
-            {t('landing.scouting.title_1')} <span className="text-[#CCFF00]">{t('landing.scouting.title_2')}</span>
+            {t('landing.scouting.title_1')} <span className="text-[#D4AF37]">{t('landing.scouting.title_2')}</span>
           </h2>
-          <p className="text-slate-300 text-[15px] md:text-[17px] max-w-[640px] mx-auto mb-4">
+          <p className="text-zinc-300 text-[15px] md:text-[17px] max-w-[640px] mx-auto mb-4">
             {t('landing.scouting.subtitle')}
           </p>
-          <p className="text-slate-400 text-[13px] md:text-[14px] leading-[1.7] max-w-[720px] mx-auto">
+          <p className="text-zinc-400 text-[13px] md:text-[14px] leading-[1.7] max-w-[720px] mx-auto">
             {t('landing.scouting.description')}
           </p>
         </Reveal>
@@ -491,43 +491,43 @@ const ScoutingSection = ({ t }) => {
         {/* Image + Benefits */}
         <div className="grid lg:grid-cols-2 gap-8 items-center mb-14">
           <Reveal direction="left">
-            <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl" data-testid="scouting-image">
+            <div className="relative rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl" data-testid="scouting-image">
               <img src={SCOUT_IMG} alt={t('landing.scouting.badge_title')} className="w-full h-[300px] md:h-[360px] object-cover" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent" />
               {/* floating stat card */}
-              <div className="absolute bottom-4 left-4 bg-slate-900/90 backdrop-blur-md border border-slate-700/60 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#CCFF00]/15 flex items-center justify-center">
-                  <Eye className="w-4.5 h-4.5 text-[#CCFF00]" />
+              <div className="absolute bottom-4 left-4 bg-zinc-900/90 backdrop-blur-md border border-zinc-700/60 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#D4AF37]/15 flex items-center justify-center">
+                  <Eye className="w-4.5 h-4.5 text-[#D4AF37]" />
                 </div>
                 <div>
                   <div className="text-[15px] font-black text-white leading-none" style={{fontFamily:BC}}>{t('landing.scouting.badge_title')}</div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">{t('landing.scouting.badge_sub')}</div>
+                  <div className="text-[10px] text-zinc-400 mt-0.5">{t('landing.scouting.badge_sub')}</div>
                 </div>
               </div>
-              <div className="absolute top-4 right-4 bg-slate-900/90 backdrop-blur-md border border-slate-700/60 rounded-xl px-3 py-2 shadow-xl">
-                <div className="text-[18px] font-black text-[#CCFF00] leading-none" style={{fontFamily:BC}}>−42%</div>
-                <div className="text-[9px] text-slate-400 mt-0.5">{t('landing.scouting.stat_label')}</div>
+              <div className="absolute top-4 right-4 bg-zinc-900/90 backdrop-blur-md border border-zinc-700/60 rounded-xl px-3 py-2 shadow-xl">
+                <div className="text-[18px] font-black text-[#D4AF37] leading-none" style={{fontFamily:BC}}>−42%</div>
+                <div className="text-[9px] text-zinc-400 mt-0.5">{t('landing.scouting.stat_label')}</div>
               </div>
             </div>
           </Reveal>
 
           <Reveal direction="right">
-            <h3 className="text-[13px] font-black uppercase tracking-[0.14em] text-[#CCFF00] mb-4" style={{fontFamily:BC}}>{t('landing.scouting.benefits_title')}</h3>
+            <h3 className="text-[13px] font-black uppercase tracking-[0.14em] text-[#D4AF37] mb-4" style={{fontFamily:BC}}>{t('landing.scouting.benefits_title')}</h3>
             <ul className="space-y-3" data-testid="scouting-benefits">
               {benefits.map((b, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="mt-0.5 w-5 h-5 rounded-full bg-[#CCFF00]/15 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-[#CCFF00]" strokeWidth={3} />
+                  <span className="mt-0.5 w-5 h-5 rounded-full bg-[#D4AF37]/15 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-[#D4AF37]" strokeWidth={3} />
                   </span>
-                  <span className="text-[14px] text-slate-300 leading-[1.5]">{b}</span>
+                  <span className="text-[14px] text-zinc-300 leading-[1.5]">{b}</span>
                 </li>
               ))}
             </ul>
             {/* Audience pills */}
             <div className="flex flex-wrap gap-2.5 mt-6">
               {audiences.map((a) => (
-                <span key={a.label} className="inline-flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-full px-3.5 py-1.5 text-[12px] font-bold text-slate-300">
-                  <a.icon className="w-3.5 h-3.5 text-[#CCFF00]" /> {a.label}
+                <span key={a.label} className="inline-flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 rounded-full px-3.5 py-1.5 text-[12px] font-bold text-zinc-300">
+                  <a.icon className="w-3.5 h-3.5 text-[#D4AF37]" /> {a.label}
                 </span>
               ))}
             </div>
@@ -541,12 +541,12 @@ const ScoutingSection = ({ t }) => {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-14" data-testid="scouting-tools">
           {tools.map((tool, i) => (
             <Reveal key={tool.title} direction="up" delay={i * 0.06}>
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-full group hover:border-[#CCFF00]/50 transition-all duration-300 hover:-translate-y-1" data-testid={`scouting-tool-${i}`}>
-                <div className="w-12 h-12 rounded-xl bg-[#CCFF00]/10 border border-[#CCFF00]/20 flex items-center justify-center mb-4 group-hover:bg-[#CCFF00]/20 transition-colors">
-                  <tool.icon className="w-6 h-6 text-[#CCFF00]" />
+              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 h-full group hover:border-[#D4AF37]/50 transition-all duration-300 hover:-translate-y-1" data-testid={`scouting-tool-${i}`}>
+                <div className="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/20 flex items-center justify-center mb-4 group-hover:bg-[#D4AF37]/20 transition-colors">
+                  <tool.icon className="w-6 h-6 text-[#D4AF37]" />
                 </div>
                 <h4 className="text-[16px] font-bold text-white mb-1.5" style={{fontFamily:INT}}>{tool.title}</h4>
-                <p className="text-[13px] text-slate-400 leading-[1.6]">{tool.desc}</p>
+                <p className="text-[13px] text-zinc-400 leading-[1.6]">{tool.desc}</p>
               </div>
             </Reveal>
           ))}
@@ -554,16 +554,16 @@ const ScoutingSection = ({ t }) => {
 
         {/* CTA */}
         <Reveal direction="up">
-          <div className="relative rounded-3xl overflow-hidden border border-[#CCFF00]/20 bg-gradient-to-br from-slate-900 to-slate-950 px-6 py-10 md:px-12 md:py-12 text-center" data-testid="scouting-cta">
-            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-80 h-40 rounded-full bg-[#CCFF00]/[0.06] blur-3xl pointer-events-none" />
+          <div className="relative rounded-3xl overflow-hidden border border-[#D4AF37]/20 bg-gradient-to-br from-zinc-900 to-zinc-950 px-6 py-10 md:px-12 md:py-12 text-center" data-testid="scouting-cta">
+            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-80 h-40 rounded-full bg-[#D4AF37]/[0.06] blur-3xl pointer-events-none" />
             <h3 className="relative text-[24px] md:text-[32px] font-bold text-white mb-2" style={{fontFamily:INT}}>
-              {t('landing.scouting.cta_pre')} <span className="text-[#CCFF00]">LordTraining</span>
+              {t('landing.scouting.cta_pre')} <span className="text-[#D4AF37]">LordTraining</span>
             </h3>
-            <p className="relative text-[14px] text-slate-400 mb-7 max-w-[520px] mx-auto">
+            <p className="relative text-[14px] text-zinc-400 mb-7 max-w-[520px] mx-auto">
               {t('landing.scouting.cta_sub')}
             </p>
             <Link to="/auth" className="relative inline-block">
-              <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-12 px-8 text-[13px] font-bold rounded-xl shadow-lg shadow-[#CCFF00]/20 transition-all hover:-translate-y-0.5" style={{fontFamily:BC}} data-testid="scouting-cta-btn">
+              <Button className="bg-[#FFFFFF] text-[#09090b] hover:bg-[#E4E4E7] h-12 px-8 text-[13px] font-bold rounded-xl shadow-lg shadow-[#D4AF37]/20 transition-all hover:-translate-y-0.5" style={{fontFamily:BC}} data-testid="scouting-cta-btn">
                 {t('landing.scouting.cta_btn')} <ArrowRight className="w-4 h-4 ml-2 inline" />
               </Button>
             </Link>
@@ -667,7 +667,7 @@ const LandingPage = () => {
   ];
 
   return (
-  <div className="min-h-screen bg-slate-950 landing-reset lt-theme" data-landing-theme={landingTheme} style={{fontFamily:INT}}>
+  <div className="min-h-screen bg-zinc-950 landing-reset lt-theme" data-landing-theme={landingTheme} style={{fontFamily:INT}}>
     <style>{`
       .lt-theme, .lt-theme * { transition: background-color .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease; }
       .landing-reset h1,.landing-reset h2,.landing-reset h3,.landing-reset h4{font-family:inherit;font-weight:inherit;text-transform:none;letter-spacing:normal;}
@@ -683,11 +683,11 @@ const LandingPage = () => {
 
     {/* Aviso de Vista Previa (solo cuando ?previewTheme=...) */}
     {previewTheme && (
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[100] bg-[#CCFF00] text-slate-900 px-4 py-2.5 rounded-full shadow-2xl text-sm font-bold flex items-center gap-3" data-testid="preview-theme-banner">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[100] bg-[#D4AF37] text-zinc-900 px-4 py-2.5 rounded-full shadow-2xl text-sm font-bold flex items-center gap-3" data-testid="preview-theme-banner">
         {publishState === 'done' ? (
           <>
             <span>✓ Tema "{previewTheme}" activado para todos</span>
-            <a href="/" className="underline hover:no-underline text-slate-900/80">Ver publicado</a>
+            <a href="/" className="underline hover:no-underline text-zinc-900/80">Ver publicado</a>
           </>
         ) : (
           <>
@@ -696,7 +696,7 @@ const LandingPage = () => {
               type="button"
               onClick={publishPreviewTheme}
               disabled={publishState === 'saving'}
-              className="bg-slate-900 text-[#CCFF00] px-3 py-1.5 rounded-full text-xs font-bold hover:bg-slate-800 transition-colors disabled:opacity-60"
+              className="bg-zinc-900 text-[#D4AF37] px-3 py-1.5 rounded-full text-xs font-bold hover:bg-zinc-800 transition-colors disabled:opacity-60"
               data-testid="preview-activate-btn"
             >
               {publishState === 'saving' ? 'Activando…' : 'Activar este tema'}
@@ -710,48 +710,48 @@ const LandingPage = () => {
     )}
 
     {/* NAV — Dark, cinematic */}
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/40" data-testid="main-nav">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/40" data-testid="main-nav">
       <div className="max-w-[1120px] mx-auto px-6">
         <div className="flex items-center justify-between h-[56px]">
           <Link to="/" className="flex items-center gap-3" data-testid="nav-brand-logo">
             <img src="/brand/lordtraining-scale.png" alt="" className="h-11 w-11 object-contain" style={{filter:'drop-shadow(0 4px 10px rgba(0,0,0,0.45))'}} />
-            <span className="text-[17px] font-black text-white tracking-tight" style={{fontFamily:BC, letterSpacing:'0.01em'}}>Lord<span className="text-[#CCFF00]">Training</span></span>
+            <span className="text-[17px] font-black text-white tracking-tight" style={{fontFamily:BC, letterSpacing:'0.01em'}}>Lord<span className="text-[#D4AF37]">Training</span></span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
             {[['#features', t('landing.nav.features')],['#how-it-works', t('landing.nav.howItWorks')],['#pricing', t('landing.nav.pricing')]].map(([h,l]) => (
-              <a key={h} href={h} className="text-[13px] text-slate-400 hover:text-white transition-colors">{l}</a>
+              <a key={h} href={h} className="text-[13px] text-zinc-400 hover:text-white transition-colors">{l}</a>
             ))}
-            <Link to="/blog" className="text-[13px] text-slate-400 hover:text-white transition-colors" data-testid="nav-resources-link">{t('landing.nav.resources', { defaultValue: 'Recursos' })}</Link>
+            <Link to="/blog" className="text-[13px] text-zinc-400 hover:text-white transition-colors" data-testid="nav-resources-link">{t('landing.nav.resources', { defaultValue: 'Recursos' })}</Link>
           </div>
           <div className="flex items-center gap-2">
             <LanguageSelector variant="dark" />
-            <Link to="/auth"><Button variant="ghost" className="text-[13px] text-slate-400 hover:text-white h-9" data-testid="login-nav-btn">{t('landing.nav.login')}</Button></Link>
-            <Link to="/auth"><Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] text-[12px] font-bold px-5 h-9 rounded-lg" style={{fontFamily:BC}} data-testid="signup-nav-btn">{t('landing.nav.signup')}</Button></Link>
+            <Link to="/auth"><Button variant="ghost" className="text-[13px] text-zinc-400 hover:text-white h-9" data-testid="login-nav-btn">{t('landing.nav.login')}</Button></Link>
+            <Link to="/auth"><Button className="bg-[#FFFFFF] text-[#09090b] hover:bg-[#E4E4E7] text-[12px] font-bold px-5 h-9 rounded-lg" style={{fontFamily:BC}} data-testid="signup-nav-btn">{t('landing.nav.signup')}</Button></Link>
           </div>
         </div>
       </div>
       {/* Tagline strip — full width with animated performance wave */}
-      <div className="relative overflow-hidden bg-slate-900/80 border-t border-slate-800/30">
+      <div className="relative overflow-hidden bg-zinc-900/80 border-t border-zinc-800/30">
         {/* Animated wave behind text */}
         <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 1200 40">
-          <path d="M0 20 Q50 8,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20" fill="none" stroke="#CCFF00" strokeWidth="1" opacity="0.15">
+          <path d="M0 20 Q50 8,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20" fill="none" stroke="#D4AF37" strokeWidth="1" opacity="0.15">
             <animate attributeName="d" dur="3s" repeatCount="indefinite" values="M0 20 Q50 8,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20;M0 20 Q50 32,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20;M0 20 Q50 8,100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20" />
           </path>
-          <path d="M0 20 L80 20 L90 6 L100 34 L110 12 L120 28 L130 20 L1200 20" fill="none" stroke="#CCFF00" strokeWidth="1.5" opacity="0.25" strokeLinecap="round">
+          <path d="M0 20 L80 20 L90 6 L100 34 L110 12 L120 28 L130 20 L1200 20" fill="none" stroke="#D4AF37" strokeWidth="1.5" opacity="0.25" strokeLinecap="round">
             <animateTransform attributeName="transform" type="translate" values="-200,0;1200,0" dur="4s" repeatCount="indefinite" />
           </path>
         </svg>
         <div className="relative z-10 py-2.5 px-6 text-center">
-          <p className="text-[20px] md:text-[24px] font-black uppercase tracking-[0.08em] text-[#CCFF00]" style={{fontFamily:BC}}>{t('landing.hero.tagline')}</p>
+          <p className="text-[20px] md:text-[24px] font-black uppercase tracking-[0.08em] text-[#D4AF37]" style={{fontFamily:BC}}>{t('landing.hero.tagline')}</p>
         </div>
       </div>
     </nav>
 
     {/* HERO — Compact Material Design layout */}
-    <section className="relative pt-[100px] overflow-hidden bg-slate-950">
+    <section className="relative pt-[100px] overflow-hidden bg-zinc-950">
       {/* Background elements */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_50%,rgba(204,255,0,0.04)_0%,transparent_60%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] opacity-10" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_50%,rgba(212,175,55,0.04)_0%,transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(#27272a_1px,transparent_1px)] [background-size:32px_32px] opacity-10" />
 
       <div className="max-w-[1120px] mx-auto px-6 relative z-10 w-full pt-10 pb-6">
         {/* Main grid: brand left + chart right (Material Design — generous spacing, vertically centered) */}
@@ -764,7 +764,7 @@ const LandingPage = () => {
                 {/* Pulsing golden glow halo */}
                 <span className="absolute inset-0 m-auto rounded-full pointer-events-none" style={{
                   width: '70%', height: '70%', top: 0, bottom: 0, left: 0, right: 0,
-                  background: 'radial-gradient(circle, rgba(245,200,80,0.45) 0%, rgba(204,255,0,0.18) 35%, transparent 70%)',
+                  background: 'radial-gradient(circle, rgba(245,200,80,0.45) 0%, rgba(212,175,55,0.18) 35%, transparent 70%)',
                   filter: 'blur(28px)',
                   animation: 'shieldGlow 3s ease-in-out infinite',
                 }} />
@@ -779,13 +779,13 @@ const LandingPage = () => {
 
             <Reveal delay={0.3} direction="up">
               <h1 className="text-[1.55rem] sm:text-[1.8rem] lg:text-[2rem] font-black leading-[1.2] tracking-[-0.01em] text-center lg:text-left" style={{fontFamily:BC}} data-testid="hero-headline">
-                <span className="text-[#CCFF00]">{t('landing.hero.headline_verb1')}</span><span className="text-white">{t('landing.hero.headline_rest1')}</span><br/>
-                <span className="text-[#CCFF00]">{t('landing.hero.headline_verb2')}</span><span className="text-white">{t('landing.hero.headline_rest2')}</span>
+                <span className="text-[#D4AF37]">{t('landing.hero.headline_verb1')}</span><span className="text-white">{t('landing.hero.headline_rest1')}</span><br/>
+                <span className="text-[#D4AF37]">{t('landing.hero.headline_verb2')}</span><span className="text-white">{t('landing.hero.headline_rest2')}</span>
               </h1>
             </Reveal>
 
             <Reveal delay={0.4} direction="up">
-              <p className="text-[15px] text-slate-400 leading-[1.7] max-w-[440px] text-center lg:text-left" data-testid="hero-subtitle">
+              <p className="text-[15px] text-zinc-400 leading-[1.7] max-w-[440px] text-center lg:text-left" data-testid="hero-subtitle">
                 {t('landing.hero.subtitle')}
               </p>
             </Reveal>
@@ -793,12 +793,12 @@ const LandingPage = () => {
             <Reveal delay={0.5} direction="up">
               <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
                 <Link to="/auth">
-                  <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-12 px-8 text-[13px] font-bold rounded-xl shadow-lg shadow-[#CCFF00]/20 transition-all hover:-translate-y-0.5" style={{fontFamily:BC}} data-testid="hero-cta-btn">
+                  <Button className="bg-[#FFFFFF] text-[#09090b] hover:bg-[#E4E4E7] h-12 px-8 text-[13px] font-bold rounded-xl shadow-lg shadow-[#D4AF37]/20 transition-all hover:-translate-y-0.5" style={{fontFamily:BC}} data-testid="hero-cta-btn">
                     {t('landing.hero.cta_primary')} <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
                 <a href="#features">
-                  <Button variant="outline" className="h-12 px-6 text-[13px] font-medium border-slate-700 text-slate-300 hover:bg-slate-800 hover:border-slate-600 rounded-xl transition-all">
+                  <Button variant="outline" className="h-12 px-6 text-[13px] font-medium border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 rounded-xl transition-all">
                     {t('landing.hero.cta_secondary')}
                   </Button>
                 </a>
@@ -819,15 +819,15 @@ const LandingPage = () => {
       </div>
 
       {/* Stats strip — marquee animado */}
-      <div className="border-t border-slate-800/40 bg-slate-900/40 backdrop-blur-sm overflow-hidden py-3" style={{maskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)'}}>
+      <div className="border-t border-zinc-800/40 bg-zinc-900/40 backdrop-blur-sm overflow-hidden py-3" style={{maskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)'}}>
         <div className="flex animate-stats-marquee whitespace-nowrap">
           {[...Array(4)].map((_, rep) => (
             <React.Fragment key={rep}>
               {[{v:'17',k:'models'},{v:'6',k:'controls'},{v:'150+',k:'exercises'},{v:'5',k:'calculators'},{v:'30+',k:'sports'},{v:'12',k:'periodizations'}].map((s,i) => (
                 <span key={`${rep}-${i}`} className="inline-flex items-center gap-2.5 px-6">
-                  <span className="text-[18px] md:text-[22px] font-black text-[#CCFF00] leading-none" style={{fontFamily:BC}}>{s.v}</span>
+                  <span className="text-[18px] md:text-[22px] font-black text-[#D4AF37] leading-none" style={{fontFamily:BC}}>{s.v}</span>
                   <span className="text-[13px] md:text-[15px] font-bold uppercase tracking-[0.1em] text-white/50 leading-none" style={{fontFamily:BC}}>{s.k ? t(`landing.hero.stats.${s.k}`) : s.l}</span>
-                  <span className="text-[#CCFF00]/35 text-[10px] ml-2">●</span>
+                  <span className="text-[#D4AF37]/35 text-[10px] ml-2">●</span>
                 </span>
               ))}
             </React.Fragment>
@@ -844,7 +844,7 @@ const LandingPage = () => {
     <ScoutingSection t={t} />
 
     {/* MARQUEE SCROLLING — Palabras moviéndose */}
-    <section className="relative bg-gradient-to-r from-[#0a0f19] via-[#1a2033] to-[#0a0f19] border-y border-[#CCFF00]/15 overflow-hidden" data-testid="marquee-section">
+    <section className="relative bg-gradient-to-r from-[#18181b] via-[#27272a] to-[#18181b] border-y border-[#D4AF37]/15 overflow-hidden" data-testid="marquee-section">
       <div className="relative flex overflow-hidden py-3" style={{maskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)',WebkitMaskImage:'linear-gradient(90deg,transparent,black 6%,black 94%,transparent)'}}>
         <div className="flex shrink-0 whitespace-nowrap animate-[marquee_90s_linear_infinite]">
           {[
@@ -855,8 +855,8 @@ const LandingPage = () => {
             'BADMINTON','SQUASH','GOLF','TIRO CON ARCO','DARDOS','TIRO DEPORTIVO','BOLICHE','BOLO CRIOLLO','ESCALADA','ATLETISMO','CICLISMO','NATACION','BOXEO','KARATE','MMA','JUDO','TAEKWONDO'
           ]).map((w, i) => (
             <span key={i} className="inline-flex items-center gap-3 px-4 text-[14px] md:text-[17px] font-black uppercase tracking-[0.08em]" style={{fontFamily:BC}}>
-              <span className={i % 3 === 0 ? 'text-[#CCFF00]' : 'text-white/35'}>{w}</span>
-              <span className="text-[#CCFF00]/35 text-[10px]">●</span>
+              <span className={i % 3 === 0 ? 'text-[#D4AF37]' : 'text-white/35'}>{w}</span>
+              <span className="text-[#D4AF37]/35 text-[10px]">●</span>
             </span>
           ))}
         </div>
@@ -865,7 +865,7 @@ const LandingPage = () => {
     </section>
 
     {/* MINIATURAS CANCHAS — Jugadas animadas estilo pizarrón */}
-    <section className="py-16 px-6 bg-slate-950 relative overflow-hidden" data-testid="sport-courts-gallery">
+    <section className="py-16 px-6 bg-zinc-950 relative overflow-hidden" data-testid="sport-courts-gallery">
       <style>{`
         @keyframes sport-ball { 0%,15% { transform: translate(0,0); opacity:0 } 20%,80% { opacity:1 } 50% { transform: translate(var(--bx,15px), var(--by,-20px)) } 85%,100% { transform: translate(var(--bx2,30px), var(--by2,-30px)); opacity:0 } }
         @keyframes sport-player { 0%,20% { transform: translate(0,0) } 60%,100% { transform: translate(var(--px,10px), var(--py,-12px)) } }
@@ -882,8 +882,8 @@ const LandingPage = () => {
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-10">
           <SectionTag>{t('landing.multisport.tag')}</SectionTag>
-          <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-3" style={{fontFamily:INT}}>{t('landing.multisport.title_pre')} <span className="text-[#CCFF00]">30+ {t('landing.multisport.sports_word')}</span></h2>
-          <p className="text-slate-400 text-[14px] max-w-[520px] mx-auto">{t('landing.multisport.subtitle')}</p>
+          <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-3" style={{fontFamily:INT}}>{t('landing.multisport.title_pre')} <span className="text-[#D4AF37]">30+ {t('landing.multisport.sports_word')}</span></h2>
+          <p className="text-zinc-400 text-[14px] max-w-[520px] mx-auto">{t('landing.multisport.subtitle')}</p>
         </Reveal>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -892,32 +892,32 @@ const LandingPage = () => {
             {name:'Baloncesto', svg:`<defs><linearGradient id="gradBsk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e07a30"/><stop offset="100%" stop-color="#8b4414"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradBsk)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="9"/><path d="M 3,3 Q 50,24 97,3"/><path d="M 3,137 Q 50,116 97,137"/><rect x="34" y="3" width="32" height="22"/><rect x="34" y="115" width="32" height="22"/><circle cx="50" cy="25" r="5"/><circle cx="50" cy="115" r="5"/></g><circle cx="50" cy="14" r="1.5" fill="#ff6b35"/><circle cx="50" cy="126" r="1.5" fill="#ff6b35"/><line class="anim-arrow" x1="32" y1="85" x2="55" y2="55" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="32" cy="85" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.8"/><circle cx="55" cy="55" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.8"/><circle cx="45" cy="100" r="3.2" fill="#1e3a8a" stroke="#fff" stroke-width="0.8"/><circle cx="32" cy="85" r="1.8" fill="#ff6b35" stroke="#7c2d12" stroke-width="0.3" class="anim-ball" style="--bx:23px;--by:-30px;--bx2:33px;--by2:-45px"/>`},
             {name:'Voleibol', svg:`<defs><linearGradient id="gradVly" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0891b2"/><stop offset="100%" stop-color="#0c4a6e"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradVly)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70" stroke-width="1.5"/><line x1="3" y1="44" x2="97" y2="44" stroke-dasharray="3 2"/><line x1="3" y1="96" x2="97" y2="96" stroke-dasharray="3 2"/></g><rect x="3" y="68" width="94" height="4" fill="#fff" opacity="0.3"/><line x1="3" y1="68" x2="97" y2="68" stroke="#fff" stroke-width="0.3"/><line x1="3" y1="72" x2="97" y2="72" stroke="#fff" stroke-width="0.3"/><circle cx="30" cy="22" r="3" fill="#fbbf24" stroke="#000" stroke-width="0.3"/><circle cx="50" cy="22" r="3" fill="#fbbf24" stroke="#000" stroke-width="0.3"/><circle cx="70" cy="22" r="3" fill="#fbbf24" stroke="#000" stroke-width="0.3"/><circle cx="30" cy="118" r="3" fill="#dc2626" stroke="#000" stroke-width="0.3"/><circle cx="50" cy="118" r="3" fill="#dc2626" stroke="#000" stroke-width="0.3"/><circle cx="70" cy="118" r="3" fill="#dc2626" stroke="#000" stroke-width="0.3"/><circle cx="50" cy="35" r="2.5" fill="#fff" stroke="#fbbf24" stroke-width="0.5" class="anim-ball" style="--bx:0px;--by:55px;--bx2:0px;--by2:60px"/>`},
             {name:'Tejo', svg:`<defs><linearGradient id="gradTej" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c99568"/><stop offset="100%" stop-color="#7a5635"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradTej)"/><rect x="25" y="3" width="50" height="134" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="0.8"/><rect x="37" y="10" width="26" height="26" fill="#1e3a8a" stroke="#fff" stroke-width="0.8"/><line x1="37" y1="36" x2="63" y2="10" stroke="#dc2626" stroke-width="0.8" opacity="0.75"/><line x1="37" y1="10" x2="63" y2="36" stroke="#dc2626" stroke-width="0.8" opacity="0.75"/><circle cx="50" cy="23" r="3.5" fill="#2d1508" stroke="#d4a017" stroke-width="0.8"/><line class="anim-arrow" x1="50" y1="110" x2="50" y2="30" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="42" cy="70" r="3.5" fill="#94a3b8" stroke="#0f172a" stroke-width="0.6"/><circle cx="58" cy="85" r="3.5" fill="#dc2626" stroke="#0f172a" stroke-width="0.6"/><circle cx="50" cy="110" r="4" fill="#94a3b8" stroke="#0f172a" stroke-width="0.8" class="anim-ball" style="--bx:0px;--by:-80px;--bx2:0px;--by2:-87px"/><line x1="25" y1="125" x2="75" y2="125" stroke="#fff" stroke-width="0.8" stroke-dasharray="3 2"/>`},
-            {name:'Bolirana', svg:`<defs><linearGradient id="gradBol" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#064e2b"/><stop offset="100%" stop-color="#022017"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradBol)"/><rect x="28" y="8" width="44" height="124" fill="#166534" stroke="#0f4023" stroke-width="0.8" rx="2"/><rect x="32" y="14" width="36" height="26" fill="#0a0f19" stroke="#fbbf24" stroke-width="0.6"/><ellipse cx="50" cy="26" rx="8" ry="5" fill="#dc2626"/><ellipse cx="48" cy="22" rx="6" ry="3" fill="#b91c1c"/><circle cx="46" cy="20" r="0.9" fill="#fca5a5"/><circle cx="52" cy="20" r="0.9" fill="#fca5a5"/><g><circle cx="40" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="50" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="40" cy="65" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="65" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="40" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="50" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/></g><circle cx="50" cy="65" r="3.2" fill="#d4a017" stroke="#78350f" stroke-width="0.5"/><text x="50" y="66.5" text-anchor="middle" font-size="2.2" fill="#0a0a0a" font-weight="900" font-family="Arial">SAPO</text><circle cx="50" cy="115" r="2.6" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-ball" style="--bx:0px;--by:-50px;--bx2:0px;--by2:-55px"/>`},
-            {name:'Rana', svg:`<defs><linearGradient id="gradRna" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#166534"/><stop offset="100%" stop-color="#052e16"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradRna)"/><rect x="30" y="42" width="40" height="50" fill="#0a0f19" stroke="#d4a017" stroke-width="1"/><ellipse cx="50" cy="65" rx="11" ry="9" fill="#b91c1c" stroke="#fff" stroke-width="0.6"/><circle cx="45" cy="60" r="2" fill="#fff"/><circle cx="55" cy="60" r="2" fill="#fff"/><circle cx="45" cy="60.5" r="0.9" fill="#000"/><circle cx="55" cy="60.5" r="0.9" fill="#000"/><ellipse cx="50" cy="70" rx="4" ry="2.5" fill="#1a0505"/><circle cx="35" cy="105" r="3.2" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-pulse"/><circle cx="58" cy="115" r="3.2" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-pulse"/><line class="anim-arrow" x1="50" y1="120" x2="50" y2="75" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="50" cy="120" r="3.8" fill="#c0c0c0" stroke="#0f172a" stroke-width="0.6" class="anim-ball" style="--bx:0px;--by:-50px;--bx2:0px;--by2:-55px"/>`},
+            {name:'Bolirana', svg:`<defs><linearGradient id="gradBol" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#064e2b"/><stop offset="100%" stop-color="#022017"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradBol)"/><rect x="28" y="8" width="44" height="124" fill="#166534" stroke="#0f4023" stroke-width="0.8" rx="2"/><rect x="32" y="14" width="36" height="26" fill="#18181b" stroke="#fbbf24" stroke-width="0.6"/><ellipse cx="50" cy="26" rx="8" ry="5" fill="#dc2626"/><ellipse cx="48" cy="22" rx="6" ry="3" fill="#b91c1c"/><circle cx="46" cy="20" r="0.9" fill="#fca5a5"/><circle cx="52" cy="20" r="0.9" fill="#fca5a5"/><g><circle cx="40" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="50" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="50" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="40" cy="65" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="65" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="40" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="50" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/><circle cx="60" cy="80" r="2.3" fill="#0a0a0a" stroke="#b8860b" stroke-width="0.35"/></g><circle cx="50" cy="65" r="3.2" fill="#d4a017" stroke="#78350f" stroke-width="0.5"/><text x="50" y="66.5" text-anchor="middle" font-size="2.2" fill="#0a0a0a" font-weight="900" font-family="Arial">SAPO</text><circle cx="50" cy="115" r="2.6" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-ball" style="--bx:0px;--by:-50px;--bx2:0px;--by2:-55px"/>`},
+            {name:'Rana', svg:`<defs><linearGradient id="gradRna" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#166534"/><stop offset="100%" stop-color="#052e16"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradRna)"/><rect x="30" y="42" width="40" height="50" fill="#18181b" stroke="#d4a017" stroke-width="1"/><ellipse cx="50" cy="65" rx="11" ry="9" fill="#b91c1c" stroke="#fff" stroke-width="0.6"/><circle cx="45" cy="60" r="2" fill="#fff"/><circle cx="55" cy="60" r="2" fill="#fff"/><circle cx="45" cy="60.5" r="0.9" fill="#000"/><circle cx="55" cy="60.5" r="0.9" fill="#000"/><ellipse cx="50" cy="70" rx="4" ry="2.5" fill="#1a0505"/><circle cx="35" cy="105" r="3.2" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-pulse"/><circle cx="58" cy="115" r="3.2" fill="#94a3b8" stroke="#0f172a" stroke-width="0.5" class="anim-pulse"/><line class="anim-arrow" x1="50" y1="120" x2="50" y2="75" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="50" cy="120" r="3.8" fill="#c0c0c0" stroke="#0f172a" stroke-width="0.6" class="anim-ball" style="--bx:0px;--by:-50px;--bx2:0px;--by2:-55px"/>`},
             {name:'Tenis', svg:`<defs><linearGradient id="gradTns" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#014230"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradTns)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="10" y="10" width="80" height="120"/><line x1="10" y1="70" x2="90" y2="70" stroke-width="1.3"/><line x1="20" y1="35" x2="80" y2="35"/><line x1="20" y1="105" x2="80" y2="105"/><line x1="50" y1="35" x2="50" y2="105" stroke-dasharray="2 2"/><line x1="20" y1="10" x2="20" y2="130"/><line x1="80" y1="10" x2="80" y2="130"/></g><line class="anim-arrow" x1="35" y1="50" x2="65" y2="90" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2 2"/><circle cx="35" cy="50" r="3.2" fill="#fbbf24"/><circle cx="65" cy="90" r="3.2" fill="#fbbf24"/><circle cx="50" cy="20" r="2.3" fill="#e4ff66" stroke="#000" stroke-width="0.3" class="anim-ball" style="--bx:-15px;--by:30px;--bx2:0px;--by2:60px"/>`},
             {name:'Petanca', svg:`<defs><linearGradient id="gradPet" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a16207"/><stop offset="100%" stop-color="#451a03"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradPet)"/><rect x="5" y="5" width="90" height="130" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.4"/><circle cx="50" cy="70" r="2" fill="#fbbf24" stroke="#000" stroke-width="0.4" class="anim-pulse"/><circle cx="38" cy="55" r="4" fill="#b91c1c" stroke="#000" stroke-width="0.5"/><circle cx="38" cy="54" r="1.3" fill="#ef4444" opacity="0.6"/><circle cx="62" cy="58" r="4" fill="#b91c1c" stroke="#000" stroke-width="0.5"/><circle cx="62" cy="57" r="1.3" fill="#ef4444" opacity="0.6"/><circle cx="42" cy="82" r="4" fill="#1e40af" stroke="#000" stroke-width="0.5"/><circle cx="42" cy="81" r="1.3" fill="#3b82f6" opacity="0.6"/><circle cx="58" cy="85" r="4" fill="#1e40af" stroke="#000" stroke-width="0.5"/><circle cx="58" cy="84" r="1.3" fill="#3b82f6" opacity="0.6"/><circle cx="48" cy="105" r="4" fill="#1e40af" stroke="#000" stroke-width="0.5"/><line class="anim-arrow" x1="48" y1="105" x2="50" y2="70" stroke="#fbbf24" stroke-width="1" stroke-dasharray="2 2"/>`},
             {name:'Rugby', svg:`<defs><linearGradient id="gradRgb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16a34a"/><stop offset="100%" stop-color="#14532d"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradRgb)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="22" x2="97" y2="22"/><line x1="3" y1="118" x2="97" y2="118"/><line x1="3" y1="70" x2="97" y2="70" stroke-dasharray="3 2"/><line x1="3" y1="35" x2="97" y2="35" stroke-dasharray="1 2"/><line x1="3" y1="105" x2="97" y2="105" stroke-dasharray="1 2"/></g><ellipse cx="50" cy="70" rx="4.5" ry="7" fill="#78350f" stroke="#fff" stroke-width="0.6" transform="rotate(15 50 70)"/><line class="anim-arrow" x1="30" y1="55" x2="70" y2="85" stroke="#fbbf24" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="30" cy="55" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.6"/><circle cx="70" cy="85" r="3.2" fill="#2563eb" stroke="#fff" stroke-width="0.6"/>`},
             {name:'Hockey', svg:`<defs><linearGradient id="gradHck" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#172554"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradHck)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="7"/><rect x="30" y="3" width="40" height="12"/><rect x="30" y="125" width="40" height="12"/></g><circle cx="50" cy="70" r="0.8" fill="#fff"/><circle cx="42" cy="55" r="3.2" fill="#dc2626" stroke="#fff" stroke-width="0.6"/><path d="M 40,53 L 36,45" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/><circle cx="62" cy="90" r="3.2" fill="#f59e0b" stroke="#fff" stroke-width="0.6"/><path d="M 60,88 L 64,80" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/><line class="anim-arrow" x1="42" y1="55" x2="62" y2="85" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="2 2"/><circle cx="42" cy="55" r="1.4" fill="#0a0a0a" class="anim-ball" style="--bx:20px;--by:30px;--bx2:20px;--by2:32px"/>`},
           ].map((sport, i) => (
-            <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="sport-card group relative rounded-2xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/60 transition-all hover:scale-[1.04] hover:shadow-[0_14px_32px_-6px_rgba(204,255,0,0.28)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
+            <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="sport-card group relative rounded-2xl overflow-hidden border border-zinc-800 hover:border-[#D4AF37]/60 transition-all hover:scale-[1.04] hover:shadow-[0_14px_32px_-6px_rgba(212,175,55,0.28)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
               <div className="aspect-[3/4] relative">
                 <svg viewBox="0 0 100 140" className="w-full h-full block" preserveAspectRatio="xMidYMid slice" dangerouslySetInnerHTML={{__html: sport.svg}} />
                 <div className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(to top, rgba(5,10,20,0.92) 0%, rgba(5,10,20,0.18) 45%, rgba(5,10,20,0.35) 100%)'}}/>
-                <div className="absolute top-2 right-2 flex items-center gap-1.5 px-2 py-1 rounded-md bg-black/55 backdrop-blur-sm border border-[#CCFF00]/25">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#CCFF00] animate-pulse"/>
-                  <span className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#CCFF00]" style={{fontFamily:BC}}>LIVE</span>
+                <div className="absolute top-2 right-2 flex items-center gap-1.5 px-2 py-1 rounded-md bg-black/55 backdrop-blur-sm border border-[#D4AF37]/25">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"/>
+                  <span className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#D4AF37]" style={{fontFamily:BC}}>LIVE</span>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between">
                   <span className="text-[13px] font-black text-white uppercase tracking-[0.06em]" style={{fontFamily:BC}}>{sport.name}</span>
-                  <ArrowRight className="w-4 h-4 text-[#CCFF00] transition-transform group-hover:translate-x-0.5"/>
+                  <ArrowRight className="w-4 h-4 text-[#D4AF37] transition-transform group-hover:translate-x-0.5"/>
                 </div>
               </div>
             </a>
           ))}
         </div>
         <div className="text-center mt-10">
-          <button onClick={() => {const el = document.getElementById('more-sports-carousel'); el.style.display = el.style.display === 'block' ? 'none' : 'block'; if (el.style.display === 'block') el.scrollIntoView({behavior:'smooth', block:'center'});}} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 hover:border-[#CCFF00]/60 transition-all font-bold text-[13px]" style={{fontFamily:BC}} data-testid="more-sports-btn">
-            <span className="w-6 h-6 rounded-full bg-[#CCFF00] text-slate-900 flex items-center justify-center text-[14px] font-black">+</span>
+          <button onClick={() => {const el = document.getElementById('more-sports-carousel'); el.style.display = el.style.display === 'block' ? 'none' : 'block'; if (el.style.display === 'block') el.scrollIntoView({behavior:'smooth', block:'center'});}} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-700 hover:border-[#D4AF37]/60 transition-all font-bold text-[13px]" style={{fontFamily:BC}} data-testid="more-sports-btn">
+            <span className="w-6 h-6 rounded-full bg-[#D4AF37] text-zinc-900 flex items-center justify-center text-[14px] font-black">+</span>
             {t('landing.multisport.see_more')}
           </button>
           <div id="more-sports-carousel" style={{display:'none'}} className="mt-6">
@@ -932,12 +932,12 @@ const LandingPage = () => {
                   {name:'Ciclismo', c:'#fbbf24'},{name:'Natacion', c:'#06b6d4'},{name:'Boxeo', c:'#be185d'},
                   {name:'Karate', c:'#78716c'},{name:'Taekwondo', c:'#b91c1c'},{name:'MMA', c:'#1f2937'},{name:'Judo', c:'#450a0a'}
                 ].map((sp, i) => (
-                  <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="group relative flex-shrink-0 w-[150px] snap-start rounded-xl overflow-hidden border border-slate-800 hover:border-[#CCFF00]/60 hover:scale-[1.05] transition-all" data-testid={`extra-sport-${sp.name.toLowerCase().replace(/\s+/g,'-')}`}>
+                  <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="group relative flex-shrink-0 w-[150px] snap-start rounded-xl overflow-hidden border border-zinc-800 hover:border-[#D4AF37]/60 hover:scale-[1.05] transition-all" data-testid={`extra-sport-${sp.name.toLowerCase().replace(/\s+/g,'-')}`}>
                     <div className="aspect-[3/4] relative flex flex-col items-center justify-center p-3" style={{background:`linear-gradient(160deg, ${sp.c}33 0%, #0c1320 55%, #060b14 100%)`}}>
                       <div className="absolute inset-0" style={{backgroundImage:'radial-gradient(circle at 50% 30%, rgba(255,255,255,0.06) 0%, transparent 55%)'}}/>
                       <div className="absolute top-0 left-0 right-0 h-[2px]" style={{background:sp.c, opacity:0.7}}/>
-                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/40 backdrop-blur border border-[#CCFF00]/25">
-                        <span className="text-[7.5px] font-black tracking-[0.1em] text-[#CCFF00]" style={{fontFamily:BC}}>3D</span>
+                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/40 backdrop-blur border border-[#D4AF37]/25">
+                        <span className="text-[7.5px] font-black tracking-[0.1em] text-[#D4AF37]" style={{fontFamily:BC}}>3D</span>
                       </div>
                       <div className="relative z-10 text-center">
                         <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
@@ -946,16 +946,16 @@ const LandingPage = () => {
                         <div className="text-[11px] font-black uppercase tracking-[0.05em] text-white leading-tight" style={{fontFamily:BC}}>{sp.name}</div>
                       </div>
                       <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1">
-                        <span className="w-1 h-1 rounded-full bg-[#CCFF00]/80"/>
-                        <span className="w-1 h-1 rounded-full bg-[#CCFF00]/60"/>
-                        <span className="w-1 h-1 rounded-full bg-[#CCFF00]/40"/>
+                        <span className="w-1 h-1 rounded-full bg-[#D4AF37]/80"/>
+                        <span className="w-1 h-1 rounded-full bg-[#D4AF37]/60"/>
+                        <span className="w-1 h-1 rounded-full bg-[#D4AF37]/40"/>
                       </div>
                     </div>
                   </a>
                 ))}
               </div>
             </div>
-            <div className="text-center mt-5 text-[12px] text-slate-500">
+            <div className="text-center mt-5 text-[12px] text-zinc-500">
               <span className="inline-flex items-center gap-2">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                 {t('landing.multisport.swipe_hint')}
@@ -964,7 +964,7 @@ const LandingPage = () => {
           </div>
           <div className="mt-6">
             <a href="/tactical-board.html" onClick={handleBoardClick}>
-              <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-11 px-7 text-[13px] font-bold rounded-xl" style={{fontFamily:BC}} data-testid="explore-all-sports-btn">
+              <Button className="bg-[#FFFFFF] text-[#09090b] hover:bg-[#E4E4E7] h-11 px-7 text-[13px] font-bold rounded-xl" style={{fontFamily:BC}} data-testid="explore-all-sports-btn">
                 {t('landing.multisport.explore_board')} <ArrowRight className="w-4 h-4 ml-2"/>
               </Button>
             </a>
@@ -974,7 +974,7 @@ const LandingPage = () => {
     </section>
 
     {/* FEATURES — Dark cards */}
-    <section id="features" className="py-20 px-6 bg-slate-950 relative overflow-hidden">
+    <section id="features" className="py-20 px-6 bg-zinc-950 relative overflow-hidden">
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-14">
           <SectionTag>{t('landing.features.tag')}</SectionTag>
@@ -984,25 +984,25 @@ const LandingPage = () => {
         <div className="grid grid-cols-12 gap-3">
           {/* Main — Plan Gráfico */}
           <Reveal delay={0.1} direction="up" className="col-span-12 md:col-span-8">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7 relative overflow-hidden h-full" data-testid="feature-periodization">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-7 relative overflow-hidden h-full" data-testid="feature-periodization">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-[#CCFF00] rounded-lg flex items-center justify-center"><BarChart3 className="w-4 h-4 text-slate-900" /></div>
-                  <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#CCFF00]" style={{fontFamily:BC}}>{t('landing.features.tag')}</span>
+                  <div className="w-8 h-8 bg-[#D4AF37] rounded-lg flex items-center justify-center"><BarChart3 className="w-4 h-4 text-zinc-900" /></div>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#D4AF37]" style={{fontFamily:BC}}>{t('landing.features.tag')}</span>
                 </div>
                 <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m1_title')}</h3>
-                <p className="text-[13px] text-slate-400 leading-[1.6] max-w-xs">{t('landing.features.m1_desc')}</p>
+                <p className="text-[13px] text-zinc-400 leading-[1.6] max-w-xs">{t('landing.features.m1_desc')}</p>
               </div>
               {/* Mini phase labels */}
               <div className="hidden md:flex gap-1.5 mt-1">
-                {[{k:'accumulation',c:'#3B82F6'},{k:'transformation',c:'#CCFF00'},{k:'realization',c:'#F43F5E'}].map(p => (
+                {[{k:'accumulation',c:'#3B82F6'},{k:'transformation',c:'#D4AF37'},{k:'realization',c:'#F43F5E'}].map(p => (
                   <span key={p.k} className="px-2 py-0.5 rounded text-[8px] font-bold" style={{background:p.c+'20', color:p.c, fontFamily:BC}}>{t(`landing.chart.${p.k}`).substring(0,3).toUpperCase()}</span>
                 ))}
               </div>
             </div>
             {/* Realistic bar chart with data */}
-            <div className="bg-slate-800/40 rounded-xl p-4 border border-slate-700/20">
+            <div className="bg-zinc-800/40 rounded-xl p-4 border border-zinc-700/20">
               <div className="flex items-end gap-[3px] h-44">
                 {[
                   [78,35,55],[85,40,50],[90,45,48],[62,50,58],[75,48,52],[82,55,50],[88,60,45],[68,65,62],
@@ -1011,23 +1011,23 @@ const LandingPage = () => {
                 ].map((d,i) => (
                   <div key={i} className="flex-1 flex items-end gap-[1px] h-full">
                     <div className="flex-1 rounded-t-sm" style={{height:`${d[0]}%`, background:'#3B82F6', opacity:0.85}} />
-                    <div className="flex-1 rounded-t-sm" style={{height:`${d[1]}%`, background:'#CCFF00', opacity:0.8}} />
+                    <div className="flex-1 rounded-t-sm" style={{height:`${d[1]}%`, background:'#D4AF37', opacity:0.8}} />
                     <div className="flex-1 rounded-t-sm" style={{height:`${d[2]}%`, background:'#F43F5E', opacity:0.7}} />
                   </div>
                 ))}
               </div>
               <div className="flex justify-between mt-2 px-0.5">
                 {['S1','','','','S5','','','','S9','','','','S13','','','','S17','','','','S21','','','S24'].map((s,i) => (
-                  <span key={i} className="flex-1 text-center text-[7px] text-slate-600 font-bold" style={{fontFamily:BC}}>{s}</span>
+                  <span key={i} className="flex-1 text-center text-[7px] text-zinc-600 font-bold" style={{fontFamily:BC}}>{s}</span>
                 ))}
               </div>
               {/* Bottom stat row */}
-              <div className="flex items-center gap-4 mt-3 pt-2 border-t border-slate-700/30">
-                {[{l:t('landing.chart.volume'),v:'2,847 UA',c:'#3B82F6'},{l:t('landing.chart.intensity'),v:'78%',c:'#CCFF00'},{l:t('landing.chart.density'),v:'1.24',c:'#F43F5E'},{l:t('landing.chart.weeksLabel'),v:'24',c:'#64748b'}].map(s => (
+              <div className="flex items-center gap-4 mt-3 pt-2 border-t border-zinc-700/30">
+                {[{l:t('landing.chart.volume'),v:'2,847 UA',c:'#3B82F6'},{l:t('landing.chart.intensity'),v:'78%',c:'#D4AF37'},{l:t('landing.chart.density'),v:'1.24',c:'#F43F5E'},{l:t('landing.chart.weeksLabel'),v:'24',c:'#64748b'}].map(s => (
                   <div key={s.l} className="flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full" style={{background:s.c}} />
                     <span className="text-[10px] font-bold" style={{color:s.c, fontFamily:BC}}>{s.v}</span>
-                    <span className="text-[9px] text-slate-500">{s.l}</span>
+                    <span className="text-[9px] text-zinc-500">{s.l}</span>
                   </div>
                 ))}
               </div>
@@ -1037,14 +1037,14 @@ const LandingPage = () => {
 
           {/* Atletas */}
           <Reveal delay={0.25} direction="up" className="col-span-12 md:col-span-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7 flex flex-col justify-between h-full" data-testid="feature-team">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-7 flex flex-col justify-between h-full" data-testid="feature-team">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center"><Users className="w-4 h-4 text-white" /></div>
                 <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-400" style={{fontFamily:BC}}>{t('landing.marquee.m_central')}</span>
               </div>
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m2_title')}</h3>
-              <p className="text-[13px] text-slate-400 leading-[1.6]">{t('landing.features.m2_desc')}</p>
+              <p className="text-[13px] text-zinc-400 leading-[1.6]">{t('landing.features.m2_desc')}</p>
             </div>
             {/* Realistic athlete list */}
             <div className="mt-4 space-y-2">
@@ -1053,18 +1053,18 @@ const LandingPage = () => {
                 {n:'María López',s:t('landing.chart.swimming'),v:'1RM: 95kg',c:'bg-emerald-500'},
                 {n:'Carlos Díaz',s:t('landing.chart.football'),v:'ACWR: 0.91',c:'bg-purple-500'},
               ].map((a,i) => (
-                <div key={i} className="flex items-center gap-2.5 bg-slate-800/60 rounded-lg px-3 py-2 border border-slate-700/30">
+                <div key={i} className="flex items-center gap-2.5 bg-zinc-800/60 rounded-lg px-3 py-2 border border-zinc-700/30">
                   <div className={`w-7 h-7 ${a.c} rounded-full flex items-center justify-center text-[9px] font-bold text-white`}>{a.n.split(' ').map(w=>w[0]).join('')}</div>
                   <div className="flex-1 min-w-0">
                     <div className="text-[11px] font-semibold text-white truncate">{a.n}</div>
-                    <div className="text-[9px] text-slate-500">{a.s}</div>
+                    <div className="text-[9px] text-zinc-500">{a.s}</div>
                   </div>
-                  <span className="text-[9px] text-[#CCFF00] font-bold" style={{fontFamily:BC}}>{a.v}</span>
+                  <span className="text-[9px] text-[#D4AF37] font-bold" style={{fontFamily:BC}}>{a.v}</span>
                 </div>
               ))}
               <div className="flex items-center justify-center gap-1 pt-1">
                 <TeamFormation />
-                <span className="text-[9px] text-slate-500 ml-2">{t('landing.chart.moreAthletes')}</span>
+                <span className="text-[9px] text-zinc-500 ml-2">{t('landing.chart.moreAthletes')}</span>
               </div>
             </div>
           </div>
@@ -1072,20 +1072,20 @@ const LandingPage = () => {
 
           {/* IA */}
           <Reveal delay={0.15} direction="up" className="col-span-12 md:col-span-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7 flex flex-col justify-between min-h-[220px] h-full" data-testid="feature-ai">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-7 flex flex-col justify-between min-h-[220px] h-full" data-testid="feature-ai">
             <div>
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m8_title')}</h3>
-              <p className="text-[14px] text-slate-400 leading-[1.6] max-w-sm">{t('landing.features.m8_desc')}</p>
+              <p className="text-[14px] text-zinc-400 leading-[1.6] max-w-sm">{t('landing.features.m8_desc')}</p>
             </div>
             <div className="flex items-end justify-between mt-4">
               <div className="flex items-center gap-2">
                 {['GPT','AUTO','SMART'].map((txt,i) => (
-                  <span key={txt} className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${i===0?'bg-blue-500/15 text-blue-400':i===1?'bg-slate-800 text-slate-400':'bg-emerald-500/15 text-emerald-400'}`} style={{fontFamily:BC}}>{txt}</span>
+                  <span key={txt} className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${i===0?'bg-blue-500/15 text-blue-400':i===1?'bg-zinc-800 text-zinc-400':'bg-emerald-500/15 text-emerald-400'}`} style={{fontFamily:BC}}>{txt}</span>
                 ))}
               </div>
               <div className="relative w-12 h-12">
-                <div className="absolute inset-0 rounded-full border border-[#CCFF00]/20 animate-ping" style={{animationDuration:'3s'}} />
-                <div className="absolute inset-0 flex items-center justify-center"><Brain className="w-5 h-5 text-[#CCFF00]" /></div>
+                <div className="absolute inset-0 rounded-full border border-[#D4AF37]/20 animate-ping" style={{animationDuration:'3s'}} />
+                <div className="absolute inset-0 flex items-center justify-center"><Brain className="w-5 h-5 text-[#D4AF37]" /></div>
               </div>
             </div>
           </div>
@@ -1093,17 +1093,17 @@ const LandingPage = () => {
 
           {/* Analysis */}
           <Reveal delay={0.3} direction="up" className="col-span-12 md:col-span-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-7 flex flex-col justify-between min-h-[220px] h-full" data-testid="feature-analysis">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-7 flex flex-col justify-between min-h-[220px] h-full" data-testid="feature-analysis">
             <div>
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m7_title')}</h3>
-              <p className="text-[14px] text-slate-400 leading-[1.6]">{t('landing.features.m7_desc')}</p>
+              <p className="text-[14px] text-zinc-400 leading-[1.6]">{t('landing.features.m7_desc')}</p>
             </div>
             <div className="flex items-end justify-between mt-4">
               <div className="flex gap-6">
                 {[{v:'6',k:'controls'},{v:'24/7',l:'Monitor'},{v:'PDF',l:'Reports'}].map((m,i) => (
                   <div key={i}>
                     <div className="text-[22px] font-black text-white leading-none" style={{fontFamily:BC}}>{m.v}</div>
-                    <div className="text-[10px] text-slate-500 mt-1">{m.k ? t(`landing.hero.stats.${m.k}`) : m.l}</div>
+                    <div className="text-[10px] text-zinc-500 mt-1">{m.k ? t(`landing.hero.stats.${m.k}`) : m.l}</div>
                   </div>
                 ))}
               </div>
@@ -1114,23 +1114,23 @@ const LandingPage = () => {
 
           {/* Multi-sport */}
           <Reveal delay={0.1} direction="up" className="col-span-6 md:col-span-3">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between min-h-[120px] h-full" data-testid="feature-multisport">
-            <Target className="w-5 h-5 text-[#CCFF00]" />
+          <div className="bg-zinc-800 border border-zinc-700 rounded-2xl p-6 flex flex-col justify-between min-h-[120px] h-full" data-testid="feature-multisport">
+            <Target className="w-5 h-5 text-[#D4AF37]" />
             <div>
               <h3 className="text-[16px] font-semibold text-white">Multi-sport</h3>
-              <p className="text-[12px] text-slate-500 mt-0.5">+20</p>
+              <p className="text-[12px] text-zinc-500 mt-0.5">+20</p>
             </div>
           </div>
           </Reveal>
 
           {/* Calculators */}
           <Reveal delay={0.2} direction="up" className="col-span-6 md:col-span-5">
-          <div className="bg-[#CCFF00] rounded-2xl p-6 flex items-center justify-between h-full" data-testid="feature-calculators">
+          <div className="bg-[#D4AF37] rounded-2xl p-6 flex items-center justify-between h-full" data-testid="feature-calculators">
             <div>
-              <h3 className="text-[16px] font-semibold text-slate-900">{t('landing.hero.stats.calculators')}</h3>
-              <p className="text-slate-900/50 text-[13px] mt-0.5">1RM · VO2max · HR Zones · Karvonen</p>
+              <h3 className="text-[16px] font-semibold text-zinc-900">{t('landing.hero.stats.calculators')}</h3>
+              <p className="text-zinc-900/50 text-[13px] mt-0.5">1RM · VO2max · HR Zones · Karvonen</p>
             </div>
-            <Activity className="w-6 h-6 text-slate-900/20" />
+            <Activity className="w-6 h-6 text-zinc-900/20" />
           </div>
           </Reveal>
 
@@ -1138,10 +1138,10 @@ const LandingPage = () => {
           <Reveal delay={0.3} direction="up" className="col-span-12 md:col-span-4">
           <div className="bg-white rounded-2xl p-6 flex items-center justify-between h-full" data-testid="feature-export">
             <div>
-              <h3 className="text-[16px] font-semibold text-slate-900">PDF Export</h3>
-              <p className="text-slate-500 text-[13px] mt-0.5">{t('landing.features.m7_desc').split('.')[0]}</p>
+              <h3 className="text-[16px] font-semibold text-zinc-900">PDF Export</h3>
+              <p className="text-zinc-500 text-[13px] mt-0.5">{t('landing.features.m7_desc').split('.')[0]}</p>
             </div>
-            <FileText className="w-6 h-6 text-slate-300" />
+            <FileText className="w-6 h-6 text-zinc-300" />
           </div>
           </Reveal>
         </div>
@@ -1149,7 +1149,7 @@ const LandingPage = () => {
     </section>
 
     {/* PRODUCT SHOWCASE — Dark */}
-    <section className="py-20 px-6 bg-slate-900 relative overflow-hidden">
+    <section className="py-20 px-6 bg-zinc-900 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-10" />
       <div className="max-w-[1120px] mx-auto relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -1158,7 +1158,7 @@ const LandingPage = () => {
             <h2 className="text-[28px] md:text-[32px] font-bold text-white leading-[1.15] mb-4" style={{fontFamily:INT}}>
               {t('landing.features.m7_title')}
             </h2>
-            <p className="text-[15px] text-slate-400 leading-[1.7] mb-8">
+            <p className="text-[15px] text-zinc-400 leading-[1.7] mb-8">
               {t('landing.features.m7_desc')}
             </p>
             <div className="grid grid-cols-2 gap-2.5">
@@ -1178,15 +1178,15 @@ const LandingPage = () => {
             </div>
           </Reveal>
           <Reveal delay={0.3} direction="right" className="lg:col-span-7 relative" style={{animation:'float 6s ease-in-out infinite'}}>
-            <div className="bg-slate-800/50 backdrop-blur rounded-2xl border border-slate-700/30 p-6 shadow-2xl">
+            <div className="bg-zinc-800/50 backdrop-blur rounded-2xl border border-zinc-700/30 p-6 shadow-2xl">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="flex gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><div className="w-2.5 h-2.5 rounded-full bg-emerald-500" /></div>
-                  <span className="text-[12px] text-slate-400 ml-2 font-mono">LordTraining {t('landing.chart.dashboard')} v3.0</span>
+                  <span className="text-[12px] text-zinc-400 ml-2 font-mono">LordTraining {t('landing.chart.dashboard')} v3.0</span>
                 </div>
                 <div className="flex gap-3">
                   <span className="flex items-center gap-1.5 text-[11px] font-bold text-blue-400"><span className="w-2 h-2 rounded-full bg-blue-400"/>{t('landing.chart.volume')}</span>
-                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#CCFF00]"><span className="w-2 h-2 rounded-full bg-[#CCFF00]"/>{t('landing.chart.intensity')}</span>
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#D4AF37]"><span className="w-2 h-2 rounded-full bg-[#D4AF37]"/>{t('landing.chart.intensity')}</span>
                   <span className="flex items-center gap-1.5 text-[11px] font-bold text-rose-400"><span className="w-2 h-2 rounded-full bg-rose-400"/>{t('landing.chart.density')}</span>
                 </div>
               </div>
@@ -1195,11 +1195,11 @@ const LandingPage = () => {
               {/* Bottom area chart */}
               <div className="h-20 relative mt-4">
                 <div className="absolute inset-0"><AnimatedLineWave color="#3B82F6" amplitude={25} speed="6s" /></div>
-                <div className="absolute inset-0"><AnimatedLineWave color="#CCFF00" amplitude={20} speed="8s" /></div>
+                <div className="absolute inset-0"><AnimatedLineWave color="#D4AF37" amplitude={20} speed="8s" /></div>
               </div>
             </div>
             <div className="absolute -bottom-5 -left-5 z-20">
-              <div className="bg-slate-800/80 backdrop-blur rounded-xl p-3 border border-slate-700/30 shadow-xl">
+              <div className="bg-zinc-800/80 backdrop-blur rounded-xl p-3 border border-zinc-700/30 shadow-xl">
                 <ReadinessGauge size={72} t={t} />
               </div>
             </div>
@@ -1209,22 +1209,22 @@ const LandingPage = () => {
     </section>
 
     {/* AUDIENCES — Impact + Segments + Trust */}
-    <section id="audiences" className="py-20 px-6 bg-slate-950 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(204,255,0,0.03)_0%,transparent_60%)]" />
+    <section id="audiences" className="py-20 px-6 bg-zinc-950 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(212,175,55,0.03)_0%,transparent_60%)]" />
       <div className="max-w-[1120px] mx-auto relative z-10">
         {/* Impact intro */}
         <Reveal direction="up" className="mb-16">
           <div className="max-w-[720px] mx-auto text-center">
             <SectionTag>{t('landing.audiences.tag')}</SectionTag>
             <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-5" style={{fontFamily:INT}} data-testid="audiences-title">{t('landing.audiences.title')}</h2>
-            <p className="text-[15px] text-slate-400 leading-[1.8]" data-testid="audiences-impact">{t('landing.audiences.impact')}</p>
+            <p className="text-[15px] text-zinc-400 leading-[1.8]" data-testid="audiences-impact">{t('landing.audiences.impact')}</p>
           </div>
         </Reveal>
 
         {/* 4 Segment cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12" data-testid="audiences-grid">
           {[
-            { key:'coaches', icon: UserCheck, color:'#CCFF00', bg:'bg-[#CCFF00]/10', border:'border-[#CCFF00]/20', iconBg:'bg-[#CCFF00]', iconText:'text-slate-900' },
+            { key:'coaches', icon: UserCheck, color:'#D4AF37', bg:'bg-[#D4AF37]/10', border:'border-[#D4AF37]/20', iconBg:'bg-[#D4AF37]', iconText:'text-zinc-900' },
             { key:'clubs', icon: Building2, color:'#3B82F6', bg:'bg-blue-500/10', border:'border-blue-500/20', iconBg:'bg-blue-500', iconText:'text-white' },
             { key:'schools', icon: GraduationCap, color:'#8B5CF6', bg:'bg-purple-500/10', border:'border-purple-500/20', iconBg:'bg-purple-500', iconText:'text-white' },
             { key:'federations', icon: Globe, color:'#F43F5E', bg:'bg-rose-500/10', border:'border-rose-500/20', iconBg:'bg-rose-500', iconText:'text-white' },
@@ -1232,7 +1232,7 @@ const LandingPage = () => {
             const Icon = seg.icon;
             return (
               <Reveal key={seg.key} delay={idx * 0.12} direction="up">
-                <div className={`bg-slate-900 border border-slate-800 rounded-2xl p-7 h-full group hover:border-opacity-60 transition-all duration-300`} style={{'--seg-color': seg.color}} data-testid={`audience-${seg.key}`}>
+                <div className={`bg-zinc-900 border border-zinc-800 rounded-2xl p-7 h-full group hover:border-opacity-60 transition-all duration-300`} style={{'--seg-color': seg.color}} data-testid={`audience-${seg.key}`}>
                   {/* Header */}
                   <div className="flex items-start gap-4 mb-5">
                     <div className={`w-11 h-11 ${seg.iconBg} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
@@ -1246,7 +1246,7 @@ const LandingPage = () => {
                   {/* Features */}
                   <ul className="space-y-3 mb-6">
                     {[1,2,3].map(n => (
-                      <li key={n} className="flex items-start gap-2.5 text-[13px] text-slate-400 leading-snug">
+                      <li key={n} className="flex items-start gap-2.5 text-[13px] text-zinc-400 leading-snug">
                         <Check className="w-4 h-4 flex-shrink-0 mt-[1px]" style={{color: seg.color}} />
                         {t(`landing.audiences.${seg.key}_f${n}`)}
                       </li>
@@ -1275,9 +1275,9 @@ const LandingPage = () => {
 
         {/* Trust badge */}
         <Reveal delay={0.5} direction="up">
-          <div className="flex items-center justify-center gap-3 py-5 px-6 bg-slate-900/60 backdrop-blur-sm border border-slate-800/60 rounded-2xl max-w-[640px] mx-auto" data-testid="trust-badge">
-            <Shield className="w-5 h-5 text-[#CCFF00] flex-shrink-0" />
-            <p className="text-[14px] font-bold text-slate-300 text-center" style={{fontFamily:BC}}>
+          <div className="flex items-center justify-center gap-3 py-5 px-6 bg-zinc-900/60 backdrop-blur-sm border border-zinc-800/60 rounded-2xl max-w-[640px] mx-auto" data-testid="trust-badge">
+            <Shield className="w-5 h-5 text-[#D4AF37] flex-shrink-0" />
+            <p className="text-[14px] font-bold text-zinc-300 text-center" style={{fontFamily:BC}}>
               {t('landing.audiences.trustLine')}
             </p>
           </div>
@@ -1286,22 +1286,22 @@ const LandingPage = () => {
     </section>
 
     {/* HOW IT WORKS — 6-phase timeline */}
-    <section id="how-it-works" className="py-24 px-6 bg-slate-900 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(204,255,0,0.03)_0%,transparent_50%)]" />
+    <section id="how-it-works" className="py-24 px-6 bg-zinc-900 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(212,175,55,0.03)_0%,transparent_50%)]" />
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-6">
           <SectionTag>{t('landing.howItWorks.tag')}</SectionTag>
           <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-3" style={{fontFamily:INT}}>{t('landing.howItWorks.title')}</h2>
-          <p className="text-[15px] text-slate-400 max-w-[600px] mx-auto leading-[1.7]">{t('landing.howItWorks.subtitle')}</p>
+          <p className="text-[15px] text-zinc-400 max-w-[600px] mx-auto leading-[1.7]">{t('landing.howItWorks.subtitle')}</p>
         </Reveal>
 
         {/* Timeline */}
         <div className="relative mt-16">
           {/* Vertical line - desktop only */}
-          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#CCFF00]/40 via-slate-700/40 to-slate-700/10 -translate-x-1/2" />
+          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#D4AF37]/40 via-zinc-700/40 to-zinc-700/10 -translate-x-1/2" />
 
           {[
-            { n:'01', icon: Target, color:'#CCFF00', key:'step1' },
+            { n:'01', icon: Target, color:'#D4AF37', key:'step1' },
             { n:'02', icon: Calendar, color:'#3B82F6', key:'step2' },
             { n:'03', icon: Layers, color:'#8B5CF6', key:'step3' },
             { n:'04', icon: Users, color:'#F59E0B', key:'step4' },
@@ -1315,9 +1315,9 @@ const LandingPage = () => {
                 <div className={`relative flex items-center mb-8 last:mb-0 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'} flex-col md:gap-0 gap-4`} data-testid={`step-${step.n}`}>
                   {/* Content card */}
                   <div className={`w-full md:w-[calc(50%-40px)] ${isLeft ? 'md:pr-0' : 'md:pl-0'}`}>
-                    <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 group hover:border-slate-700 transition-all duration-300 relative overflow-hidden">
+                    <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 group hover:border-zinc-700 transition-all duration-300 relative overflow-hidden">
                       {/* Step number watermark */}
-                      <span className="absolute -top-4 -right-2 text-[110px] font-black leading-none text-slate-800/40 select-none pointer-events-none" style={{fontFamily:BC}}>{step.n}</span>
+                      <span className="absolute -top-4 -right-2 text-[110px] font-black leading-none text-zinc-800/40 select-none pointer-events-none" style={{fontFamily:BC}}>{step.n}</span>
                       {/* Tag */}
                       <span className="inline-block px-2.5 py-1 rounded-md text-[9px] font-bold tracking-[0.12em] mb-4" style={{background:`${step.color}15`, color:step.color, fontFamily:BC}}>
                         {t(`landing.howItWorks.${step.key}_tag`)}
@@ -1325,7 +1325,7 @@ const LandingPage = () => {
                       <h3 className="text-[18px] font-bold text-white mb-2 leading-tight relative z-10" style={{fontFamily:INT}}>
                         {t(`landing.howItWorks.${step.key}_title`)}
                       </h3>
-                      <p className="text-[14px] text-slate-400 leading-[1.7] relative z-10">
+                      <p className="text-[14px] text-zinc-400 leading-[1.7] relative z-10">
                         {t(`landing.howItWorks.${step.key}_desc`)}
                       </p>
                     </div>
@@ -1372,7 +1372,7 @@ const LandingPage = () => {
           <div className="inline-flex items-center gap-1 p-1 rounded-full border border-white/10" style={{background:'rgba(255,255,255,0.02)', backdropFilter:'blur(12px)'}} data-testid="billing-toggle">
             <button
               onClick={() => setBillingCycle('monthly')}
-              className={`relative px-5 py-2 rounded-full text-[12px] font-bold transition-all duration-300 ${billingCycle === 'monthly' ? 'bg-white text-slate-900 shadow-lg' : 'text-white/50 hover:text-white/80'}`}
+              className={`relative px-5 py-2 rounded-full text-[12px] font-bold transition-all duration-300 ${billingCycle === 'monthly' ? 'bg-white text-zinc-900 shadow-lg' : 'text-white/50 hover:text-white/80'}`}
               style={{fontFamily:BC, letterSpacing:'0.04em'}}
               data-testid="billing-monthly-btn"
             >
@@ -1380,12 +1380,12 @@ const LandingPage = () => {
             </button>
             <button
               onClick={() => setBillingCycle('annual')}
-              className={`relative px-5 py-2 rounded-full text-[12px] font-bold transition-all duration-300 flex items-center gap-2 ${billingCycle === 'annual' ? 'bg-[#c8f700] text-slate-900 shadow-lg shadow-[#c8f700]/20' : 'text-white/50 hover:text-white/80'}`}
+              className={`relative px-5 py-2 rounded-full text-[12px] font-bold transition-all duration-300 flex items-center gap-2 ${billingCycle === 'annual' ? 'bg-[#D4AF37] text-zinc-900 shadow-lg shadow-[#D4AF37]/20' : 'text-white/50 hover:text-white/80'}`}
               style={{fontFamily:BC, letterSpacing:'0.04em'}}
               data-testid="billing-annual-btn"
             >
               ANUAL
-              <span className={`px-1.5 py-0.5 rounded-md text-[9px] font-black ${billingCycle === 'annual' ? 'bg-slate-900 text-[#c8f700]' : 'bg-[#c8f700]/20 text-[#c8f700]'}`}>
+              <span className={`px-1.5 py-0.5 rounded-md text-[9px] font-black ${billingCycle === 'annual' ? 'bg-zinc-900 text-[#D4AF37]' : 'bg-[#D4AF37]/20 text-[#D4AF37]'}`}>
                 −20%
               </span>
             </button>
@@ -1397,7 +1397,7 @@ const LandingPage = () => {
           {[
             { key:'starter', price:'9.99', num:'01', color:'#64748b', pop:false, fcount:6 },
             { key:'pro', price:'19.99', num:'02', color:'#378ADD', pop:false, fcount:7 },
-            { key:'club', price:'49.99', num:'03', color:'#c8f700', pop:true, fcount:8 },
+            { key:'club', price:'49.99', num:'03', color:'#D4AF37', pop:true, fcount:8 },
             { key:'inst', price:'149.99', num:'04', color:'#EF9F27', pop:false, fcount:9 },
           ].map((plan, idx) => {
             const features = Array.from({length: plan.fcount}, (_, j) => t(`landing.pricing.${plan.key}_f${j+1}`));
@@ -1447,7 +1447,7 @@ const LandingPage = () => {
                   {isAnnual ? (
                     <div className="flex items-center gap-2 mt-1.5 text-[11px]">
                       <span className="line-through text-white/20">${plan.price}/mes</span>
-                      <span className="text-[#c8f700]/80 font-semibold">${annualTotal}/año</span>
+                      <span className="text-[#D4AF37]/80 font-semibold">${annualTotal}/año</span>
                     </div>
                   ) : (
                     <div className="text-[11px] text-white/25 mt-1.5">
@@ -1494,7 +1494,7 @@ const LandingPage = () => {
               { icon: ArrowRight, text: t('landing.hero.cancel_anytime') },
             ].map((g, i) => (
               <div key={i} className="flex items-center gap-2">
-                <g.icon className="w-4 h-4 text-[#c8f700]/40" />
+                <g.icon className="w-4 h-4 text-[#D4AF37]/40" />
                 <span className="text-[12px] text-white/25">{g.text}</span>
               </div>
             ))}
@@ -1504,15 +1504,15 @@ const LandingPage = () => {
     </section>
 
     {/* FINAL CTA */}
-    <section className="py-20 px-6 bg-slate-900 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(204,255,0,0.04)_0%,transparent_60%)]" />
+    <section className="py-20 px-6 bg-zinc-900 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.04)_0%,transparent_60%)]" />
       <Reveal direction="scale" className="max-w-[700px] mx-auto text-center relative z-10">
         <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-4" style={{fontFamily:INT}}>
           {t('landing.cta.title')}
         </h2>
-        <p className="text-[15px] text-slate-400 mb-8 leading-[1.7]">{t('landing.cta.desc')}</p>
+        <p className="text-[15px] text-zinc-400 mb-8 leading-[1.7]">{t('landing.cta.desc')}</p>
         <Link to="/auth">
-          <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-12 px-10 text-[14px] font-bold rounded-xl shadow-lg shadow-[#CCFF00]/10" style={{fontFamily:BC}} data-testid="final-cta-btn">
+          <Button className="bg-[#FFFFFF] text-[#09090b] hover:bg-[#E4E4E7] h-12 px-10 text-[14px] font-bold rounded-xl shadow-lg shadow-[#D4AF37]/10" style={{fontFamily:BC}} data-testid="final-cta-btn">
             {t('landing.cta.button')} <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </Link>
@@ -1520,38 +1520,38 @@ const LandingPage = () => {
     </section>
 
     {/* FOOTER */}
-    <footer className="bg-slate-950 border-t border-slate-800/40 py-14 px-6">
+    <footer className="bg-zinc-950 border-t border-zinc-800/40 py-14 px-6">
       <div className="max-w-[1120px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-3 mb-4" data-testid="footer-brand-logo">
               <img src="/brand/lordtraining-scale.png" alt="" className="h-12 w-12 object-contain" style={{filter:'drop-shadow(0 4px 10px rgba(0,0,0,0.45))'}} />
-              <span className="text-[18px] font-black text-white tracking-tight" style={{fontFamily:BC}}>Lord<span className="text-[#CCFF00]">Training</span></span>
+              <span className="text-[18px] font-black text-white tracking-tight" style={{fontFamily:BC}}>Lord<span className="text-[#D4AF37]">Training</span></span>
             </div>
-            <p className="text-[13px] text-slate-500 leading-[1.6]">{t('landing.hero.tagline')}</p>
+            <p className="text-[13px] text-zinc-500 leading-[1.6]">{t('landing.hero.tagline')}</p>
           </div>
           {/* Nav links */}
           <div>
-            <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400 mb-4" style={{fontFamily:BC}}>Producto</h4>
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-zinc-400 mb-4" style={{fontFamily:BC}}>Producto</h4>
             <ul className="space-y-2.5">
               {[['#features', t('landing.nav.features')],['#how-it-works', t('landing.nav.howItWorks')],['#pricing', t('landing.nav.pricing')]].map(([h,l]) => (
-                <li key={h}><a href={h} className="text-[13px] text-slate-500 hover:text-[#CCFF00] transition-colors">{l}</a></li>
+                <li key={h}><a href={h} className="text-[13px] text-zinc-500 hover:text-[#D4AF37] transition-colors">{l}</a></li>
               ))}
             </ul>
           </div>
           {/* Resources */}
           <div>
-            <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400 mb-4" style={{fontFamily:BC}}>Recursos</h4>
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-zinc-400 mb-4" style={{fontFamily:BC}}>Recursos</h4>
             <ul className="space-y-2.5">
               {['Blog','API Docs','Soporte'].map(l => (
-                <li key={l}><span className="text-[13px] text-slate-500 hover:text-[#CCFF00] transition-colors cursor-pointer">{l}</span></li>
+                <li key={l}><span className="text-[13px] text-zinc-500 hover:text-[#D4AF37] transition-colors cursor-pointer">{l}</span></li>
               ))}
             </ul>
           </div>
           {/* Social */}
           <div>
-            <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400 mb-4" style={{fontFamily:BC}}>Social</h4>
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-zinc-400 mb-4" style={{fontFamily:BC}}>Social</h4>
             <div className="flex flex-wrap gap-3" data-testid="footer-social-icons">
               {[
                 {id:'x',l:'X',svg:'M18.9 1.2h3.7l-8 9.2L24 22.8h-7.4l-5.8-7.6-6.6 7.6H.5l8.6-9.8L0 1.2h7.6l5.2 6.9 6.1-6.9ZM17.6 20.6h2L6.5 3.3H4.3l13.3 17.3Z'},
@@ -1561,20 +1561,20 @@ const LandingPage = () => {
                 {id:'youtube',l:'YouTube',svg:'M23.5 6.5a3 3 0 00-2.1-2.12C19.5 3.86 12 3.86 12 3.86s-7.5 0-9.4.52A3 3 0 00.5 6.5 31.3 31.3 0 000 12a31.3 31.3 0 00.5 5.5 3 3 0 002.1 2.12c1.9.52 9.4.52 9.4.52s7.5 0 9.4-.52a3 3 0 002.1-2.12A31.3 31.3 0 0024 12a31.3 31.3 0 00-.5-5.5ZM9.6 15.5v-7l6.2 3.5-6.2 3.5Z'},
                 {id:'facebook',l:'Facebook',svg:'M22 12a10 10 0 10-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0022 12Z'},
               ].filter(s => socialLinks[s.id]).map(s => (
-                <a key={s.id} href={socialLinks[s.id]} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-center hover:border-[#CCFF00]/40 hover:bg-slate-800 transition-all group" aria-label={s.l} data-testid={`footer-social-${s.id}`}>
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-slate-500 group-hover:fill-[#CCFF00] transition-colors"><path d={s.svg}/></svg>
+                <a key={s.id} href={socialLinks[s.id]} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center hover:border-[#D4AF37]/40 hover:bg-zinc-800 transition-all group" aria-label={s.l} data-testid={`footer-social-${s.id}`}>
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-zinc-500 group-hover:fill-[#D4AF37] transition-colors"><path d={s.svg}/></svg>
                 </a>
               ))}
             </div>
           </div>
         </div>
         {/* Bottom bar */}
-        <div className="pt-6 border-t border-slate-800/40 flex items-center justify-between">
-          <p className="text-[12px] text-slate-600">© 2026 LordTraining. {t('landing.footer.copyright')}</p>
+        <div className="pt-6 border-t border-zinc-800/40 flex items-center justify-between">
+          <p className="text-[12px] text-zinc-600">© 2026 LordTraining. {t('landing.footer.copyright')}</p>
           <div className="flex gap-4">
-            <Link to="/terminos" className="text-[12px] text-slate-600 hover:text-amber-400 cursor-pointer transition-colors" data-testid="footer-link-terms">{t('legal.terms', 'Términos')}</Link>
-            <Link to="/privacidad" className="text-[12px] text-slate-600 hover:text-amber-400 cursor-pointer transition-colors" data-testid="footer-link-privacy">{t('legal.privacy', 'Privacidad')}</Link>
-            <Link to="/politicas" className="text-[12px] text-slate-600 hover:text-amber-400 cursor-pointer transition-colors" data-testid="footer-link-policies">{t('legal.policies', 'Políticas')}</Link>
+            <Link to="/terminos" className="text-[12px] text-zinc-600 hover:text-amber-400 cursor-pointer transition-colors" data-testid="footer-link-terms">{t('legal.terms', 'Términos')}</Link>
+            <Link to="/privacidad" className="text-[12px] text-zinc-600 hover:text-amber-400 cursor-pointer transition-colors" data-testid="footer-link-privacy">{t('legal.privacy', 'Privacidad')}</Link>
+            <Link to="/politicas" className="text-[12px] text-zinc-600 hover:text-amber-400 cursor-pointer transition-colors" data-testid="footer-link-policies">{t('legal.policies', 'Políticas')}</Link>
           </div>
         </div>
       </div>

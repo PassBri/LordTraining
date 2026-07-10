@@ -5,8 +5,8 @@
 
 /* ---- Fondos ---- */
 .lt-theme[data-landing-theme="light"][data-landing-theme] { background-color: #FFFFFF !important; }
-.lt-theme[data-landing-theme="light"] [class*="bg-slate-950"] { background-color: #FFFFFF !important; background-image: none !important; }
-.lt-theme[data-landing-theme="light"] [class*="bg-slate-900"] { background-color: #F5F7FA !important; background-image: none !important; }
+.lt-theme[data-landing-theme="light"] [class*="bg-zinc-950"] { background-color: #FFFFFF !important; background-image: none !important; }
+.lt-theme[data-landing-theme="light"] [class*="bg-zinc-900"] { background-color: #F5F7FA !important; background-image: none !important; }
 .lt-theme[data-landing-theme="light"] #pricing { background: #F5F7FA !important; }
 .lt-theme[data-landing-theme="light"] [data-testid="marquee-section"] {
   background: #0A0F1E !important;           /* franja navy: aquí SÍ va el acento #CCFF00 */
@@ -20,8 +20,8 @@
 }
 
 /* ---- Cards (superficies elevadas) ---- */
-.lt-theme[data-landing-theme="light"] [class*="bg-slate-800"],
-.lt-theme[data-landing-theme="light"] [class*="bg-slate-850"] {
+.lt-theme[data-landing-theme="light"] [class*="bg-zinc-800"],
+.lt-theme[data-landing-theme="light"] [class*="bg-zinc-850"] {
   background-color: #FFFFFF !important;
   background-image: none !important;
   box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03) !important;
@@ -30,10 +30,10 @@
 
 /* ---- Texto: navy / gris medio ---- */
 .lt-theme[data-landing-theme="light"] [class*="text-white"] { color: #0A0F1E !important; }
-.lt-theme[data-landing-theme="light"] [class*="text-slate-3"],
-.lt-theme[data-landing-theme="light"] [class*="text-slate-4"],
-.lt-theme[data-landing-theme="light"] [class*="text-slate-5"],
-.lt-theme[data-landing-theme="light"] [class*="text-slate-6"] { color: #4A5568 !important; }
+.lt-theme[data-landing-theme="light"] [class*="text-zinc-3"],
+.lt-theme[data-landing-theme="light"] [class*="text-zinc-4"],
+.lt-theme[data-landing-theme="light"] [class*="text-zinc-5"],
+.lt-theme[data-landing-theme="light"] [class*="text-zinc-6"] { color: #4A5568 !important; }
 
 /* El acento lime no contrasta sobre blanco → texto resaltado pasa a navy.
    (El acento #CCFF00 se reserva para la franja navy y los CTA navy). */
@@ -41,10 +41,10 @@
 /* …pero dentro de la franja navy y de los CTA navy, el acento vuelve a #CCFF00 */
 .lt-theme[data-landing-theme="light"] [data-testid="marquee-section"] [class*="text-[#CCFF00]"],
 .lt-theme[data-landing-theme="light"] [data-testid="marquee-section"] [class*="text-white"] { color: #CCFF00 !important; }
-.lt-theme[data-landing-theme="light"] [data-testid="marquee-section"] [class*="text-slate"] { color: rgba(255,255,255,0.65) !important; }
+.lt-theme[data-landing-theme="light"] [data-testid="marquee-section"] [class*="text-zinc"] { color: rgba(255,255,255,0.65) !important; }
 
 /* ---- Bordes ---- */
-.lt-theme[data-landing-theme="light"] [class*="border-slate"],
+.lt-theme[data-landing-theme="light"] [class*="border-zinc"],
 .lt-theme[data-landing-theme="light"] [class*="border-white"] { border-color: #E2E8F0 !important; }
 
 /* ---- CTAs: navy con texto #CCFF00 ---- */

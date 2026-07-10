@@ -46,8 +46,8 @@
 }
 
 /* Fondos cohesivos #050A14 (secciones) y superficies para cards */
-.lt-theme[data-landing-theme="futuristic"] [class*="bg-slate-9"] { background-color: var(--bg-base) !important; background-image: none !important; }
-.lt-theme[data-landing-theme="futuristic"] [class*="bg-slate-8"] { background-color: var(--bg-surface) !important; }
+.lt-theme[data-landing-theme="futuristic"] [class*="bg-zinc-9"] { background-color: var(--bg-base) !important; background-image: none !important; }
+.lt-theme[data-landing-theme="futuristic"] [class*="bg-zinc-8"] { background-color: var(--bg-surface) !important; }
 .lt-theme[data-landing-theme="futuristic"] #pricing { background: var(--bg-base) !important; }
 .lt-theme[data-landing-theme="futuristic"] [data-testid="marquee-section"] {
   background: var(--bg-surface) !important;
@@ -68,7 +68,7 @@
 }
 
 /* Bordes 1px de baja opacidad */
-.lt-theme[data-landing-theme="futuristic"] [class*="border-slate"] { border-color: var(--border) !important; }
+.lt-theme[data-landing-theme="futuristic"] [class*="border-zinc"] { border-color: var(--border) !important; }
 .lt-theme[data-landing-theme="futuristic"] [class*="border-white"] { border-color: var(--border) !important; }
 
 /* Minimalismo: sin glows ni sombras recargadas; radios pequeños */
