@@ -1,5 +1,11 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-10 — Badges de nivel de élite (medallas) por score de evaluación
+- **Nuevo `components/LevelBadge.jsx`** (reutilizable, `getLevel` + `LevelBadge`): mapea el score de evaluación (0-100) a un nivel con estética de medalla: 💎 Diamante (≥90), 🥇 Oro (75-89), 🥈 Plata (60-74), 🥉 Bronce (40-59), 🛡️ En desarrollo (<40). Iconos lucide distintos por nivel, gradiente metálico y glow sutil. Tamaños sm/md/lg, `showLabel`, tooltip con pts. `data-testid=level-badge-<key>`.
+- **Integración Evaluación (`EvaluationSection.js`)**: badge en la tarjeta hero '% Promedio' (usa `globalAvg`), visible cuando hay aspectos con valor (`data-testid=eval-level-badge`).
+- **Integración Ranking (`AthleteRanking.js`)**: badge compacto (icono) por fila con datos, según `evaluation_avg ?? score`.
+- Verificado por testing_agent (iteration_115): 100% en la feature, 4 niveles correctos en evaluación y ranking, sin regresiones.
+
 ## 2026-07-10 — Re-skin de marca de la app (Opción A): login + dashboard + módulos
 - **Tema global (`index.css`)**: acento primario azul `#1976D2` → **oro `#D4AF37`** en variables `--md-*` y shadcn (`--primary`,`--ring`,`--accent`,`--chart-1..5` → paleta de medallas diamante/oro/plata/bronce). Botón `.btn-primary`, `.card-active`, `.shadow-glow`, `.sidebar-item.active` ahora dorados. Títulos (`h1..h6`) y `.stat-value` → tipografía **Outfit**.
 - **Login (`AuthPage.js`)**: lima/navy → **obsidiana + oro** (paleta medallas), slate→zinc. La pizarra de vista previa ya combina (grafito+oro por los cambios del tactical-board).
