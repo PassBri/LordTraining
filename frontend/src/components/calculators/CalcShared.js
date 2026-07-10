@@ -33,7 +33,7 @@ const useRegisterResult = (entry, headline = false) => {
 };
 
 // ===== Tarjeta base de calculadora =====
-export const CalcCard = ({ title, subtitle, color = '#3B82F6', icon: Icon, children, badge, testid }) => {
+export const CalcCard = ({ title, subtitle, color = '#D4AF37', icon: Icon, children, badge, testid }) => {
   const tc = useCalcT();
   const store = React.useRef({ title, color, calculator: testid, module: badge, headline: null, items: [] });
   // Reset en cada render (los hijos vuelven a registrarse durante su render)
@@ -94,14 +94,14 @@ export const Select = ({ label, value, onChange, options, testid }) => {
 };
 
 // ===== Result block =====
-export const Result = ({ children, color = '#3B82F6', testid }) => (
+export const Result = ({ children, color = '#D4AF37', testid }) => (
   <div className="rounded-xl p-3 mt-2" style={{ background: `${color}10`, border: `1px solid ${color}30` }} data-testid={testid}>
     {children}
   </div>
 );
 
 // ===== Big result number =====
-export const BigResult = ({ value, label, unit, color = '#3B82F6', sub, testid }) => {
+export const BigResult = ({ value, label, unit, color = '#D4AF37', sub, testid }) => {
   const tc = useCalcT();
   useRegisterResult({ label, value: value == null ? '—' : String(value), unit: unit || '' }, true);
   return (

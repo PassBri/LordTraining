@@ -16,12 +16,12 @@ import TACTICAL_SPORTS from './tacticalSportsData';
 
 const TOOLS = [
   { id: 'select', icon: MousePointer2, label: 'Mover', color: 'text-white' },
-  { id: 'playerX', icon: UserPlus, label: 'Equipo A', color: 'text-[#c8f700]' },
+  { id: 'playerX', icon: UserPlus, label: 'Equipo A', color: 'text-[#D4AF37]' },
   { id: 'playerO', icon: Circle, label: 'Equipo B', color: 'text-white' },
   { id: 'arrow', icon: MoveUpRight, label: 'Flecha', color: 'text-cyan-400' },
   { id: 'cone', icon: Triangle, label: 'Cono', color: 'text-orange-400' },
   { id: 'ball', icon: CircleDot, label: 'Balon', color: 'text-white' },
-  { id: 'text', icon: Type, label: 'Texto', color: 'text-blue-400' },
+  { id: 'text', icon: Type, label: 'Texto', color: 'text-[#B8912A]' },
   { id: 'eraser', icon: Eraser, label: 'Borrar', color: 'text-red-400' },
 ];
 
@@ -222,9 +222,9 @@ const TacticalBoardEditor = ({ isOpen, onClose, onSave, initialData, sessionDesc
       const sel = el.id === selectedId;
       switch (el.type) {
         case 'playerX': {
-          const selCircle = sel ? `<circle cx="0" cy="0" r="20" fill="none" stroke="#c8f700" stroke-width="2" stroke-dasharray="4 3" opacity="0.8"/>` : '';
-          const lbl = el.label ? `<text x="0" y="-22" text-anchor="middle" font-size="11" fill="#c8f700" font-weight="bold">${el.label}</text>` : '';
-          return `<g transform="translate(${el.x},${el.y})" data-elid="${el.id}" style="cursor:${elCursor}">${selCircle}<circle cx="0" cy="0" r="15" fill="rgba(200,247,0,0.25)" stroke="#c8f700" stroke-width="3"/><line x1="-7" y1="-7" x2="7" y2="7" stroke="#c8f700" stroke-width="3" stroke-linecap="round"/><line x1="7" y1="-7" x2="-7" y2="7" stroke="#c8f700" stroke-width="3" stroke-linecap="round"/>${lbl}</g>`;
+          const selCircle = sel ? `<circle cx="0" cy="0" r="20" fill="none" stroke="#D4AF37" stroke-width="2" stroke-dasharray="4 3" opacity="0.8"/>` : '';
+          const lbl = el.label ? `<text x="0" y="-22" text-anchor="middle" font-size="11" fill="#D4AF37" font-weight="bold">${el.label}</text>` : '';
+          return `<g transform="translate(${el.x},${el.y})" data-elid="${el.id}" style="cursor:${elCursor}">${selCircle}<circle cx="0" cy="0" r="15" fill="rgba(212,175,55,0.25)" stroke="#D4AF37" stroke-width="3"/><line x1="-7" y1="-7" x2="7" y2="7" stroke="#D4AF37" stroke-width="3" stroke-linecap="round"/><line x1="7" y1="-7" x2="-7" y2="7" stroke="#D4AF37" stroke-width="3" stroke-linecap="round"/>${lbl}</g>`;
         }
         case 'playerO': {
           const selCircle = sel ? `<circle cx="0" cy="0" r="20" fill="none" stroke="white" stroke-width="2" stroke-dasharray="4 3" opacity="0.8"/>` : '';
@@ -232,7 +232,7 @@ const TacticalBoardEditor = ({ isOpen, onClose, onSave, initialData, sessionDesc
           return `<g transform="translate(${el.x},${el.y})" data-elid="${el.id}" style="cursor:${elCursor}">${selCircle}<circle cx="0" cy="0" r="14" fill="rgba(255,255,255,0.15)" stroke="white" stroke-width="3"/>${lbl}</g>`;
         }
         case 'arrow': {
-          const selLine = sel ? `<line x1="${el.x}" y1="${el.y}" x2="${el.x2}" y2="${el.y2}" stroke="#c8f700" stroke-width="8" opacity="0.3" stroke-linecap="round"/>` : '';
+          const selLine = sel ? `<line x1="${el.x}" y1="${el.y}" x2="${el.x2}" y2="${el.y2}" stroke="#D4AF37" stroke-width="8" opacity="0.3" stroke-linecap="round"/>` : '';
           return `<g data-elid="${el.id}" style="cursor:${elCursor}">${selLine}<line x1="${el.x}" y1="${el.y}" x2="${el.x2}" y2="${el.y2}" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" stroke-linecap="round" marker-end="url(#tBoardArrow)"/><circle cx="${el.x}" cy="${el.y}" r="4" fill="rgba(255,255,255,0.6)"/></g>`;
         }
         case 'cone': {
@@ -292,7 +292,7 @@ const TacticalBoardEditor = ({ isOpen, onClose, onSave, initialData, sessionDesc
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800/60">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#c8f700] rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#D4AF37] rounded-lg flex items-center justify-center">
               <span className="text-[14px] font-black text-[#0b0e14]" style={{fontFamily:"'Barlow Condensed', sans-serif"}}>i</span>
             </div>
             <div>
@@ -303,7 +303,7 @@ const TacticalBoardEditor = ({ isOpen, onClose, onSave, initialData, sessionDesc
           <div className="flex items-center gap-1 bg-slate-800/50 rounded-lg p-1">
             {TACTICAL_SPORTS.map((s, i) => (
               <button key={s.id} onClick={() => setSportIdx(i)} data-testid={`sport-tab-${s.id}`}
-                className={`px-2.5 py-1.5 rounded-md text-[10px] font-medium transition-all ${i === sportIdx ? 'bg-[#c8f700] text-[#0b0e14] font-bold' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
+                className={`px-2.5 py-1.5 rounded-md text-[10px] font-medium transition-all ${i === sportIdx ? 'bg-[#D4AF37] text-[#0b0e14] font-bold' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
                 {s.name}
               </button>
             ))}
@@ -319,7 +319,7 @@ const TacticalBoardEditor = ({ isOpen, onClose, onSave, initialData, sessionDesc
           <div className="w-16 bg-slate-900/50 border-r border-slate-800/40 flex flex-col items-center py-3 gap-1 shrink-0">
             {TOOLS.map(tool => (
               <button key={tool.id} onClick={() => { setActiveTool(tool.id); setArrowStart(null); }} data-testid={`tool-${tool.id}`}
-                className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all ${activeTool === tool.id ? 'bg-[#c8f700]/20 ring-1 ring-[#c8f700]/50' : 'hover:bg-slate-800'}`} title={tool.label}>
+                className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all ${activeTool === tool.id ? 'bg-[#D4AF37]/20 ring-1 ring-[#D4AF37]/50' : 'hover:bg-slate-800'}`} title={tool.label}>
                 <tool.icon className={`w-4 h-4 ${activeTool === tool.id ? tool.color : 'text-slate-500'}`} />
                 <span className={`text-[7px] font-medium ${activeTool === tool.id ? 'text-white' : 'text-slate-600'}`}>{tool.label}</span>
               </button>
@@ -339,7 +339,7 @@ const TacticalBoardEditor = ({ isOpen, onClose, onSave, initialData, sessionDesc
               <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-20 flex items-center justify-center">
                 <div className="bg-[#12151c] border border-slate-700 rounded-2xl p-6 w-[380px] shadow-2xl" data-testid="ai-panel">
                   <div className="flex items-center gap-2 mb-4">
-                    <Sparkles className="w-5 h-5 text-[#c8f700]" />
+                    <Sparkles className="w-5 h-5 text-[#D4AF37]" />
                     <h3 className="text-white font-bold">Generar con IA</h3>
                   </div>
                   <div className="space-y-3">
@@ -362,7 +362,7 @@ const TacticalBoardEditor = ({ isOpen, onClose, onSave, initialData, sessionDesc
                     </div>
                     <div className="flex gap-2 pt-2">
                       <Button variant="outline" onClick={() => setShowAiPanel(false)} className="flex-1 border-slate-700 text-slate-300 hover:bg-slate-800">Cancelar</Button>
-                      <Button onClick={handleAiGenerate} disabled={generating} className="flex-1 bg-[#c8f700] hover:bg-[#d9ff20] text-[#0b0e14] font-bold" data-testid="ai-generate-submit">
+                      <Button onClick={handleAiGenerate} disabled={generating} className="flex-1 bg-[#D4AF37] hover:bg-[#E1C662] text-[#0b0e14] font-bold" data-testid="ai-generate-submit">
                         {generating ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Generando...</> : <><Sparkles className="w-4 h-4 mr-1" /> Generar</>}
                       </Button>
                     </div>
@@ -418,8 +418,8 @@ const TacticalBoardEditor = ({ isOpen, onClose, onSave, initialData, sessionDesc
               ) : (
                 elements.map(el => (
                   <div key={el.id} onClick={() => setSelectedId(el.id)}
-                    className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-[10px] cursor-pointer transition-all ${selectedId === el.id ? 'bg-[#c8f700]/10 border border-[#c8f700]/30' : 'hover:bg-slate-800/50 border border-transparent'}`}>
-                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${el.type === 'playerX' ? 'bg-[#c8f700]' : el.type === 'playerO' ? 'bg-white' : el.type === 'arrow' ? 'bg-cyan-400' : el.type === 'cone' ? 'bg-orange-400' : el.type === 'ball' ? 'bg-white' : 'bg-blue-400'}`} />
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-[10px] cursor-pointer transition-all ${selectedId === el.id ? 'bg-[#D4AF37]/10 border border-[#D4AF37]/30' : 'hover:bg-slate-800/50 border border-transparent'}`}>
+                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${el.type === 'playerX' ? 'bg-[#D4AF37]' : el.type === 'playerO' ? 'bg-white' : el.type === 'arrow' ? 'bg-cyan-400' : el.type === 'cone' ? 'bg-orange-400' : el.type === 'ball' ? 'bg-white' : 'bg-[#D4AF37]'}`} />
                     <span className="text-slate-300 flex-1 truncate">
                       {el.type === 'playerX' ? `Jugador A #${el.label}` : el.type === 'playerO' ? `Jugador B #${el.label}` : el.type === 'arrow' ? 'Movimiento' : el.type === 'cone' ? 'Cono' : el.type === 'ball' ? 'Balon' : el.label || 'Texto'}
                     </span>
@@ -438,7 +438,7 @@ const TacticalBoardEditor = ({ isOpen, onClose, onSave, initialData, sessionDesc
         {/* Footer */}
         <div className="flex items-center justify-between px-5 py-3 border-t border-slate-800/60 bg-[#0b0e14]">
           <div className="flex items-center gap-2">
-            <Button onClick={() => setShowAiPanel(true)} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold" data-testid="ai-generate-board-btn">
+            <Button onClick={() => setShowAiPanel(true)} className="bg-gradient-to-r from-purple-600 to-[#D4AF37] hover:from-purple-700 hover:to-[#D4AF37] text-white text-xs font-bold" data-testid="ai-generate-board-btn">
               <Sparkles className="w-4 h-4 mr-1.5" /> Generar con IA
             </Button>
             <Button variant="outline" onClick={handleExportPNG} disabled={exporting || elements.length === 0}
@@ -450,7 +450,7 @@ const TacticalBoardEditor = ({ isOpen, onClose, onSave, initialData, sessionDesc
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={onClose} className="border-slate-700 text-slate-400 hover:bg-slate-800 text-xs" data-testid="cancel-board-btn">Cancelar</Button>
-            <Button onClick={handleSave} className="bg-[#c8f700] hover:bg-[#d9ff20] text-[#0b0e14] text-xs font-bold" data-testid="save-board-btn">
+            <Button onClick={handleSave} className="bg-[#D4AF37] hover:bg-[#E1C662] text-[#0b0e14] text-xs font-bold" data-testid="save-board-btn">
               <Save className="w-4 h-4 mr-1.5" /> Guardar Pizarra
             </Button>
           </div>

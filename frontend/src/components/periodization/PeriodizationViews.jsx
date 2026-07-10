@@ -172,7 +172,7 @@ export const TreeView = ({ plan, filters, resolvePhase, getMicroMetrics, onEditM
                           </button>
                           <LoadChip acwr={mm?.ACWR} load={microLoadOf(micro, MICRO_TYPES)} size="xs" />
                           <span className="text-[10px] text-slate-400">{sess.length} ses.</span>
-                          <button onClick={() => onEditMicro(micro, macroIdx, mesoIdx, microIdx)} className="text-[10px] text-blue-500 hover:underline">Editar</button>
+                          <button onClick={() => onEditMicro(micro, macroIdx, mesoIdx, microIdx)} className="text-[10px] text-[#B8912A] hover:underline">Editar</button>
                         </div>
                         {microOpen && sess.map((s, si) => (
                           <div key={s.id || si} className="ml-8 flex items-center gap-2 px-4 py-1.5 text-[11px] text-slate-500 border-l border-slate-100">

@@ -28,7 +28,7 @@ import {
 // 10 módulos
 const MODULES = [
   {
-    id: 'planning', icon: Calendar, color: '#3B82F6',
+    id: 'planning', icon: Calendar, color: '#D4AF37',
     title: 'Planificación Estructural',
     desc: 'Macrociclo · Mesociclo · Microciclo · Sesión · Ondas de carga',
     components: [CalcMacrocycle, CalcLoadWaves, CalcMesocycle, CalcMicrocycle, CalcSession]

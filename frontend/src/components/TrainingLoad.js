@@ -152,7 +152,7 @@ const TrainingLoad = ({ athleteId }) => {
   const acwr = prevWeekLoad > 0 ? (weeklyLoad / (prevWeekLoad / 7 * 28 / 4)).toFixed(2) : 'N/A';
 
   if (loading) {
-    return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>;
+    return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" /></div>;
   }
 
   return (
@@ -169,10 +169,10 @@ const TrainingLoad = ({ athleteId }) => {
 
       {/* Estadísticas Rápidas */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className="bg-[#D4AF37] border-[#B8912A]">
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-blue-600">{weeklyLoad}</p>
-            <p className="text-xs text-blue-600/70">Carga Semanal (UA)</p>
+            <p className="text-2xl font-bold text-[#B8912A]">{weeklyLoad}</p>
+            <p className="text-xs text-[#B8912A]/70">Carga Semanal (UA)</p>
           </CardContent>
         </Card>
         <Card className="bg-green-50 border-green-200">
@@ -202,7 +202,7 @@ const TrainingLoad = ({ athleteId }) => {
         <Card className="shadow-md">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-blue-600" />
+              <TrendingUp className="h-5 w-5 text-[#B8912A]" />
               Evolución de la Carga (Modelo Matveyev)
             </CardTitle>
           </CardHeader>
@@ -212,8 +212,8 @@ const TrainingLoad = ({ athleteId }) => {
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="volumeGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                      <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#D4AF37" stopOpacity={0.1}/>
                     </linearGradient>
                     <linearGradient id="intensityGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
@@ -227,7 +227,7 @@ const TrainingLoad = ({ athleteId }) => {
                     contentStyle={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' }}
                   />
                   <Legend />
-                  <Area type="monotone" dataKey="volume" name="Volumen" stroke="#3b82f6" fill="url(#volumeGrad)" />
+                  <Area type="monotone" dataKey="volume" name="Volumen" stroke="#D4AF37" fill="url(#volumeGrad)" />
                   <Area type="monotone" dataKey="intensity" name="Intensidad" stroke="#ef4444" fill="url(#intensityGrad)" />
                 </AreaChart>
               </ResponsiveContainer>

@@ -13,7 +13,7 @@ export const CalcHRZones = () => {
   const fcmax = num(fcmaxReal) || (220 - num(edad));
   const reserva = fcmax - num(fcrep);
   const zones = [
-    { label: 'Z1 · Recuperación', lo: 50, hi: 60, color: '#3B82F6' },
+    { label: 'Z1 · Recuperación', lo: 50, hi: 60, color: '#D4AF37' },
     { label: 'Z2 · Aeróbico base', lo: 60, hi: 70, color: '#10B981' },
     { label: 'Z3 · Tempo', lo: 70, hi: 80, color: '#F59E0B' },
     { label: 'Z4 · Umbral', lo: 80, hi: 90, color: '#EA580C' },
@@ -57,7 +57,7 @@ export const CalcFTP = () => {
   const [test20, setTest20] = useState(280);
   const ftp = num(test20) * 0.95;
   const zones = [
-    { z: 'Z1 · Recuperación', lo: 0, hi: 55, color: '#3B82F6' },
+    { z: 'Z1 · Recuperación', lo: 0, hi: 55, color: '#D4AF37' },
     { z: 'Z2 · Resistencia', lo: 56, hi: 75, color: '#10B981' },
     { z: 'Z3 · Tempo', lo: 76, hi: 90, color: '#F59E0B' },
     { z: 'Z4 · Umbral', lo: 91, hi: 105, color: '#EA580C' },
@@ -118,7 +118,7 @@ export const CalcACWR = () => {
   const [aguda, setAguda] = useState(450);
   const [cronica, setCronica] = useState(500);
   const ratio = num(aguda) / num(cronica);
-  const status = ratio < 0.8 ? { txt: 'Detraining (carga baja)', c: '#3B82F6' }
+  const status = ratio < 0.8 ? { txt: 'Detraining (carga baja)', c: '#D4AF37' }
     : ratio <= 1.3 ? { txt: 'Sweet spot ✓', c: '#16A34A' }
       : ratio <= 1.5 ? { txt: 'Zona de riesgo', c: '#F59E0B' }
         : { txt: 'Alto riesgo lesional ⚠', c: '#DC2626' };
@@ -201,7 +201,7 @@ export const CalcBMI = () => {
   // OMS
   const cls = bmi < 16 ? { txt: 'Delgadez severa', c: '#7C3AED' }
     : bmi < 17 ? { txt: 'Delgadez moderada', c: '#9333EA' }
-    : bmi < 18.5 ? { txt: 'Delgadez leve', c: '#3B82F6' }
+    : bmi < 18.5 ? { txt: 'Delgadez leve', c: '#D4AF37' }
     : bmi < 25 ? { txt: 'Normal ✓ (OMS)', c: '#16A34A' }
     : bmi < 30 ? { txt: 'Sobrepeso', c: '#F59E0B' }
     : bmi < 35 ? { txt: 'Obesidad I', c: '#EA580C' }
@@ -294,11 +294,11 @@ export const CalcFFMI = () => {
   const ffmi = lbm / (tM * tM);
   const ffmiAdj = ffmi + 6.1 * (1.8 - tM);
   return (
-    <CalcCard title="FFMI · Fat-Free Mass Index" subtitle="Masa libre de grasa relativa" icon={Scale} color="#3B82F6" badge="Módulo 7" testid="calc-ffmi">
+    <CalcCard title="FFMI · Fat-Free Mass Index" subtitle="Masa libre de grasa relativa" icon={Scale} color="#D4AF37" badge="Módulo 7" testid="calc-ffmi">
       <Field label="Peso" value={peso} onChange={setPeso} unit="kg" />
       <Field label="Talla" value={talla} onChange={setTalla} unit="cm" />
       <Field label="% Grasa" value={grasa} onChange={setGrasa} unit="%" />
-      <BigResult value={fmt(ffmi, 1)} label="FFMI" color="#3B82F6" sub={`Ajustado talla: ${fmt(ffmiAdj, 1)} · ${ffmiAdj > 25 ? 'Sospecha PEDs' : ffmiAdj > 22 ? 'Excelente natural' : ffmiAdj > 19 ? 'Atlético' : 'Promedio'}`} />
+      <BigResult value={fmt(ffmi, 1)} label="FFMI" color="#D4AF37" sub={`Ajustado talla: ${fmt(ffmiAdj, 1)} · ${ffmiAdj > 25 ? 'Sospecha PEDs' : ffmiAdj > 22 ? 'Excelente natural' : ffmiAdj > 19 ? 'Atlético' : 'Promedio'}`} />
     </CalcCard>
   );
 };
@@ -398,7 +398,7 @@ export const CalcMacros = () => {
       ]} />
       <div className="grid grid-cols-3 gap-2 mt-2">
         <MiniStat label="Proteína" value={`${fmt(p_g, 0)} g`} color="#DC2626" />
-        <MiniStat label="Carbohidr." value={`${fmt(c_g, 0)} g`} color="#3B82F6" />
+        <MiniStat label="Carbohidr." value={`${fmt(c_g, 0)} g`} color="#D4AF37" />
         <MiniStat label="Grasas" value={`${fmt(g_g, 0)} g`} color="#F59E0B" />
       </div>
       <p className="text-[10px] text-slate-500 italic">P {cfg.p} g/kg · G {cfg.g} g/kg · CH = restantes ({fmt(c_kcal, 0)} kcal)</p>

@@ -20,7 +20,7 @@ export const ResourceLayout = ({ children, active }) => {
       <nav className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur border-b border-slate-800" data-testid="main-nav">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2" data-testid="resource-home-link">
-            <span className="text-lg font-bold text-white">Lord<span className="text-[#CCFF00]">Training</span></span>
+            <span className="text-lg font-bold text-white">Lord<span className="text-[#D4AF37]">Training</span></span>
           </Link>
           <div className="flex items-center gap-1.5">
             {NAV.map((n) => (

@@ -331,12 +331,12 @@ const PDFExportModal = ({ isOpen, onClose, athleteId, athleteName, periodization
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col bg-white shadow-2xl border-0">
-        <DialogHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white -m-6 mb-0 p-6 rounded-t-lg">
+        <DialogHeader className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] text-white -m-6 mb-0 p-6 rounded-t-lg">
           <DialogTitle className="text-xl flex items-center gap-3 font-bold">
             <FileText className="w-6 h-6" />
             EXPORTAR REPORTE PDF
           </DialogTitle>
-          <p className="text-blue-100 text-sm mt-1">
+          <p className="text-[#B8912A] text-sm mt-1">
             Selecciona las secciones que deseas incluir en tu reporte
           </p>
         </DialogHeader>
@@ -378,8 +378,8 @@ const PDFExportModal = ({ isOpen, onClose, athleteId, athleteName, periodization
                 
                 return (
                   <Card key={sectionId} className={`border-2 transition-colors ${
-                    isSelected === true ? 'border-indigo-400 bg-indigo-50/50' : 
-                    isPartial ? 'border-indigo-200 bg-indigo-50/30' : 
+                    isSelected === true ? 'border-[#B8912A] bg-[#D4AF37]/50' : 
+                    isPartial ? 'border-[#B8912A] bg-[#D4AF37]/30' : 
                     'border-slate-200 hover:border-slate-300'
                   }`}>
                     <CardContent className="p-4">
@@ -389,8 +389,8 @@ const PDFExportModal = ({ isOpen, onClose, athleteId, athleteName, periodization
                         onClick={() => toggleSection(sectionId)}
                       >
                         <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                          isSelected === true ? 'bg-indigo-500 border-indigo-500' :
-                          isPartial ? 'bg-indigo-200 border-indigo-400' :
+                          isSelected === true ? 'bg-[#D4AF37] border-[#B8912A]' :
+                          isPartial ? 'bg-[#D4AF37] border-[#B8912A]' :
                           'border-slate-300'
                         }`}>
                           {(isSelected === true || isPartial) && (
@@ -403,9 +403,9 @@ const PDFExportModal = ({ isOpen, onClose, athleteId, athleteName, periodization
                             </svg>
                           )}
                         </div>
-                        <IconComponent className={`w-5 h-5 ${isSelected ? 'text-indigo-600' : 'text-slate-400'}`} />
+                        <IconComponent className={`w-5 h-5 ${isSelected ? 'text-[#B8912A]' : 'text-slate-400'}`} />
                         <div className="flex-1">
-                          <p className={`font-semibold ${isSelected ? 'text-indigo-800' : 'text-slate-700'}`}>
+                          <p className={`font-semibold ${isSelected ? 'text-[#B8912A]' : 'text-slate-700'}`}>
                             {section.label}
                           </p>
                           <p className="text-xs text-slate-500">{section.description}</p>
@@ -417,7 +417,7 @@ const PDFExportModal = ({ isOpen, onClose, athleteId, athleteName, periodization
 
                       {/* Section items (visible when section is selected or partially selected) */}
                       {(isSelected || isPartial) && (
-                        <div className="mt-3 pl-8 space-y-2 border-l-2 border-indigo-200 ml-2">
+                        <div className="mt-3 pl-8 space-y-2 border-l-2 border-[#B8912A] ml-2">
                           {section.items.map(item => (
                             <label 
                               key={item.id}
@@ -427,7 +427,7 @@ const PDFExportModal = ({ isOpen, onClose, athleteId, athleteName, periodization
                                 type="checkbox"
                                 checked={selectedItems[sectionId]?.[item.id] || false}
                                 onChange={() => toggleItem(sectionId, item.id)}
-                                className="w-4 h-4 rounded border-slate-300 text-indigo-500 focus:ring-indigo-500"
+                                className="w-4 h-4 rounded border-slate-300 text-[#B8912A] focus:ring-[#B8912A]"
                               />
                               <span className="text-sm text-slate-600">{item.label}</span>
                             </label>
@@ -514,7 +514,7 @@ const PDFExportModal = ({ isOpen, onClose, athleteId, athleteName, periodization
                     type="checkbox"
                     checked={formatOptions.include_logo}
                     onChange={(e) => setFormatOptions(prev => ({ ...prev, include_logo: e.target.checked }))}
-                    className="w-4 h-4 rounded border-slate-300 text-indigo-500"
+                    className="w-4 h-4 rounded border-slate-300 text-[#B8912A]"
                   />
                   <span className="text-sm text-slate-600">Incluir logo de LordTraining</span>
                 </label>
@@ -524,7 +524,7 @@ const PDFExportModal = ({ isOpen, onClose, athleteId, athleteName, periodization
                     type="checkbox"
                     checked={formatOptions.include_date}
                     onChange={(e) => setFormatOptions(prev => ({ ...prev, include_date: e.target.checked }))}
-                    className="w-4 h-4 rounded border-slate-300 text-indigo-500"
+                    className="w-4 h-4 rounded border-slate-300 text-[#B8912A]"
                   />
                   <span className="text-sm text-slate-600">Incluir fecha de generación</span>
                 </label>
@@ -534,7 +534,7 @@ const PDFExportModal = ({ isOpen, onClose, athleteId, athleteName, periodization
                     type="checkbox"
                     checked={formatOptions.include_page_numbers}
                     onChange={(e) => setFormatOptions(prev => ({ ...prev, include_page_numbers: e.target.checked }))}
-                    className="w-4 h-4 rounded border-slate-300 text-indigo-500"
+                    className="w-4 h-4 rounded border-slate-300 text-[#B8912A]"
                   />
                   <span className="text-sm text-slate-600">Incluir números de página</span>
                 </label>
@@ -551,7 +551,7 @@ const PDFExportModal = ({ isOpen, onClose, athleteId, athleteName, periodization
           <Button 
             onClick={handleExport} 
             disabled={exporting || countSelectedSections() === 0}
-            className="bg-indigo-600 hover:bg-indigo-700"
+            className="bg-[#D4AF37] hover:bg-[#D4AF37]"
           >
             {exporting ? (
               <>

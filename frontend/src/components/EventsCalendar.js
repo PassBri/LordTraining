@@ -33,7 +33,7 @@ const priorityLevels = [
 
 const statusOptions = [
   { value: 'pending', label: 'Pendiente', color: 'bg-gray-100 text-gray-700' },
-  { value: 'confirmed', label: 'Confirmado', color: 'bg-blue-100 text-blue-700' },
+  { value: 'confirmed', label: 'Confirmado', color: 'bg-[#D4AF37] text-[#B8912A]' },
   { value: 'completed', label: 'Completado', color: 'bg-green-100 text-green-700' },
   { value: 'cancelled', label: 'Cancelado', color: 'bg-red-100 text-red-700' },
 ];
@@ -193,7 +193,7 @@ const EventsCalendar = ({ athleteId }) => {
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   if (loading) {
-    return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>;
+    return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" /></div>;
   }
 
   const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -201,12 +201,12 @@ const EventsCalendar = ({ athleteId }) => {
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-6 rounded-xl shadow-lg">
+      <div className="bg-gradient-to-r from-[#D4AF37] to-purple-700 text-white p-6 rounded-xl shadow-lg">
         <div className="flex items-center gap-3">
           <Calendar className="h-8 w-8" />
           <div>
             <h1 className="text-2xl font-bold">Calendario de Eventos y Competencias</h1>
-            <p className="text-indigo-100 text-sm">Planificación y análisis de competencias deportivas</p>
+            <p className="text-[#B8912A] text-sm">Planificación y análisis de competencias deportivas</p>
           </div>
         </div>
       </div>
@@ -248,12 +248,12 @@ const EventsCalendar = ({ athleteId }) => {
                     <div
                       key={idx}
                       className={`min-h-[80px] p-1 border rounded ${
-                        !date ? 'bg-gray-50' : isToday ? 'bg-blue-50 border-blue-300' : 'bg-white hover:bg-gray-50'
+                        !date ? 'bg-gray-50' : isToday ? 'bg-[#D4AF37] border-[#B8912A]' : 'bg-white hover:bg-gray-50'
                       }`}
                     >
                       {date && (
                         <>
-                          <div className={`text-xs font-medium ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
+                          <div className={`text-xs font-medium ${isToday ? 'text-[#B8912A]' : 'text-gray-700'}`}>
                             {date.getDate()}
                           </div>
                           {dayEvents.map(event => {
@@ -305,7 +305,7 @@ const EventsCalendar = ({ athleteId }) => {
                           {event.objective && <p className="text-sm text-gray-600 mt-2">{event.objective}</p>}
                         </div>
                         <div className="text-right">
-                          <span className="text-2xl font-bold text-indigo-600">{daysUntil}</span>
+                          <span className="text-2xl font-bold text-[#B8912A]">{daysUntil}</span>
                           <p className="text-xs text-gray-500">días</p>
                           <div className="flex gap-1 mt-2">
                             <Button size="sm" variant="ghost" onClick={() => editEvent(event)}>
@@ -363,7 +363,7 @@ const EventsCalendar = ({ athleteId }) => {
       </Tabs>
 
       {/* BOTÓN AGREGAR */}
-      <Button onClick={() => setShowForm(true)} className="fixed bottom-6 right-6 rounded-full h-14 w-14 shadow-lg bg-indigo-600 hover:bg-indigo-700">
+      <Button onClick={() => setShowForm(true)} className="fixed bottom-6 right-6 rounded-full h-14 w-14 shadow-lg bg-[#D4AF37] hover:bg-[#D4AF37]">
         <Plus className="h-6 w-6" />
       </Button>
 
@@ -438,7 +438,7 @@ const EventsCalendar = ({ athleteId }) => {
               </div>
               <div className="flex justify-end gap-2 pt-4">
                 <Button variant="outline" onClick={resetForm}>Cancelar</Button>
-                <Button onClick={handleSave} disabled={saving} className="bg-indigo-600 hover:bg-indigo-700">
+                <Button onClick={handleSave} disabled={saving} className="bg-[#D4AF37] hover:bg-[#D4AF37]">
                   {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                   Guardar
                 </Button>

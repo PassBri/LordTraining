@@ -12,7 +12,7 @@ export function adaptarDatosPeriodizacion(macrociclos = []) {
     id: m.id,
     nombre: m.nombre || 'Macro',
     semanas: m.duracion_semanas || 1,
-    color: m.color || '#3B82F6',
+    color: m.color || '#D4AF37',
     volumen: r(m.vol_calculado || m.vol_objetivo),
     intensidad: r(m.int_calculado || m.int_objetivo),
     densidad: r(m.den_calculado || m.den_objetivo, 2),
@@ -98,9 +98,9 @@ export function adaptarDatosHeatmap(microciclos = [], sesiones = []) {
 export function colorCarga(valor) {
   if (valor <= 0) return '#F8FAFC';
   if (valor < 200) return '#DBEAFE';
-  if (valor < 400) return '#60A5FA';
-  if (valor < 600) return '#2563EB';
-  return '#1E3A8A';
+  if (valor < 400) return '#D4AF37';
+  if (valor < 600) return '#D4AF37';
+  return '#D4AF37';
 }
 
 // ── PROGRESION POR CAPACIDAD ──
@@ -146,7 +146,7 @@ export function adaptarDatosProgresion(mesociclos = [], microciclos = [], sesion
 
 // ── GANTT / TIMELINE ──
 const MICRO_COLORS = {
-  entrante: '#94A3B8', activacion: '#38BDF8', ordinario: '#3B82F6', corriente: '#3B82F6',
+  entrante: '#94A3B8', activacion: '#38BDF8', ordinario: '#D4AF37', corriente: '#D4AF37',
   carga: '#6366F1', desarrollador: '#6366F1', choque: '#EF4444', impacto: '#EF4444',
   competitivo: '#F59E0B', precompetitivo: '#F97316', recuperacion: '#A78BFA',
   descarga: '#5AB88A', activador: '#22C55E', estabilizador: '#10B981', realizacion: '#EC4899',
@@ -160,7 +160,7 @@ export function adaptarDatosGantt(plan, macrociclos = [], mesociclos = [], micro
   const macrosBloques = macrociclos.map(m => {
     const inicio = weekOffset;
     weekOffset += m.duracion_semanas || 0;
-    return { id: m.id, inicio, fin: weekOffset, label: m.nombre, color: m.color || '#3B82F6', vol: r(m.vol_calculado || m.vol_objetivo), int: r(m.int_calculado || m.int_objetivo), alerta: m.alerta };
+    return { id: m.id, inicio, fin: weekOffset, label: m.nombre, color: m.color || '#D4AF37', vol: r(m.vol_calculado || m.vol_objetivo), int: r(m.int_calculado || m.int_objetivo), alerta: m.alerta };
   });
 
   const mesosBloques = [];
@@ -171,7 +171,7 @@ export function adaptarDatosGantt(plan, macrociclos = [], mesociclos = [], micro
     macroMesos.forEach(meso => {
       const inicio = mesoWeekOffset;
       mesoWeekOffset += meso.duracion_semanas || 0;
-      const MESO_COLORS = { entrante: '#94A3B8', basico_desarrollador: '#3B82F6', basico_estabilizador: '#10B981', precompetitivo: '#F59E0B', competitivo: '#EF4444', recuperacion: '#A78BFA' };
+      const MESO_COLORS = { entrante: '#94A3B8', basico_desarrollador: '#D4AF37', basico_estabilizador: '#10B981', precompetitivo: '#F59E0B', competitivo: '#EF4444', recuperacion: '#A78BFA' };
       mesosBloques.push({ id: meso.id, inicio, fin: mesoWeekOffset, label: meso.nombre, color: MESO_COLORS[meso.tipo] || '#64748B', vol: r(meso.vol_calculado), int: r(meso.int_calculado) });
       if (meso.semana_descarga) {
         descargasBloques.push({ inicio: inicio + (meso.semana_descarga - 1), fin: inicio + meso.semana_descarga, label: 'Descarga', color: '#5AB88A' });
@@ -197,7 +197,7 @@ export function adaptarDatosGantt(plan, macrociclos = [], mesociclos = [], micro
   // Sesiones: intensidad por semana (nº de sesiones) para mini-barras.
   const sesionesBloques = microsBloques
     .filter(mb => mb.sesiones > 0)
-    .map(mb => ({ inicio: mb.inicio, fin: mb.fin, label: `${mb.sesiones}`, color: '#0EA5E9', count: mb.sesiones }));
+    .map(mb => ({ inicio: mb.inicio, fin: mb.fin, label: `${mb.sesiones}`, color: '#D4AF37', count: mb.sesiones }));
   const maxSes = Math.max(1, ...sesionesBloques.map(b => b.count));
 
   const niveles = [

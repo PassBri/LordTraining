@@ -7,7 +7,7 @@ import {
 } from 'recharts';
 
 const METRIC_TABS = [
-  { id: 'volumen', label: 'Volumen', color: '#3B82F6' },
+  { id: 'volumen', label: 'Volumen', color: '#D4AF37' },
   { id: 'intensidad', label: 'Intensidad', color: '#EF4444' },
   { id: 'densidad', label: 'Densidad', color: '#10B981' },
   { id: 'carga', label: 'Carga', color: '#F59E0B' },
@@ -26,7 +26,7 @@ const CustomTooltip = ({ active, payload }) => {
       </div>
       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
         <div className="flex justify-between"><span className="text-slate-400">Semanas</span><span className="font-bold text-slate-700">{d.semanas}</span></div>
-        <div className="flex justify-between"><span className="text-slate-400">Vol</span><span className="font-bold text-blue-600">{d.volumen}%</span></div>
+        <div className="flex justify-between"><span className="text-slate-400">Vol</span><span className="font-bold text-[#B8912A]">{d.volumen}%</span></div>
         <div className="flex justify-between"><span className="text-slate-400">Int</span><span className="font-bold text-red-500">{d.intensidad}%</span></div>
         <div className="flex justify-between"><span className="text-slate-400">Carga</span><span className="font-bold text-amber-600">{d.carga} UA</span></div>
         {d.ACWR > 0 && <div className="flex justify-between"><span className="text-slate-400">ACWR</span><span className="font-bold">{d.ACWR}</span></div>}

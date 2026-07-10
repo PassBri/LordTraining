@@ -16,8 +16,8 @@ const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BA
 
 // Opciones de períodos
 const PERIODOS = [
-  { id: 'preparatorio_general', label: 'Preparatorio General', color: 'bg-blue-100 border-blue-400' },
-  { id: 'preparatorio_especial', label: 'Preparatorio Especial', color: 'bg-blue-200 border-blue-500' },
+  { id: 'preparatorio_general', label: 'Preparatorio General', color: 'bg-[#D4AF37] border-[#B8912A]' },
+  { id: 'preparatorio_especial', label: 'Preparatorio Especial', color: 'bg-[#D4AF37] border-[#B8912A]' },
   { id: 'precompetitivo', label: 'Precompetitivo', color: 'bg-yellow-100 border-yellow-400' },
   { id: 'competitivo', label: 'Competitivo', color: 'bg-green-100 border-green-400' },
   { id: 'transitorio', label: 'Transitorio', color: 'bg-orange-100 border-orange-400' }
@@ -26,7 +26,7 @@ const PERIODOS = [
 // Opciones de etapas
 const ETAPAS = [
   { id: 'acumulacion', label: 'Acumulación', color: 'bg-purple-100' },
-  { id: 'transformacion', label: 'Transformación', color: 'bg-indigo-100' },
+  { id: 'transformacion', label: 'Transformación', color: 'bg-[#D4AF37]' },
   { id: 'realizacion', label: 'Realización', color: 'bg-pink-100' }
 ];
 
@@ -273,7 +273,7 @@ const PeriodizationPlanner = ({ athleteId }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
       </div>
     );
   }
@@ -281,8 +281,8 @@ const PeriodizationPlanner = ({ athleteId }) => {
   return (
     <div className="space-y-4">
       {/* Header con información del macrociclo */}
-      <Card className="border-2 border-blue-200 shadow-md">
-        <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3">
+      <Card className="border-2 border-[#B8912A] shadow-md">
+        <CardHeader className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] text-white py-3">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Layers className="w-5 h-5" />
@@ -413,7 +413,7 @@ const PeriodizationPlanner = ({ athleteId }) => {
       {/* Resumen visual de la estructura */}
       <div className="flex items-center gap-2 p-3 bg-gray-100 rounded-lg text-sm">
         <span className="font-medium">Estructura:</span>
-        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">1 Macrociclo</span>
+        <span className="px-2 py-1 bg-[#D4AF37] text-[#B8912A] rounded">1 Macrociclo</span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
         <span className="px-2 py-1 bg-green-100 text-green-700 rounded">{mesociclos.length} Mesociclos</span>
         <ChevronRight className="w-4 h-4 text-gray-400" />
@@ -459,7 +459,7 @@ const PeriodizationPlanner = ({ athleteId }) => {
                       {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                       <span className="font-bold text-gray-800">Mesociclo {meso.numero}</span>
                       <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">{meso.tipo.replace('_', ' ')}</span>
-                      <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">{periodoInfo?.label}</span>
+                      <span className="px-2 py-0.5 bg-[#D4AF37] text-[#B8912A] rounded text-xs">{periodoInfo?.label}</span>
                       <span className="text-xs text-gray-500">{meso.semanas} semanas</span>
                     </div>
                     <div className="flex items-center gap-2">

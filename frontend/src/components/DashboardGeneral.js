@@ -46,7 +46,7 @@ const DashboardGeneral = memo(function DashboardGeneral({ planId, onBack }) {
   if (loading && !plan) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-2 border-[#B8912A] border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -92,7 +92,7 @@ const DashboardGeneral = memo(function DashboardGeneral({ planId, onBack }) {
           </div>
           {/* STATS */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-4">
-            <StatCard value={macrociclos.length} label="Macrociclos" color="#3B82F6" icon={Layers} />
+            <StatCard value={macrociclos.length} label="Macrociclos" color="#D4AF37" icon={Layers} />
             <StatCard value={mesociclos.length} label="Mesociclos" color="#8B5CF6" icon={Activity} />
             <StatCard value={microciclos.length} label="Semanas" color="#10B981" icon={Calendar} />
             <StatCard value={totalSesiones} label="Sesiones" color="#F59E0B" icon={Zap} />

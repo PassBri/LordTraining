@@ -332,7 +332,7 @@ const SubscriptionPage = () => {
 
                   <div className="mt-4 mb-5 min-h-[68px]">
                     <div className="flex items-baseline" key={billingCycle}>
-                      <span className={`text-[32px] font-black leading-none ${plan.popular ? 'text-[#CCFF00]' : 'text-slate-900'}`} data-testid={`sub-price-${plan.id}`}>
+                      <span className={`text-[32px] font-black leading-none ${plan.popular ? 'text-[#D4AF37]' : 'text-slate-900'}`} data-testid={`sub-price-${plan.id}`}>
                         ${displayPrice}
                       </span>
                       <span className={`text-[13px] ml-1 ${plan.popular ? 'text-slate-500' : 'text-slate-400'}`}>/mes</span>
@@ -352,7 +352,7 @@ const SubscriptionPage = () => {
                   <ul className="space-y-2.5 mb-6">
                     {plan.features.map((f, j) => (
                       <li key={j} className={`flex items-start gap-2 text-[13px] leading-snug ${plan.popular ? 'text-slate-300' : 'text-slate-500'}`}>
-                        <Check className={`w-4 h-4 flex-shrink-0 mt-[1px] ${plan.popular ? 'text-[#CCFF00]' : 'text-emerald-500'}`} />
+                        <Check className={`w-4 h-4 flex-shrink-0 mt-[1px] ${plan.popular ? 'text-[#D4AF37]' : 'text-emerald-500'}`} />
                         {f}
                       </li>
                     ))}
@@ -363,7 +363,7 @@ const SubscriptionPage = () => {
                       isCurrent
                         ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
                         : plan.popular
-                          ? 'bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600]'
+                          ? 'bg-[#D4AF37] text-slate-900 hover:bg-[#b8e600]'
                           : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'
                     }`}
                     disabled={isCurrent || loading || plan.id === 'free'}

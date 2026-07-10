@@ -33,7 +33,7 @@ const SharedPlanPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
       </div>
     );
   }
@@ -55,16 +55,16 @@ const SharedPlanPage = () => {
   const { plan, athlete, v2_macrociclos = [], v2_mesociclos = [], v2_microciclos = [], v2_sesiones = [] } = data;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-[#D4AF37]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-700 to-blue-900 text-white py-6 px-6">
+      <div className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] text-white py-6 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-2 text-blue-200 text-sm mb-1">
+          <div className="flex items-center gap-2 text-[#B8912A] text-sm mb-1">
             <Calendar className="w-4 h-4" />
             Plan de Entrenamiento Compartido
           </div>
           <h1 className="text-2xl font-bold" data-testid="shared-plan-title">{plan.name}</h1>
-          <div className="flex flex-wrap gap-4 mt-3 text-sm text-blue-100">
+          <div className="flex flex-wrap gap-4 mt-3 text-sm text-[#B8912A]">
             {athlete && (
               <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" /> {athlete.name}</span>
             )}
@@ -84,7 +84,7 @@ const SharedPlanPage = () => {
       <div className="max-w-6xl mx-auto p-6 space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard icon={Activity} label="Macrociclos" value={v2_macrociclos.length || plan.macrocycles?.length || 0} color="text-blue-600" />
+          <StatCard icon={Activity} label="Macrociclos" value={v2_macrociclos.length || plan.macrocycles?.length || 0} color="text-[#B8912A]" />
           <StatCard icon={TrendingUp} label="Mesociclos" value={v2_mesociclos.length} color="text-green-600" />
           <StatCard icon={Dumbbell} label="Microciclos" value={v2_microciclos.length} color="text-purple-600" />
           <StatCard icon={Timer} label="Sesiones" value={v2_sesiones.length} color="text-amber-600" />
@@ -93,11 +93,11 @@ const SharedPlanPage = () => {
         {/* Macrocycles */}
         {(plan.macrocycles || []).map((macro, idx) => (
           <Card key={idx} className="overflow-hidden">
-            <CardHeader className="bg-blue-50 py-3 px-4">
+            <CardHeader className="bg-[#D4AF37] py-3 px-4">
               <CardTitle className="text-base flex items-center gap-2">
-                <Activity className="w-4 h-4 text-blue-600" />
+                <Activity className="w-4 h-4 text-[#B8912A]" />
                 Macrociclo: {macro.name || `#${idx + 1}`}
-                {macro.phase && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{macro.phase}</span>}
+                {macro.phase && <span className="text-xs bg-[#D4AF37] text-[#B8912A] px-2 py-0.5 rounded-full">{macro.phase}</span>}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
@@ -145,7 +145,7 @@ const SharedPlanPage = () => {
                   </div>
                 ))}
                 {v2_sesiones.length > 12 && (
-                  <div className="p-3 bg-blue-50 rounded-lg border text-sm text-center text-blue-600 font-medium">
+                  <div className="p-3 bg-[#D4AF37] rounded-lg border text-sm text-center text-[#B8912A] font-medium">
                     +{v2_sesiones.length - 12} sesiones más
                   </div>
                 )}

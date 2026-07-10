@@ -277,7 +277,7 @@ const OrgTeamPage = () => {
         {stats && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <StatCard icon={Users} label={tt('Entrenadores')} value={`${stats.total_coaches}/${org.max_coaches === 999 ? '∞' : org.max_coaches}`} color="#10B981" />
-            <StatCard icon={CheckCircle2} label={tt('Activos')} value={stats.active_coaches} color="#3B82F6" />
+            <StatCard icon={CheckCircle2} label={tt('Activos')} value={stats.active_coaches} color="#D4AF37" />
             <StatCard icon={Sparkles} label={tt('Planes creados')} value={stats.total_plans} color="#8B5CF6" />
             <StatCard icon={Users} label={tt('Atletas totales')} value={stats.total_athletes} color="#F59E0B" />
           </div>
@@ -324,7 +324,7 @@ const OrgTeamPage = () => {
                       <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-slate-500 hover:text-amber-600" title={tt('Resetear contraseña')} onClick={() => handleResetPwd(c)} disabled={acting} data-testid={`reset-pwd-${c.id}`}>
                         <KeyRound className="w-3.5 h-3.5" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-slate-500 hover:text-blue-600" title={suspended ? 'Reactivar' : 'Suspender'} onClick={() => handleToggleStatus(c)} disabled={acting} data-testid={`toggle-${c.id}`}>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-slate-500 hover:text-[#B8912A]" title={suspended ? 'Reactivar' : 'Suspender'} onClick={() => handleToggleStatus(c)} disabled={acting} data-testid={`toggle-${c.id}`}>
                         {suspended ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
                       </Button>
                       <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-slate-500 hover:text-red-600" title={tt('Remover')} onClick={() => handleRemove(c)} disabled={acting} data-testid={`remove-${c.id}`}>

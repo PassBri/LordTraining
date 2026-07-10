@@ -20,7 +20,7 @@ const tt = (s) => {
 const SEV = {
   danger: { color: '#ef4444', bg: '#fef2f2', border: '#fecaca', label: 'Crítico' },
   warning: { color: '#f59e0b', bg: '#fffbeb', border: '#fde68a', label: 'Atención' },
-  info: { color: '#0ea5e9', bg: '#f0f9ff', border: '#bae6fd', label: 'Info' },
+  info: { color: '#D4AF37', bg: '#f0f9ff', border: '#bae6fd', label: 'Info' },
 };
 const ICON = { no_evaluation: ClipboardX, stale_evaluation: ClipboardX, contract_expired: CalendarClock, contract_expiring: CalendarClock, sponsor_expired: CalendarClock, sponsor_expiring: CalendarClock };
 

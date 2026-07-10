@@ -42,7 +42,7 @@ export default function PublicProgress() {
   const best = Math.max(...vals), avg = vals.reduce((a, b) => a + b, 0) / vals.length;
   const Trend = Math.abs(delta) < 1e-9 ? Minus : delta > 0 ? TrendingUp : TrendingDown;
   const trendColor = Math.abs(delta) < 1e-9 ? '#94a3b8' : delta > 0 ? '#10b981' : '#f87171';
-  const color = data.color || '#3B82F6';
+  const color = data.color || '#D4AF37';
   const target = data.goal?.target_value;
   const yDomain = target != null
     ? [(dmin) => Math.min(dmin, target) - 1, (dmax) => Math.max(dmax, target) + 1]
@@ -52,7 +52,7 @@ export default function PublicProgress() {
     <div className="min-h-screen bg-slate-950 text-slate-100" data-testid="public-progress">
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="rounded-2xl p-6 mb-5" style={{ background: 'linear-gradient(120deg,#0f172a,#111c33,#0b1220)', borderBottom: '4px solid #CCFF00' }}>
+        <div className="rounded-2xl p-6 mb-5" style={{ background: 'linear-gradient(120deg,#0f172a,#111c33,#0b1220)', borderBottom: '4px solid #D4AF37' }}>
           <div className="flex items-center justify-between mb-3">
             <span className="text-[12px] font-black tracking-widest text-lime-300">LORD<span className="text-white">TRAINING</span> · PROGRESO</span>
           </div>

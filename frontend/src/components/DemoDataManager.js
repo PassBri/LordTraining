@@ -78,7 +78,7 @@ const DemoDataManager = () => {
     <div className="bg-white rounded-2xl border border-slate-200 p-6" data-testid="demo-data-manager">
       <div className="flex items-start gap-3 mb-5">
         <div className="w-11 h-11 rounded-xl bg-slate-900 flex items-center justify-center shrink-0">
-          <Sparkles className="w-5 h-5 text-[#CCFF00]" />
+          <Sparkles className="w-5 h-5 text-[#D4AF37]" />
         </div>
         <div>
           <h3 className="text-lg font-bold text-slate-900">Datos de Ejemplo (Onboarding)</h3>
@@ -110,7 +110,7 @@ const DemoDataManager = () => {
         <Button
           onClick={handleSeed}
           disabled={busy !== null}
-          className="bg-slate-900 hover:bg-slate-800 text-[#CCFF00] font-semibold"
+          className="bg-slate-900 hover:bg-slate-800 text-[#D4AF37] font-semibold"
           data-testid="seed-demo-data-btn"
         >
           {busy === 'seed' ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
@@ -148,7 +148,7 @@ const DemoDataManager = () => {
       <div className="mt-8 pt-6 border-t border-slate-150" data-testid="data-migration-section">
         <div className="flex items-start gap-3 mb-4">
           <div className="w-11 h-11 rounded-xl bg-slate-900 flex items-center justify-center shrink-0">
-            <ArrowRightLeft className="w-5 h-5 text-[#CCFF00]" />
+            <ArrowRightLeft className="w-5 h-5 text-[#D4AF37]" />
           </div>
           <div>
             <h3 className="text-lg font-bold text-slate-900">Migración de datos (Preview → Producción)</h3>
@@ -170,9 +170,9 @@ const DemoDataManager = () => {
           </Button>
         </div>
         {importResult && (
-          <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4" data-testid="import-result">
-            <p className="text-sm font-semibold text-blue-800 mb-2">Importación completada:</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-xs text-blue-700">
+          <div className="mt-4 rounded-xl border border-[#B8912A] bg-[#D4AF37] p-4" data-testid="import-result">
+            <p className="text-sm font-semibold text-[#B8912A] mb-2">Importación completada:</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-xs text-[#B8912A]">
               {Object.entries(importResult).map(([k, v]) => (
                 <span key={k}>{k}: <strong>+{v.inserted}</strong>{v.skipped ? ` (${v.skipped} omitidos)` : ''}</span>
               ))}

@@ -25,7 +25,7 @@ const PERIODIZATION_MODELS = {
     category: 'Clásico',
     description: 'Periodización lineal clásica con progresión gradual de volumen a intensidad',
     icon: '📊',
-    color: '#3B82F6',
+    color: '#D4AF37',
     phases: ['preparatory_general', 'preparatory_specific', 'precompetitive', 'competitive', 'transition'],
     characteristics: [
       'Progresión lineal de la carga',
@@ -191,7 +191,7 @@ const CYCLE_DURATIONS = {
     weeks: 104,
     description: 'Dos temporadas completas con desarrollo progresivo',
     icon: '📅',
-    color: '#3B82F6',
+    color: '#D4AF37',
     macrocycles: 2,
     suggestedModels: ['traditional', 'blocks', 'structural_bells']
   },
@@ -243,12 +243,12 @@ const CYCLE_DURATIONS = {
 
 // Fases de entrenamiento por modelo
 const TRAINING_PHASES = {
-  preparatory_general: { name: 'Preparatorio General', color: '#3B82F6', volumeBase: 80, intensityBase: 50 },
+  preparatory_general: { name: 'Preparatorio General', color: '#D4AF37', volumeBase: 80, intensityBase: 50 },
   preparatory_specific: { name: 'Preparatorio Específico', color: '#8B5CF6', volumeBase: 70, intensityBase: 70 },
   precompetitive: { name: 'Precompetitivo', color: '#F59E0B', volumeBase: 55, intensityBase: 85 },
   competitive: { name: 'Competitivo', color: '#10B981', volumeBase: 40, intensityBase: 95 },
   transition: { name: 'Transición', color: '#6B7280', volumeBase: 30, intensityBase: 40 },
-  accumulation: { name: 'Acumulación', color: '#3B82F6', volumeBase: 85, intensityBase: 55 },
+  accumulation: { name: 'Acumulación', color: '#D4AF37', volumeBase: 85, intensityBase: 55 },
   transformation: { name: 'Transformación', color: '#8B5CF6', volumeBase: 65, intensityBase: 80 },
   realization: { name: 'Realización', color: '#10B981', volumeBase: 45, intensityBase: 95 },
   strength_block: { name: 'Bloque de Fuerza', color: '#EF4444', volumeBase: 75, intensityBase: 85 },
@@ -259,18 +259,18 @@ const TRAINING_PHASES = {
   heavy_week: { name: 'Semana Pesada', color: '#EF4444', volumeBase: 85, intensityBase: 85 },
   moderate_week: { name: 'Semana Moderada', color: '#F59E0B', volumeBase: 70, intensityBase: 70 },
   light_week: { name: 'Semana Ligera', color: '#10B981', volumeBase: 50, intensityBase: 50 },
-  technical_emphasis: { name: 'Énfasis Técnico', color: '#3B82F6', volumeBase: 60, intensityBase: 60 },
+  technical_emphasis: { name: 'Énfasis Técnico', color: '#D4AF37', volumeBase: 60, intensityBase: 60 },
   physical_emphasis: { name: 'Énfasis Físico', color: '#EF4444', volumeBase: 80, intensityBase: 80 },
   integration: { name: 'Integración', color: '#10B981', volumeBase: 65, intensityBase: 75 },
-  general_direction: { name: 'Dirección General', color: '#3B82F6', volumeBase: 80, intensityBase: 55 },
+  general_direction: { name: 'Dirección General', color: '#D4AF37', volumeBase: 80, intensityBase: 55 },
   special_direction: { name: 'Dirección Especial', color: '#8B5CF6', volumeBase: 70, intensityBase: 75 },
   competitive_direction: { name: 'Dirección Competitiva', color: '#10B981', volumeBase: 50, intensityBase: 90 },
   low_intensity: { name: 'Baja Intensidad (80%)', color: '#10B981', volumeBase: 85, intensityBase: 55 },
   high_intensity: { name: 'Alta Intensidad (20%)', color: '#EF4444', volumeBase: 50, intensityBase: 95 },
   max_effort: { name: 'Esfuerzo Máximo', color: '#EF4444', volumeBase: 50, intensityBase: 100 },
   dynamic_effort: { name: 'Esfuerzo Dinámico', color: '#F59E0B', volumeBase: 70, intensityBase: 60 },
-  repetition: { name: 'Repeticiones', color: '#3B82F6', volumeBase: 80, intensityBase: 65 },
-  preseason: { name: 'Pretemporada', color: '#3B82F6', volumeBase: 80, intensityBase: 70 },
+  repetition: { name: 'Repeticiones', color: '#D4AF37', volumeBase: 80, intensityBase: 65 },
+  preseason: { name: 'Pretemporada', color: '#D4AF37', volumeBase: 80, intensityBase: 70 },
   in_season: { name: 'Temporada', color: '#10B981', volumeBase: 50, intensityBase: 85 },
   postseason: { name: 'Posttemporada', color: '#6B7280', volumeBase: 40, intensityBase: 40 }
 };
@@ -553,7 +553,7 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
                 key={model.id}
                 className={`cursor-pointer transition-all hover:shadow-lg border-2 ${
                   config.model === model.id 
-                    ? 'border-blue-500 ring-2 ring-blue-200 bg-blue-50' 
+                    ? 'border-[#B8912A] ring-2 ring-[#B8912A] bg-[#D4AF37]' 
                     : 'border-transparent hover:border-slate-200'
                 }`}
                 onClick={() => setConfig({ ...config, model: model.id })}
@@ -566,7 +566,7 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
                       <p className="text-xs text-slate-500 mt-1 line-clamp-2">{model.description}</p>
                     </div>
                     {config.model === model.id && (
-                      <CheckCircle2 className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-[#B8912A] flex-shrink-0" />
                     )}
                   </div>
                 </CardContent>
@@ -577,18 +577,18 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
       ))}
 
       {config.model && (
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <Card className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] border-[#B8912A]">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+              <Info className="w-5 h-5 text-[#B8912A] flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-semibold text-blue-800">
+                <h4 className="font-semibold text-[#B8912A]">
                   {PERIODIZATION_MODELS[config.model].name}
                 </h4>
                 <ul className="mt-2 space-y-1">
                   {PERIODIZATION_MODELS[config.model].characteristics.map((char, idx) => (
-                    <li key={idx} className="text-sm text-blue-700 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+                    <li key={idx} className="text-sm text-[#B8912A] flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-[#D4AF37] rounded-full" />
                       {char}
                     </li>
                   ))}
@@ -615,7 +615,7 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
             key={duration.id}
             className={`cursor-pointer transition-all hover:shadow-lg border-2 ${
               config.duration === duration.id
-                ? 'border-blue-500 ring-2 ring-blue-200'
+                ? 'border-[#B8912A] ring-2 ring-[#B8912A]'
                 : 'border-transparent hover:border-slate-200'
             }`}
             onClick={() => setConfig({ ...config, duration: duration.id })}
@@ -624,7 +624,7 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
               <div className="flex items-center justify-between mb-3">
                 <span className="text-3xl">{duration.icon}</span>
                 {config.duration === duration.id && (
-                  <CheckCircle2 className="w-5 h-5 text-blue-500" />
+                  <CheckCircle2 className="w-5 h-5 text-[#B8912A]" />
                 )}
               </div>
               <h4 className="font-bold text-lg text-slate-800">{duration.name}</h4>
@@ -682,7 +682,7 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-blue-500" />
+              <Calendar className="w-5 h-5 text-[#B8912A]" />
               Información del Ciclo
             </CardTitle>
           </CardHeader>
@@ -828,7 +828,7 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
     if (!structure) {
       return (
         <div className="text-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-4" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#B8912A] mx-auto mb-4" />
           <p className="text-slate-500">Generando estructura del plan...</p>
         </div>
       );
@@ -923,7 +923,7 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
                     {meso.microcycles.map((micro, mIdx) => (
                       <div
                         key={micro.id}
-                        className={`flex-1 h-2 rounded ${micro.isDeload ? 'bg-green-300' : 'bg-blue-300'}`}
+                        className={`flex-1 h-2 rounded ${micro.isDeload ? 'bg-green-300' : 'bg-[#D4AF37]'}`}
                         title={`Semana ${micro.weekNumber}: ${micro.isDeload ? 'Descarga' : 'Normal'}`}
                       />
                     ))}
@@ -949,12 +949,12 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
       </div>
 
       {structure && (
-        <Card className="bg-gradient-to-br from-slate-50 to-blue-50">
+        <Card className="bg-gradient-to-br from-slate-50 to-[#D4AF37]">
           <CardContent className="p-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <h3 className="font-semibold text-slate-800 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-blue-500" />
+                  <Calendar className="w-5 h-5 text-[#B8912A]" />
                   Detalles del Plan
                 </h3>
                 <div className="space-y-2 text-sm">
@@ -993,7 +993,7 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
                 <div className="grid grid-cols-2 gap-4">
                   <Card className="bg-white">
                     <CardContent className="p-4 text-center">
-                      <p className="text-3xl font-bold text-blue-600">{structure.totalWeeks}</p>
+                      <p className="text-3xl font-bold text-[#B8912A]">{structure.totalWeeks}</p>
                       <p className="text-xs text-slate-500 uppercase">Semanas</p>
                     </CardContent>
                   </Card>
@@ -1044,11 +1044,11 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
   return (
     <div className="h-full flex flex-col bg-white rounded-xl shadow-lg overflow-hidden" style={{ maxHeight: 'calc(100vh - 120px)' }}>
       {/* Header con pasos */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 flex-shrink-0">
+      <div className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] text-white p-6 flex-shrink-0">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-xl font-bold">Sistema de Periodización</h1>
-            <p className="text-blue-100 text-sm">
+            <p className="text-[#B8912A] text-sm">
               {athleteName ? `Creando plan para ${athleteName}` : 'Asistente de creación de planes'}
             </p>
           </div>
@@ -1067,10 +1067,10 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
                     currentStep === step.number
-                      ? 'bg-white text-blue-600 ring-4 ring-blue-300'
+                      ? 'bg-white text-[#B8912A] ring-4 ring-[#B8912A]'
                       : completedSteps.includes(step.number)
                       ? 'bg-green-500 text-white'
-                      : 'bg-blue-500/30 text-blue-100'
+                      : 'bg-[#D4AF37]/30 text-[#B8912A]'
                   }`}
                 >
                   {completedSteps.includes(step.number) ? (
@@ -1080,12 +1080,12 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
                   )}
                 </div>
                 <span className="text-xs mt-2 font-medium hidden md:block">{step.title}</span>
-                <span className="text-xs text-blue-200 hidden md:block">{step.description}</span>
+                <span className="text-xs text-[#B8912A] hidden md:block">{step.description}</span>
               </div>
               {idx < steps.length - 1 && (
                 <div 
                   className={`flex-1 h-1 mx-2 rounded transition-all ${
-                    completedSteps.includes(step.number) ? 'bg-green-400' : 'bg-blue-500/30'
+                    completedSteps.includes(step.number) ? 'bg-green-400' : 'bg-[#D4AF37]/30'
                   }`}
                 />
               )}
@@ -1124,7 +1124,7 @@ const PeriodizationWizard = ({ athleteId, athleteName, onComplete, onCancel }) =
           <Button
             onClick={nextStep}
             disabled={!isStepValid(currentStep)}
-            className="gap-2 bg-blue-600 hover:bg-blue-700"
+            className="gap-2 bg-[#D4AF37] hover:bg-[#D4AF37]"
             data-testid="wizard-siguiente-btn"
           >
             Siguiente

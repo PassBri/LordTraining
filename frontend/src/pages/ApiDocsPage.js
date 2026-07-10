@@ -17,7 +17,7 @@ export default function ApiDocsPage() {
   return (
     <ResourceLayout active="/docs">
       <div data-testid="api-docs-page">
-        <p className="text-[#CCFF00] text-xs font-bold tracking-widest uppercase mb-2">Developers</p>
+        <p className="text-[#D4AF37] text-xs font-bold tracking-widest uppercase mb-2">Developers</p>
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-8" data-testid="api-docs-title">API Docs</h1>
         <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-8">
           <aside className="lg:sticky lg:top-24 h-max">

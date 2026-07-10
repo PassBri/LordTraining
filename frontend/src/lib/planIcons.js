@@ -35,7 +35,7 @@ export const getPlanIconComponent = (key) => ICON_MAP[key] || null;
 
 // Paleta de colores del badge
 export const PLAN_COLORS = [
-  '#CCFF00', '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
+  '#D4AF37', '#D4AF37', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
   '#EC4899', '#06B6D4', '#14B8A6', '#6366F1', '#F97316', '#0F172A',
 ];
 
@@ -55,15 +55,15 @@ export const autoIconForSport = (sportName = '') => {
   return (
     m(['box', 'kick'], 'swords', '#EF4444') ||
     m(['mma', 'lucha', 'wrestl', 'judo', 'karate', 'taekwon', 'combat'], 'shield', '#F97316') ||
-    m(['atlet', 'maraton', 'maratón', 'run', 'correr', 'sprint'], 'footprints', '#3B82F6') ||
+    m(['atlet', 'maraton', 'maratón', 'run', 'correr', 'sprint'], 'footprints', '#D4AF37') ||
     m(['nataci', 'swim', 'remo', 'row', 'water'], 'waves', '#06B6D4') ||
     m(['cicl', 'bike', 'bici'], 'bike', '#10B981') ||
     m(['fútbol', 'futbol', 'basket', 'balonc', 'voley', 'voleibol', 'rugby', 'equipo', 'team'], 'goal', '#8B5CF6') ||
     m(['tenis', 'tennis', 'tiro', 'precis'], 'target', '#EC4899') ||
-    m(['ski', 'esqu', 'patin', 'invierno', 'snow'], 'snowflake', '#0EA5E9') ||
+    m(['ski', 'esqu', 'patin', 'invierno', 'snow'], 'snowflake', '#D4AF37') ||
     m(['fuerza', 'pesas', 'powerl', 'halter', 'gym'], 'dumbbell', '#F59E0B') ||
     m(['montaña', 'escal', 'climb', 'mountain'], 'mountain', '#14B8A6') ||
-    { icon: 'trophy', color: '#3B82F6' }
+    { icon: 'trophy', color: '#D4AF37' }
   );
 };
 

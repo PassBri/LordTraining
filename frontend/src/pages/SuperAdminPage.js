@@ -55,14 +55,14 @@ const ENTITY = {
   federation: { label: 'Federación / Universidad', icon: Landmark, color: '#9C27B0', tint: '#F3E5F5', desc: 'Federaciones, ligas nacionales y universidades' },
   university: { label: 'Federación / Universidad', icon: Landmark, color: '#9C27B0', tint: '#F3E5F5', desc: 'Federaciones, ligas nacionales y universidades' },
   league: { label: 'Liga', icon: Trophy, color: '#FF6F00', tint: '#FFF3E0', desc: 'Ligas y competiciones organizadas' },
-  club: { label: 'Club', icon: Building2, color: '#1976D2', tint: '#E3F2FD', desc: 'Clubes deportivos' },
+  club: { label: 'Club', icon: Building2, color: '#D4AF37', tint: '#E3F2FD', desc: 'Clubes deportivos' },
   school: { label: 'Escuela / Academia', icon: GraduationCap, color: '#388E3C', tint: '#E8F5E9', desc: 'Escuelas y academias deportivas' },
 };
 
 const PLAN_BADGE = {
   free: 'bg-slate-100 text-slate-600',
   starter: 'bg-slate-200 text-slate-700',
-  basic: 'bg-blue-100 text-blue-700',
+  basic: 'bg-[#D4AF37] text-[#B8912A]',
   pro: 'bg-emerald-100 text-emerald-700',
   enterprise: 'bg-amber-100 text-amber-800',
 };
@@ -400,7 +400,7 @@ const SuperAdminPage = () => {
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          {c.code_type === 'discount' && <Tag className="w-3.5 h-3.5 text-blue-600" />}
+                          {c.code_type === 'discount' && <Tag className="w-3.5 h-3.5 text-[#B8912A]" />}
                           {c.code_type === 'gift' && <Gift className="w-3.5 h-3.5 text-purple-600" />}
                           {c.code_type === 'referral' && <Link2 className="w-3.5 h-3.5 text-amber-600" />}
                           <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500">{c.code_type}</span>
@@ -526,7 +526,7 @@ const SuperAdminPage = () => {
               <Label>{tt('Tipo')}</Label>
               <div className="grid grid-cols-3 gap-2 mt-1.5">
                 {[
-                  { id: 'discount', label: 'Descuento', icon: Tag, c: '#3B82F6' },
+                  { id: 'discount', label: 'Descuento', icon: Tag, c: '#D4AF37' },
                   { id: 'gift', label: 'Regalo', icon: Gift, c: '#9333EA' },
                   { id: 'referral', label: 'Referido', icon: Link2, c: '#F59E0B' },
                 ].map(t => (
@@ -690,7 +690,7 @@ const HierarchyGroup = ({ title, entityKey, orgs, onOpen, onSetType, isSuper }) 
 // ─── Finance Dashboard component ─────────────────────
 const PLAN_DISPLAY = {
   starter: { label: 'Starter', color: '#64748B' },
-  basic:   { label: 'Pro', color: '#3B82F6' },
+  basic:   { label: 'Pro', color: '#D4AF37' },
   pro:     { label: 'Club', color: '#10B981' },
   enterprise: { label: 'Institucional', color: '#F59E0B' },
 };
@@ -710,7 +710,7 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
     danger:  { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', icon: 'text-red-600', dot: 'bg-red-500' },
     warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', icon: 'text-amber-600', dot: 'bg-amber-500' },
     success: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', icon: 'text-emerald-600', dot: 'bg-emerald-500' },
-    info:    { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', icon: 'text-blue-600', dot: 'bg-blue-500' },
+    info:    { bg: 'bg-[#D4AF37]', border: 'border-[#B8912A]', text: 'text-[#B8912A]', icon: 'text-[#B8912A]', dot: 'bg-[#D4AF37]' },
   };
   const ALERT_ICON = {
     trending_down: TrendingDown,
@@ -761,11 +761,11 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
 
       <div className="rounded-3xl p-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #064E3B 0%, #022C22 100%)' }}>
         <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: 'radial-gradient(circle at 70% 30%, rgba(204,255,0,0.4) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle at 70% 30%, rgba(212,175,55,0.4) 1px, transparent 1px)',
           backgroundSize: '32px 32px',
         }} />
         <div className="relative">
-          <p className="text-[11px] tracking-[0.2em] uppercase text-[#CCFF00]/80 font-bold mb-1.5">{tt('Resumen Financiero')}</p>
+          <p className="text-[11px] tracking-[0.2em] uppercase text-[#D4AF37]/80 font-bold mb-1.5">{tt('Resumen Financiero')}</p>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-3">
             <div>
               <p className="text-[11px] uppercase tracking-wider text-white/50">{tt('MRR')}</p>
@@ -774,7 +774,7 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
             </div>
             <div>
               <p className="text-[11px] uppercase tracking-wider text-white/50">{tt('ARR')}</p>
-              <p className="text-3xl font-black text-[#CCFF00]">${finance.arr.toLocaleString('en-US', {minimumFractionDigits:2})}</p>
+              <p className="text-3xl font-black text-[#D4AF37]">${finance.arr.toLocaleString('en-US', {minimumFractionDigits:2})}</p>
               <p className="text-[11px] text-white/50">{tt('proyección anual')}</p>
             </div>
             <div>
@@ -848,7 +848,7 @@ const FinanceDashboard = ({ finance, alerts, onRefund }) => {
               <div key={f.stage} className="flex items-center gap-3">
                 <span className="w-28 text-[12px] font-semibold text-slate-700 truncate">{f.stage}</span>
                 <div className="flex-1 h-9 bg-slate-100 rounded-lg overflow-hidden relative">
-                  <div className="h-full rounded-lg flex items-center px-3 transition-all duration-700" style={{ width: `${Math.max(widthPct, 4)}%`, background: `linear-gradient(90deg, ${['#94A3B8','#64748B','#3B82F6','#10B981','#F59E0B'][idx]} 0%, ${['#64748B','#475569','#1E40AF','#047857','#92400E'][idx]} 100%)` }}>
+                  <div className="h-full rounded-lg flex items-center px-3 transition-all duration-700" style={{ width: `${Math.max(widthPct, 4)}%`, background: `linear-gradient(90deg, ${['#94A3B8','#64748B','#D4AF37','#10B981','#F59E0B'][idx]} 0%, ${['#64748B','#475569','#D4AF37','#047857','#92400E'][idx]} 100%)` }}>
                     <span className="text-white text-[11px] font-bold tracking-wider">{f.count} ({f.rate}%)</span>
                   </div>
                 </div>

@@ -210,13 +210,13 @@ const generateTournamentPDF = (tournament, participants, matches) => {
       <title>${tournament.name} - Fixture</title>
       <style>
         body { font-family: Arial, sans-serif; padding: 20px; }
-        h1 { color: #1e40af; border-bottom: 3px solid #f97316; padding-bottom: 10px; }
+        h1 { color: #D4AF37; border-bottom: 3px solid #f97316; padding-bottom: 10px; }
         h2 { color: #374151; margin-top: 30px; }
         .info { background: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .info p { margin: 5px 0; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { border: 1px solid #d1d5db; padding: 10px; text-align: left; }
-        th { background: #1e40af; color: white; }
+        th { background: #D4AF37; color: white; }
         .match { background: white; margin: 10px 0; padding: 15px; border: 2px solid #e5e7eb; border-radius: 8px; }
         .winner { background: #dcfce7; }
         .round-title { background: #fef3c7; padding: 8px 15px; border-radius: 5px; font-weight: bold; margin: 20px 0 10px; }
@@ -336,7 +336,7 @@ const EliminationBracket = ({ matches, onUpdateMatch, readOnly = false }) => {
                     className={`bg-white border-2 rounded-xl overflow-hidden shadow-sm transition-all hover:shadow-lg ${
                       match.status === 'completed' ? 'border-green-300' :
                       match.isBye ? 'border-slate-200 opacity-60' :
-                      'border-slate-200 hover:border-blue-300'
+                      'border-slate-200 hover:border-[#B8912A]'
                     }`}
                   >
                     {/* Header */}
@@ -361,7 +361,7 @@ const EliminationBracket = ({ matches, onUpdateMatch, readOnly = false }) => {
                         <input
                           type="number"
                           min="0"
-                          className="w-14 h-8 text-center border-2 rounded-lg text-sm font-bold focus:border-blue-500 focus:outline-none"
+                          className="w-14 h-8 text-center border-2 rounded-lg text-sm font-bold focus:border-[#B8912A] focus:outline-none"
                           value={match.score1 ?? ''}
                           onChange={(e) => handleScoreChange(match.id, 'score1', e.target.value)}
                           placeholder="-"
@@ -389,7 +389,7 @@ const EliminationBracket = ({ matches, onUpdateMatch, readOnly = false }) => {
                         <input
                           type="number"
                           min="0"
-                          className="w-14 h-8 text-center border-2 rounded-lg text-sm font-bold focus:border-blue-500 focus:outline-none"
+                          className="w-14 h-8 text-center border-2 rounded-lg text-sm font-bold focus:border-[#B8912A] focus:outline-none"
                           value={match.score2 ?? ''}
                           onChange={(e) => handleScoreChange(match.id, 'score2', e.target.value)}
                           placeholder="-"
@@ -431,7 +431,7 @@ const StandingsTable = ({ standings }) => {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+          <tr className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] text-white">
             <th className="px-3 py-3 text-left font-semibold rounded-tl-lg">#</th>
             <th className="px-3 py-3 text-left font-semibold">{tt('Equipo')}</th>
             <th className="px-3 py-3 text-center font-semibold">{tt('PJ')}</th>
@@ -475,7 +475,7 @@ const StandingsTable = ({ standings }) => {
                 </span>
               </td>
               <td className="px-3 py-3 text-center">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white font-bold text-lg">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#D4AF37] text-white font-bold text-lg">
                   {team.points}
                 </span>
               </td>
@@ -513,7 +513,7 @@ const MatchList = ({ matches, onUpdateMatch, readOnly = false }) => {
         <div 
           key={match.id}
           className={`p-4 rounded-xl border-2 transition-all ${
-            match.status === 'completed' ? 'bg-green-50 border-green-200' : 'bg-white border-slate-200 hover:border-blue-200'
+            match.status === 'completed' ? 'bg-green-50 border-green-200' : 'bg-white border-slate-200 hover:border-[#B8912A]'
           }`}
         >
           <div className="flex items-center gap-4">
@@ -531,7 +531,7 @@ const MatchList = ({ matches, onUpdateMatch, readOnly = false }) => {
                   <input
                     type="number"
                     min="0"
-                    className="w-12 h-10 text-center border-2 rounded-lg text-lg font-bold focus:border-blue-500 focus:outline-none"
+                    className="w-12 h-10 text-center border-2 rounded-lg text-lg font-bold focus:border-[#B8912A] focus:outline-none"
                     value={match.score1 ?? ''}
                     onChange={(e) => handleScoreChange(match.id, 'score1', e.target.value)}
                     placeholder="-"
@@ -540,7 +540,7 @@ const MatchList = ({ matches, onUpdateMatch, readOnly = false }) => {
                   <input
                     type="number"
                     min="0"
-                    className="w-12 h-10 text-center border-2 rounded-lg text-lg font-bold focus:border-blue-500 focus:outline-none"
+                    className="w-12 h-10 text-center border-2 rounded-lg text-lg font-bold focus:border-[#B8912A] focus:outline-none"
                     value={match.score2 ?? ''}
                     onChange={(e) => handleScoreChange(match.id, 'score2', e.target.value)}
                     placeholder="-"
@@ -615,7 +615,7 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl h-[80vh] flex flex-col p-0 bg-white rounded-2xl">
         {/* Header */}
-        <div className="flex-shrink-0 bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 text-white rounded-t-2xl">
+        <div className="flex-shrink-0 bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] px-6 py-4 text-white rounded-t-2xl">
           <DialogHeader className="p-0">
             <DialogTitle className="flex items-center gap-3 text-lg font-bold text-white">
               <Trophy className="w-6 h-6" />
@@ -655,7 +655,7 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
                         {expandedCatalog === category.id && category.sports?.length > 0 && (
                           <div className="px-3 pb-2 grid grid-cols-2 gap-1">
                             {category.sports.map((sport) => (
-                              <button key={sport.id} onClick={() => handleSelectSport(sport, category)} className={`p-2 rounded text-left text-sm ${formData.sport === sport.name ? 'bg-blue-500 text-white' : 'bg-slate-100 hover:bg-slate-200'}`}>
+                              <button key={sport.id} onClick={() => handleSelectSport(sport, category)} className={`p-2 rounded text-left text-sm ${formData.sport === sport.name ? 'bg-[#D4AF37] text-white' : 'bg-slate-100 hover:bg-slate-200'}`}>
                                 {sport.name}
                               </button>
                             ))}
@@ -667,7 +667,7 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
                 ) : (
                   <div className="mt-2 grid grid-cols-4 gap-2">
                     {SPORTS.map((sport) => (
-                      <button key={sport.id} onClick={() => setFormData({ ...formData, sport: sport.id, sportName: sport.name })} className={`p-2 rounded-lg border-2 text-center ${formData.sport === sport.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200'}`}>
+                      <button key={sport.id} onClick={() => setFormData({ ...formData, sport: sport.id, sportName: sport.name })} className={`p-2 rounded-lg border-2 text-center ${formData.sport === sport.id ? 'border-[#B8912A] bg-[#D4AF37]' : 'border-slate-200'}`}>
                         <span className="text-xl">{sport.icon}</span>
                         <p className="text-xs mt-1">{sport.name}</p>
                       </button>
@@ -692,9 +692,9 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
                   {TOURNAMENT_FORMATS.map((format) => {
                     const Icon = format.icon;
                     return (
-                      <button key={format.id} onClick={() => setFormData({ ...formData, format: format.id })} className={`p-3 rounded-xl border-2 text-left ${formData.format === format.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200'}`}>
+                      <button key={format.id} onClick={() => setFormData({ ...formData, format: format.id })} className={`p-3 rounded-xl border-2 text-left ${formData.format === format.id ? 'border-[#B8912A] bg-[#D4AF37]' : 'border-slate-200'}`}>
                         <div className="flex items-center gap-2 mb-1">
-                          <Icon className="w-5 h-5 text-blue-500" />
+                          <Icon className="w-5 h-5 text-[#B8912A]" />
                           <span className="font-semibold text-sm">{format.name}</span>
                         </div>
                         <p className="text-xs text-slate-500">{format.description}</p>
@@ -774,7 +774,7 @@ const TournamentWizard = ({ isOpen, onClose, onSave, sportsCatalog = [] }) => {
             {step === 1 ? 'Cancelar' : 'Anterior'}
           </Button>
           {step < 3 ? (
-            <Button onClick={() => setStep(step + 1)} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={() => setStep(step + 1)} className="bg-[#D4AF37] hover:bg-[#D4AF37]">
               Siguiente <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
@@ -1218,7 +1218,7 @@ const TournamentManager = ({
             {participants.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {participants.map((p, idx) => (
-                  <div key={p.id} className="p-3 bg-slate-50 rounded-xl border-2 border-slate-200 hover:border-blue-300 transition-all group">
+                  <div key={p.id} className="p-3 bg-slate-50 rounded-xl border-2 border-slate-200 hover:border-[#B8912A] transition-all group">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white font-bold">
                         {idx + 1}
@@ -1249,7 +1249,7 @@ const TournamentManager = ({
                 
                 {/* Empty slots */}
                 {Array.from({ length: Math.max(0, selectedTournament.max_participants - participants.length) }).map((_, idx) => (
-                  <div key={`empty-${idx}`} className="p-3 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 cursor-pointer hover:border-blue-300 hover:text-blue-500" onClick={() => setAddParticipantOpen(true)}>
+                  <div key={`empty-${idx}`} className="p-3 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 cursor-pointer hover:border-[#B8912A] hover:text-[#B8912A]" onClick={() => setAddParticipantOpen(true)}>
                     <Plus className="w-4 h-4 mr-1" /> Vacante
                   </div>
                 ))}
@@ -1269,7 +1269,7 @@ const TournamentManager = ({
               <DialogContent className="max-w-md">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
-                    <UserPlus className="w-5 h-5 text-blue-500" />
+                    <UserPlus className="w-5 h-5 text-[#B8912A]" />
                     Agregar Participante
                   </DialogTitle>
                 </DialogHeader>
@@ -1295,7 +1295,7 @@ const TournamentManager = ({
                   <h3 className="font-bold text-lg">
                     {selectedTournament.format === 'round_robin' || selectedTournament.format === 'league' ? 'Partidos' : 'Bracket'}
                   </h3>
-                  <Badge className="bg-blue-100 text-blue-700">
+                  <Badge className="bg-[#D4AF37] text-[#B8912A]">
                     {matches.filter(m => m.status === 'completed').length}/{matches.length} completados
                   </Badge>
                 </div>

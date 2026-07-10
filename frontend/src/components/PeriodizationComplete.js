@@ -32,12 +32,12 @@ const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEN
 
 // ============ CONSTANTES ============
 const MACROCYCLE_PHASES = [
-  { id: 'prep_general', name: 'Preparatorio General', abbr: 'PG', color: '#3B82F6', volumePercent: 85, intensityPercent: 55 },
+  { id: 'prep_general', name: 'Preparatorio General', abbr: 'PG', color: '#D4AF37', volumePercent: 85, intensityPercent: 55 },
   { id: 'prep_specific', name: 'Preparatorio Específico', abbr: 'PE', color: '#8B5CF6', volumePercent: 70, intensityPercent: 75 },
   { id: 'precompetitive', name: 'Precompetitivo', abbr: 'PC', color: '#F59E0B', volumePercent: 55, intensityPercent: 88 },
   { id: 'competitive', name: 'Competitivo', abbr: 'CO', color: '#10B981', volumePercent: 40, intensityPercent: 95 },
   { id: 'transition', name: 'Transición', abbr: 'TR', color: '#6B7280', volumePercent: 30, intensityPercent: 45 },
-  { id: 'accumulation', name: 'Acumulación', abbr: 'AC', color: '#3B82F6', volumePercent: 85, intensityPercent: 60 },
+  { id: 'accumulation', name: 'Acumulación', abbr: 'AC', color: '#D4AF37', volumePercent: 85, intensityPercent: 60 },
   { id: 'transformation', name: 'Transformación', abbr: 'TF', color: '#F59E0B', volumePercent: 60, intensityPercent: 85 },
   { id: 'realization', name: 'Realización', abbr: 'RE', color: '#10B981', volumePercent: 40, intensityPercent: 95 },
   { id: 'recovery', name: 'Recuperación', abbr: 'RC', color: '#6B7280', volumePercent: 35, intensityPercent: 40 }
@@ -47,7 +47,7 @@ const MACROCYCLE_PHASES = [
 const resolvePhase = (macro) => {
   const p = macro?.phase;
   if (!p) return MACROCYCLE_PHASES[0];
-  if (typeof p === 'string') return MACROCYCLE_PHASES.find(ph => ph.id === p) || MACROCYCLE_PHASES.find(ph => p.toLowerCase().includes(ph.id.slice(0,4))) || { id: p, name: macro.name || p, abbr: (macro.name || p).slice(0,2).toUpperCase(), color: '#3B82F6', volumePercent: 70, intensityPercent: 60 };
+  if (typeof p === 'string') return MACROCYCLE_PHASES.find(ph => ph.id === p) || MACROCYCLE_PHASES.find(ph => p.toLowerCase().includes(ph.id.slice(0,4))) || { id: p, name: macro.name || p, abbr: (macro.name || p).slice(0,2).toUpperCase(), color: '#D4AF37', volumePercent: 70, intensityPercent: 60 };
   if (p.color && p.name) return p;
   if (p.id) return MACROCYCLE_PHASES.find(ph => ph.id === p.id) || p;
   return MACROCYCLE_PHASES[0];
@@ -55,7 +55,7 @@ const resolvePhase = (macro) => {
 
 const MESOCYCLE_TYPES = [
   { id: 'entrante', name: 'Entrante', color: '#94A3B8', loadFactor: 0.7 },
-  { id: 'basico_desarrollador', name: 'Básico Desarrollador', color: '#3B82F6', loadFactor: 1.0 },
+  { id: 'basico_desarrollador', name: 'Básico Desarrollador', color: '#D4AF37', loadFactor: 1.0 },
   { id: 'basico_estabilizador', name: 'Básico Estabilizador', color: '#10B981', loadFactor: 0.9 },
   { id: 'precompetitivo', name: 'Precompetitivo', color: '#F59E0B', loadFactor: 0.85 },
   { id: 'competitivo', name: 'Competitivo', color: '#EF4444', loadFactor: 0.75 },
@@ -65,7 +65,7 @@ const MESOCYCLE_TYPES = [
 // Microcycle types array (legacy) - keeping for compatibility
 const MICROCYCLE_TYPES_ARRAY = [
   { id: 'corriente', name: 'Corriente', color: '#64748B', loadPercent: 70 },
-  { id: 'carga', name: 'De Carga', color: '#3B82F6', loadPercent: 85 },
+  { id: 'carga', name: 'De Carga', color: '#D4AF37', loadPercent: 85 },
   { id: 'choque', name: 'De Choque', color: '#EF4444', loadPercent: 100 },
   { id: 'competitivo', name: 'Competitivo', color: '#10B981', loadPercent: 60 },
   { id: 'aproximacion', name: 'De Aproximación', color: '#F59E0B', loadPercent: 75 },
@@ -75,7 +75,7 @@ const MICROCYCLE_TYPES_ARRAY = [
 const SESSION_TYPES = [
   // Material Design 3 vivid palette — coincide con la gráfica "Capacidades Físicas"
   { id: 'strength', name: 'Fuerza', color: '#F44336', bgColor: 'bg-red-100 border-red-300' },         // Material Red 500
-  { id: 'endurance', name: 'Resistencia', color: '#2196F3', bgColor: 'bg-blue-100 border-blue-300' }, // Material Blue 500
+  { id: 'endurance', name: 'Resistencia', color: '#D4AF37', bgColor: 'bg-[#D4AF37] border-[#B8912A]' }, // Material Blue 500
   { id: 'speed', name: 'Velocidad', color: '#FF9800', bgColor: 'bg-orange-100 border-orange-300' },   // Material Orange 500
   { id: 'technical', name: 'Técnica', color: '#4CAF50', bgColor: 'bg-green-100 border-green-300' },   // Material Green 500
   { id: 'tactical', name: 'Táctica', color: '#9C27B0', bgColor: 'bg-purple-100 border-purple-300' },  // Material Purple 500
@@ -190,7 +190,7 @@ const PERIODIZATION_MODELS = {
 };
 
 const MODEL_CATEGORIES = {
-  classic: { name: 'Modelos Clásicos', color: 'bg-blue-100 border-blue-400', icon: '📚' },
+  classic: { name: 'Modelos Clásicos', color: 'bg-[#D4AF37] border-[#B8912A]', icon: '📚' },
   undulating: { name: 'Modelos Ondulatorios', color: 'bg-green-100 border-green-400', icon: '📈' },
   contemporary: { name: 'Modelos Contemporáneos', color: 'bg-purple-100 border-purple-400', icon: '🔬' },
   sport_specific: { name: 'Por Tipo de Deporte', color: 'bg-orange-100 border-orange-400', icon: '🏆' },
@@ -465,7 +465,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         description: m.description || '',
         author: m.author || '',
         icon: m.icon || '📊',
-        color: m.color || '#3B82F6',
+        color: m.color || '#D4AF37',
         phases: m.phases || [],
         isCustom: !m.is_default,
       };
@@ -475,7 +475,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
   const effectiveCategories = React.useMemo(() => ({
     ...MODEL_CATEGORIES,
-    custom: { name: 'Mis Modelos Personalizados', color: 'bg-[#CCFF00]/20 border-[#CCFF00]', icon: '✨' },
+    custom: { name: 'Mis Modelos Personalizados', color: 'bg-[#D4AF37]/20 border-[#D4AF37]', icon: '✨' },
   }), []);
 
   // Aplicar el seed al planConfig una vez que los modelos estén disponibles
@@ -1644,7 +1644,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           name: macro.name,
           volumePercent: macro.volume_percent,
           intensityPercent: macro.intensity_percent,
-          color: ['#3B82F6', '#8B5CF6', '#F59E0B', '#10B981', '#6B7280'][Math.floor(Math.random() * 5)]
+          color: ['#D4AF37', '#8B5CF6', '#F59E0B', '#10B981', '#6B7280'][Math.floor(Math.random() * 5)]
         },
         mesocycles: (macro.mesocycles || []).map(meso => ({
           ...meso,
@@ -1690,7 +1690,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-lg">
-            <Activity className="w-5 h-5 text-[#CCFF00]" />
+            <Activity className="w-5 h-5 text-[#D4AF37]" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-800">{t('periodization.periodizationPlans')}</h2>
@@ -1714,7 +1714,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
       {loading ? (
         <div className="text-center py-16">
-          <Loader2 className="w-10 h-10 animate-spin text-blue-500 mx-auto mb-4" />
+          <Loader2 className="w-10 h-10 animate-spin text-[#B8912A] mx-auto mb-4" />
           <p className="text-slate-400 text-sm">{t('periodization.loadingPlans')}</p>
         </div>
       ) : plans.length === 0 ? (
@@ -1729,7 +1729,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       ) : (
         <div className="space-y-3">
           {plans.map(plan => {
-            const phaseColor = plan.macrocycles?.[0]?.phase?.color || '#3B82F6';
+            const phaseColor = plan.macrocycles?.[0]?.phase?.color || '#D4AF37';
             return (
             <div
               key={plan.id}
@@ -1796,16 +1796,16 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       {nextPlanSeed && !seedDismissed && (
         <div
           data-testid="next-plan-seed-banner"
-          className="mb-3 rounded-2xl overflow-hidden border-2 border-[#CCFF00] shadow-lg shadow-[#CCFF00]/20 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 relative"
+          className="mb-3 rounded-2xl overflow-hidden border-2 border-[#D4AF37] shadow-lg shadow-[#D4AF37]/20 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 relative"
         >
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_50%,#CCFF00_0%,transparent_60%)]" />
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_50%,#D4AF37_0%,transparent_60%)]" />
           <div className="relative p-4 flex items-start gap-3">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md shadow-[#CCFF00]/30" style={{ background: '#CCFF00' }}>
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md shadow-[#D4AF37]/30" style={{ background: '#D4AF37' }}>
               <Sparkles className="w-6 h-6 text-slate-900" strokeWidth={2.4} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: '#CCFF00' }}>{t('periodization.closeCycle')}</span>
+                <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: '#D4AF37' }}>{t('periodization.closeCycle')}</span>
                 <span className="text-[9px] font-bold uppercase tracking-wider text-white/40">·</span>
                 <span className="text-[9px] font-bold uppercase tracking-wider text-white/60">{t('periodization.prevAnalysis')}</span>
               </div>
@@ -1814,10 +1814,10 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               </h3>
               <p className="text-[12px] text-white/75 leading-snug mb-2">
                 {nextPlanSeed.source_model_name && (
-                  <>{t('periodization.preSelectedModel')} <span className="font-bold text-[#CCFF00]">{nextPlanSeed.source_model_name}</span>. </>
+                  <>{t('periodization.preSelectedModel')} <span className="font-bold text-[#D4AF37]">{nextPlanSeed.source_model_name}</span>. </>
                 )}
                 {nextPlanSeed.focus_area && PREV_AREA_LABELS[nextPlanSeed.focus_area] && (
-                  <>{t('periodization.phaseOf')} <span className="font-bold text-[#CCFF00]">{PREV_AREA_LABELS[nextPlanSeed.focus_area]}</span> {t('periodization.phaseEmphasis')} </>
+                  <>{t('periodization.phaseOf')} <span className="font-bold text-[#D4AF37]">{PREV_AREA_LABELS[nextPlanSeed.focus_area]}</span> {t('periodization.phaseEmphasis')} </>
                 )}
                 Tus recomendaciones se cargaron como objetivo principal.
               </p>
@@ -1829,7 +1829,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     if (gapNum <= 0) return null;
                     return (
                       <span key={i} className="text-[10px] font-semibold px-2 py-0.5 rounded-full border border-white/15 text-white/80 bg-white/5">
-                        {label} <span className="text-[#CCFF00]">−{gapNum}%</span>
+                        {label} <span className="text-[#D4AF37]">−{gapNum}%</span>
                       </span>
                     );
                   })}
@@ -1853,7 +1853,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-xl">
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-md bg-[#CCFF00] flex items-center justify-center shadow-md shadow-[#CCFF00]/30">
+            <div className="w-7 h-7 rounded-md bg-[#D4AF37] flex items-center justify-center shadow-md shadow-[#D4AF37]/30">
               <Target className="w-4 h-4 text-slate-900" />
             </div>
             <div className="leading-tight">
@@ -1888,16 +1888,16 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-all duration-300 border-2 ${
                         isActive
-                          ? 'bg-[#CCFF00] text-slate-900 border-[#CCFF00] shadow-md shadow-[#CCFF00]/40 scale-110'
+                          ? 'bg-[#D4AF37] text-slate-900 border-[#D4AF37] shadow-md shadow-[#D4AF37]/40 scale-110'
                           : isDone
-                            ? 'bg-[#CCFF00]/20 text-[#CCFF00] border-[#CCFF00]/60'
+                            ? 'bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/60'
                             : 'bg-slate-800 text-slate-500 border-slate-700'
                       }`}
                     >
                       {isDone ? <Check className="w-3.5 h-3.5" /> : step}
                     </div>
                     <span className={`text-[9px] font-semibold tracking-wide hidden sm:block transition-colors ${
-                      isActive ? 'text-[#CCFF00]' : isDone ? 'text-white/70' : 'text-white/30'
+                      isActive ? 'text-[#D4AF37]' : isDone ? 'text-white/70' : 'text-white/30'
                     }`}>
                       {stepLabels[i]}
                     </span>
@@ -1905,7 +1905,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   {i < 4 && (
                     <div className="flex-1 h-0.5 mx-1 md:mx-2 -mt-3 relative overflow-hidden rounded-full bg-slate-700">
                       <div
-                        className="absolute inset-y-0 left-0 bg-[#CCFF00] transition-all duration-500"
+                        className="absolute inset-y-0 left-0 bg-[#D4AF37] transition-all duration-500"
                         style={{ width: wizardStep > step ? '100%' : '0%' }}
                       />
                     </div>
@@ -1926,9 +1926,9 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               {/* User's Custom Sports from Información -> Deportes */}
               {userSports.length > 0 && userSports.some(cat => cat.sports?.length > 0) && (
                 <div className="space-y-2">
-                  <div className="px-2 py-1 rounded-md bg-gradient-to-r from-blue-100 to-indigo-100 border-l-2 border-blue-500 flex items-center gap-1.5">
+                  <div className="px-2 py-1 rounded-md bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] border-l-2 border-[#B8912A] flex items-center gap-1.5">
                     <span className="text-xs">⭐</span>
-                    <h4 className="font-bold text-blue-700 text-[11px] uppercase tracking-wider">{t('periodization.mySports')}</h4>
+                    <h4 className="font-bold text-[#B8912A] text-[11px] uppercase tracking-wider">{t('periodization.mySports')}</h4>
                   </div>
                   {userSports.filter(cat => cat.sports?.length > 0).map(category => (
                     <div key={category.id}>
@@ -1938,7 +1938,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                           <button
                             key={sport.id}
                             type="button"
-                            className={`p-2 rounded-md border text-left cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]' : 'border-blue-200 hover:border-slate-900 hover:bg-blue-50/50'}`}
+                            className={`p-2 rounded-md border text-left cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-[#D4AF37] bg-[#D4AF37]/10 ring-1 ring-[#D4AF37]' : 'border-[#B8912A] hover:border-slate-900 hover:bg-[#D4AF37]/50'}`}
                             onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sportName: sport.name, sessionsPerWeek: sport.sessions_per_week || 4 })}
                           >
                             <p className="font-bold text-slate-800 text-[11px] truncate leading-tight">{t('catalog.sport_' + sport.id, { defaultValue: sport.name })}</p>
@@ -1963,7 +1963,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                       <button
                         key={sport.id}
                         type="button"
-                        className={`p-2 rounded-md border text-left cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]' : 'border-slate-200 hover:border-slate-900 hover:bg-slate-50'}`}
+                        className={`p-2 rounded-md border text-left cursor-pointer transition-all ${planConfig.sport === sport.id ? 'border-[#D4AF37] bg-[#D4AF37]/10 ring-1 ring-[#D4AF37]' : 'border-slate-200 hover:border-slate-900 hover:bg-slate-50'}`}
                         onClick={() => setPlanConfig({ ...planConfig, sport: sport.id, sportName: sport.name, sessionsPerWeek: sport.sessions_per_week })}
                       >
                         <p className="font-bold text-slate-800 text-[11px] truncate leading-tight">{t('catalog.sport_' + sport.id, { defaultValue: sport.name })}</p>
@@ -1988,7 +1988,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     <button 
                       key={level.id}
                       data-testid={`athlete-level-${level.id}`}
-                      className={`px-3 py-1 rounded-md border text-left transition-all ${planConfig.athleteLevel === level.id ? 'border-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]' : 'border-slate-200 hover:border-slate-900'}`}
+                      className={`px-3 py-1 rounded-md border text-left transition-all ${planConfig.athleteLevel === level.id ? 'border-[#D4AF37] bg-[#D4AF37]/10 ring-1 ring-[#D4AF37]' : 'border-slate-200 hover:border-slate-900'}`}
                       onClick={() => setPlanConfig({ ...planConfig, athleteLevel: level.id })}
                     >
                       <span className="font-bold text-[11px]">{level.name}</span>
@@ -2018,7 +2018,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                       {modelsInCategory.map(([id, model]) => (
                         <div 
                           key={id} 
-                          className={`p-2.5 rounded-lg border cursor-pointer transition-all ${planConfig.model === id ? 'border-[#CCFF00] bg-[#CCFF00]/10 shadow-md ring-1 ring-[#CCFF00]' : 'border-slate-200 hover:border-slate-900 hover:bg-slate-50'}`} 
+                          className={`p-2.5 rounded-lg border cursor-pointer transition-all ${planConfig.model === id ? 'border-[#D4AF37] bg-[#D4AF37]/10 shadow-md ring-1 ring-[#D4AF37]' : 'border-slate-200 hover:border-slate-900 hover:bg-slate-50'}`} 
                           onClick={() => setPlanConfig({ ...planConfig, model: id })}
                           data-testid={`model-option-${id}`}
                           title={model.description}
@@ -2029,13 +2029,13 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                 {model.icon && <span className="text-xs">{model.icon}</span>}
                                 <p className="font-bold text-slate-800 text-[11px] leading-tight truncate">{model.name}</p>
                                 {model.isCustom && (
-                                  <span className="text-[8px] font-bold text-slate-900 bg-[#CCFF00] px-1 py-px rounded flex-shrink-0">MIO</span>
+                                  <span className="text-[8px] font-bold text-slate-900 bg-[#D4AF37] px-1 py-px rounded flex-shrink-0">MIO</span>
                                 )}
                               </div>
                               <p className="text-[10px] text-slate-500 leading-snug line-clamp-2">{model.description}</p>
                             </div>
                             {planConfig.model === id && (
-                              <CheckCircle className="w-4 h-4 text-[#CCFF00] fill-slate-900 flex-shrink-0" />
+                              <CheckCircle className="w-4 h-4 text-[#D4AF37] fill-slate-900 flex-shrink-0" />
                             )}
                           </div>
                         </div>
@@ -2056,7 +2056,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   <button
                     type="button"
                     key={id}
-                    className={`p-2 rounded-md border text-center cursor-pointer transition-all ${planConfig.duration === id ? 'border-[#CCFF00] bg-[#CCFF00]/10 ring-1 ring-[#CCFF00]' : 'border-slate-200 hover:border-slate-900'}`}
+                    className={`p-2 rounded-md border text-center cursor-pointer transition-all ${planConfig.duration === id ? 'border-[#D4AF37] bg-[#D4AF37]/10 ring-1 ring-[#D4AF37]' : 'border-slate-200 hover:border-slate-900'}`}
                     onClick={() => setPlanConfig({ ...planConfig, duration: id })}
                   >
                     <p className="text-lg font-black text-slate-900 leading-none">{dur.weeks}</p>
@@ -2125,7 +2125,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 <Button 
                   onClick={generateAutoStructure} 
                   disabled={generating || !planConfig.startDate}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 text-lg"
+                  className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#D4AF37] text-white px-8 py-3 text-lg"
                 >
                   {generating ? (
                     <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> {t('periodization.generating')}</>
@@ -2146,7 +2146,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center">
                     <div className="bg-white p-3 rounded-lg shadow-sm">
-                      <p className="text-2xl font-bold text-blue-600">{generatedStructure.summary.total_macrocycles}</p>
+                      <p className="text-2xl font-bold text-[#B8912A]">{generatedStructure.summary.total_macrocycles}</p>
                       <p className="text-xs text-slate-500">{t('periodization.macrocyclesTab')}</p>
                     </div>
                     <div className="bg-white p-3 rounded-lg shadow-sm">
@@ -2171,7 +2171,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     <h5 className="font-semibold text-slate-700 mb-2">{t('periodization.planPhases')}</h5>
                     <div className="flex flex-wrap gap-2">
                       {generatedStructure.summary.phases.map((phase, i) => (
-                        <Badge key={i} className="bg-blue-100 text-blue-700">
+                        <Badge key={i} className="bg-[#D4AF37] text-[#B8912A]">
                           {phase.name}: {phase.weeks} {t('periodization.weekShort')}
                         </Badge>
                       ))}
@@ -2220,7 +2220,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 <textarea className="w-full mt-1 p-3 border rounded-lg" rows={3} placeholder={t('periodization.phObjectiveDesc')} value={planConfig.mainObjective} onChange={(e) => setPlanConfig({ ...planConfig, mainObjective: e.target.value })} />
               </div>
               
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+              <div className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] p-6 rounded-xl">
                 <h4 className="font-bold text-slate-700 mb-4 text-center">{t('periodization.planConfig')}</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
@@ -2229,7 +2229,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">{t('periodization.model')}</p>
-                    <p className="font-bold text-blue-600">{effectiveModels[planConfig.model]?.name || planConfig.model}</p>
+                    <p className="font-bold text-[#B8912A]">{effectiveModels[planConfig.model]?.name || planConfig.model}</p>
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">{t('periodization.duration')}</p>
@@ -2242,10 +2242,10 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 </div>
                 
                 {generatedStructure && (
-                  <div className="mt-4 pt-4 border-t border-blue-200">
+                  <div className="mt-4 pt-4 border-t border-[#B8912A]">
                     <div className="grid grid-cols-4 gap-4 text-center">
                       <div>
-                        <p className="text-2xl font-bold text-blue-600">{generatedStructure.summary.total_macrocycles}</p>
+                        <p className="text-2xl font-bold text-[#B8912A]">{generatedStructure.summary.total_macrocycles}</p>
                         <p className="text-xs text-slate-500">{t('periodization.macrocyclesTab')}</p>
                       </div>
                       <div>
@@ -2289,7 +2289,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             </div>
             {wizardStep < 5 ? (
               <Button
-                className="bg-[#CCFF00] hover:bg-[#b8e600] text-slate-900 font-bold px-5 gap-1.5 shadow-md shadow-[#CCFF00]/20 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
+                className="bg-[#D4AF37] hover:bg-[#b8e600] text-slate-900 font-bold px-5 gap-1.5 shadow-md shadow-[#D4AF37]/20 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
                 onClick={() => setWizardStep(wizardStep + 1)}
                 disabled={!canAdvance}
                 data-testid="wizard-next-btn"
@@ -2298,7 +2298,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               </Button>
             ) : (
               <Button
-                className="bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-[#CCFF00] font-bold px-5 gap-1.5 shadow-lg disabled:opacity-50"
+                className="bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-[#D4AF37] font-bold px-5 gap-1.5 shadow-lg disabled:opacity-50"
                 onClick={generatedStructure ? handleCreateFromGenerated : handleCreatePlan}
                 disabled={!planConfig.startDate}
                 data-testid="wizard-create-btn"
@@ -2561,7 +2561,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           <button
             onClick={() => setFabOpen(o => !o)}
             className="w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-105"
-            style={{ backgroundColor: '#CCFF00', color: '#0A0F1E' }}
+            style={{ backgroundColor: '#D4AF37', color: '#0A0F1E' }}
             title="Agregar rápido"
             data-testid="fab-main-btn"
           >
@@ -2574,7 +2574,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           <DialogContent className="max-w-lg p-0 overflow-hidden">
             <DialogTitle className="sr-only">Historial de cambios</DialogTitle>
             <div className="px-5 py-3 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
-              <h3 className="font-bold text-base flex items-center gap-2"><History className="w-4 h-4" style={{ color: '#CCFF00' }} /> Historial de cambios</h3>
+              <h3 className="font-bold text-base flex items-center gap-2"><History className="w-4 h-4" style={{ color: '#D4AF37' }} /> Historial de cambios</h3>
               <p className="text-[11px] text-slate-300">Últimas modificaciones del plan · restaura una versión anterior.</p>
             </div>
             <div className="p-4 max-h-[60vh] overflow-y-auto">
@@ -2604,7 +2604,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           <DialogContent className="max-w-3xl p-0 overflow-hidden">
             <DialogTitle className="sr-only">Comparar planes</DialogTitle>
             <div className="px-5 py-3 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
-              <h3 className="font-bold text-base flex items-center gap-2"><Layers className="w-4 h-4" style={{ color: '#CCFF00' }} /> Comparar planes</h3>
+              <h3 className="font-bold text-base flex items-center gap-2"><Layers className="w-4 h-4" style={{ color: '#D4AF37' }} /> Comparar planes</h3>
               <p className="text-[11px] text-slate-300">Compara el plan actual con otro lado a lado.</p>
             </div>
             <div className="p-4">
@@ -2661,12 +2661,12 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
     };
 
     const StatusBadge = ({ status }) => {
-      const cfg = { planned: { label: 'Planificada', color: '#3B82F6', bg: '#EFF6FF' }, completed: { label: 'Completada', color: '#10B981', bg: '#D1FAE5' }, adjusted: { label: 'Ajustada', color: '#F59E0B', bg: '#FEF3C7' }, cancelled: { label: 'Cancelada', color: '#6B7280', bg: '#F3F4F6' } };
+      const cfg = { planned: { label: 'Planificada', color: '#D4AF37', bg: '#EFF6FF' }, completed: { label: 'Completada', color: '#10B981', bg: '#D1FAE5' }, adjusted: { label: 'Ajustada', color: '#F59E0B', bg: '#FEF3C7' }, cancelled: { label: 'Cancelada', color: '#6B7280', bg: '#F3F4F6' } };
       const c = cfg[status] || cfg.planned;
       return <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ color: c.color, backgroundColor: c.bg }}>{c.label}</span>;
     };
 
-    const MiniBar = ({ value, max = 100, color = '#3B82F6', h = 'h-1.5' }) => (
+    const MiniBar = ({ value, max = 100, color = '#D4AF37', h = 'h-1.5' }) => (
       <div className={`w-full bg-slate-100 rounded-full ${h} overflow-hidden`}>
         <div className={`${h} rounded-full transition-all`} style={{ width: `${Math.min((value / max) * 100, 100)}%`, backgroundColor: color }} />
       </div>
@@ -2739,7 +2739,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                       <Zap className="w-3 h-3" /> {t('periodization.imbalance')}
                     </span>
                   )}
-                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMacrocycle(macro, macroIdx)}><Edit2 className="w-3.5 h-3.5" /></Button>
+                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-[#B8912A]" onClick={() => handleEditMacrocycle(macro, macroIdx)}><Edit2 className="w-3.5 h-3.5" /></Button>
                   <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMacrocycle(macroIdx)}><Trash2 className="w-3.5 h-3.5" /></Button>
                 </div>
               </div>
@@ -2752,10 +2752,10 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 const macroProgreso = v2m?.progreso_porcentaje || 0;
                 return (
               <div className="flex items-center gap-2.5 mt-3 ml-[60px] flex-wrap">
-                <div className="flex items-center gap-1.5 bg-blue-50 px-2.5 py-1 rounded-lg">
-                  <span className="text-[10px] text-blue-400">Vol</span>
-                  <div className="w-12"><MiniBar value={v2m?.vol_calculado || vol} color="#3B82F6" /></div>
-                  <span className="text-[11px] font-bold text-blue-600">{v2m?.vol_calculado ? v2m.vol_calculado.toFixed(0) : vol}%</span>
+                <div className="flex items-center gap-1.5 bg-[#D4AF37] px-2.5 py-1 rounded-lg">
+                  <span className="text-[10px] text-[#B8912A]">Vol</span>
+                  <div className="w-12"><MiniBar value={v2m?.vol_calculado || vol} color="#D4AF37" /></div>
+                  <span className="text-[11px] font-bold text-[#B8912A]">{v2m?.vol_calculado ? v2m.vol_calculado.toFixed(0) : vol}%</span>
                 </div>
                 <div className="flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-lg">
                   <span className="text-[10px] text-red-400">Int</span>
@@ -2842,7 +2842,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                             })()}
                           </div>
                           <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-emerald-600" title="Duplicar mesociclo" onClick={() => handleDuplicateMesocycle(macroIdx, mesoIdx)} data-testid={`duplicate-meso-${macroIdx}-${mesoIdx}`}><Copy className="w-3 h-3" /></Button>
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600" onClick={() => handleEditMesocycle(meso, macroIdx, mesoIdx)}><Edit2 className="w-3 h-3" /></Button>
+                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-[#B8912A]" onClick={() => handleEditMesocycle(meso, macroIdx, mesoIdx)}><Edit2 className="w-3 h-3" /></Button>
                           <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-red-500" onClick={() => handleDeleteMesocycle(macroIdx, mesoIdx)}><Trash2 className="w-3 h-3" /></Button>
                         </div>
                       </div>
@@ -2877,14 +2877,14 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                               'Mie':{ bg:'#10b981', light:'#ecfdf5', text:'#047857', name:'Miercoles' },
                               'Jue':{ bg:'#f59e0b', light:'#fffbeb', text:'#b45309', name:'Jueves' },
                               'Vie':{ bg:'#ef4444', light:'#fef2f2', text:'#b91c1c', name:'Viernes' },
-                              'Sab':{ bg:'#3b82f6', light:'#eff6ff', text:'#1d4ed8', name:'Sabado' },
+                              'Sab':{ bg:'#D4AF37', light:'#eff6ff', text:'#D4AF37', name:'Sabado' },
                               'Dom':{ bg:'#6b7280', light:'#f9fafb', text:'#374151', name:'Domingo' },
                               'Nueva':{ bg:'#94a3b8', light:'#f8fafc', text:'#475569', name:'Nueva' }
                             };
                             const microStartDate = micro.startDate || null;
 
                             return (
-                            <div key={micro.id} className="rounded-2xl overflow-hidden bg-white transition-all" style={{border: highlightMicroKey === microKey ? '2px solid #3B82F6' : '1px solid rgba(0,0,0,0.06)', boxShadow: highlightMicroKey === microKey ? '0 0 0 4px rgba(59,130,246,0.18)' : '0 1px 4px rgba(0,0,0,0.03)'}} data-testid={`microcycle-${microKey}`}>
+                            <div key={micro.id} className="rounded-2xl overflow-hidden bg-white transition-all" style={{border: highlightMicroKey === microKey ? '2px solid #D4AF37' : '1px solid rgba(0,0,0,0.06)', boxShadow: highlightMicroKey === microKey ? '0 0 0 4px rgba(59,130,246,0.18)' : '0 1px 4px rgba(0,0,0,0.03)'}} data-testid={`microcycle-${microKey}`}>
                               {/* ── Micro Header ── */}
                               <div
                                 className="flex items-center justify-between px-4 py-3 cursor-pointer transition-all"
@@ -2939,7 +2939,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                     })()}
                                     <span className="font-semibold" style={{color: completedSessions > 0 ? '#10b981' : '#94a3b8'}}>{completedSessions}/{sessions.length}</span>
                                   </div>
-                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" onClick={() => handleEditMicrocycle(micro, macroIdx, mesoIdx, microIdx)} title={t('periodization.edit')}><Edit2 className="w-3.5 h-3.5" /></Button>
+                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-400 hover:text-[#B8912A] hover:bg-[#D4AF37] rounded-lg" onClick={() => handleEditMicrocycle(micro, macroIdx, mesoIdx, microIdx)} title={t('periodization.edit')}><Edit2 className="w-3.5 h-3.5" /></Button>
                                   <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg" onClick={() => handleDeleteMicrocycle(macroIdx, mesoIdx, microIdx)} title={t('periodization.delete')}><Trash2 className="w-3.5 h-3.5" /></Button>
                                 </div>
                               </div>
@@ -3027,12 +3027,12 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                                             onClick={(e) => e.stopPropagation()}
                                           >
                                             <button
-                                              className="p-0.5 rounded-full bg-white shadow-md hover:bg-blue-50 transition-colors"
+                                              className="p-0.5 rounded-full bg-white shadow-md hover:bg-[#D4AF37] transition-colors"
                                               onClick={() => handleEditSessionVI(session, macroIdx, mesoIdx, microIdx, sIdx)}
                                               title={t('periodization.editVolInt')}
                                               data-testid={`session-${sIdx}-edit-btn`}
                                             >
-                                              <Edit2 className="w-2.5 h-2.5 text-blue-500" />
+                                              <Edit2 className="w-2.5 h-2.5 text-[#B8912A]" />
                                             </button>
                                             <button
                                               className="p-0.5 rounded-full bg-white shadow-md hover:bg-red-50 transition-colors"
@@ -3280,7 +3280,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
 
     if (chartData.length === 0) {
       for (let i = 1; i <= 12; i++) {
-        chartData.push({ semana: `S${i}`, volumen: 60 + Math.sin(i) * 15, intensidad: 50 + i * 2, densidad: 40 + Math.sin(i * 0.5) * 10, carga: 30 + i, fase: 'Demo', color: '#3B82F6' });
+        chartData.push({ semana: `S${i}`, volumen: 60 + Math.sin(i) * 15, intensidad: 50 + i * 2, densidad: 40 + Math.sin(i * 0.5) * 10, carga: 30 + i, fase: 'Demo', color: '#D4AF37' });
       }
     }
 
@@ -3311,7 +3311,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           icon={TrendingUp}
           data={chartData}
           dataKeys={[
-            { key: 'volumen', name: 'Volumen %', color: '#3B82F6' },
+            { key: 'volumen', name: 'Volumen %', color: '#D4AF37' },
             { key: 'intensidad', name: 'Intensidad %', color: '#EF4444' },
             { key: 'densidad', name: 'Densidad %', color: '#10B981' },
             { key: 'carga', name: 'Carga Total', color: '#F59E0B' }
@@ -3387,7 +3387,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     {/* Metrics */}
                     <div className="px-3.5 py-3 space-y-2">
                       {[
-                        { label:'Volumen', val: phaseAvgVol, color:'#3B82F6' },
+                        { label:'Volumen', val: phaseAvgVol, color:'#D4AF37' },
                         { label:'Intensidad', val: phaseAvgInt, color:'#EF4444' },
                         { label:'Densidad', val: phaseAvgDen, color:'#10B981' }
                       ].map((m, mi) => (
@@ -3416,7 +3416,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
         {/* Metrics Summary Cards */}
         <div className="grid grid-cols-4 gap-3">
           {[
-            { label: 'Vol. Promedio', val: `${avgVol}%`, color: '#3B82F6', sub: `${totalWeeks} semanas` },
+            { label: 'Vol. Promedio', val: `${avgVol}%`, color: '#D4AF37', sub: `${totalWeeks} semanas` },
             { label: 'Int. Promedio', val: `${avgInt}%`, color: '#EF4444', sub: `Max: ${Math.max(...chartData.map(d=>d.intensidad))}%` },
             { label: 'Den. Promedio', val: `${avgDen}%`, color: '#10B981', sub: `Min: ${Math.min(...chartData.map(d=>d.densidad))}%` },
             { label: 'Carga Promedio', val: `${avgCarga}`, color: '#F59E0B', sub: `Total: ${chartData.reduce((s,d) => s + d.carga, 0)}` }
@@ -3647,7 +3647,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-blue-500" />
+            <Activity className="w-5 h-5 text-[#B8912A]" />
             Calculadoras Científicas
           </DialogTitle>
         </DialogHeader>
@@ -3664,7 +3664,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             ].map(calc => (
               <button
                 key={calc.id}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${calculatorType === calc.id ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${calculatorType === calc.id ? 'bg-[#D4AF37] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                 onClick={() => { setCalculatorType(calc.id); setCalculatorResult(null); }}
               >
                 {calc.icon} {calc.label}
@@ -3691,7 +3691,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 const weight = parseFloat(document.getElementById('calc-weight').value);
                 const reps = parseInt(document.getElementById('calc-reps').value);
                 if (weight && reps) runCalculation('1rm', { weight, reps });
-              }} className="bg-blue-600 hover:bg-blue-700 text-white">
+              }} className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white">
                 Calcular 1RM
               </Button>
             </div>
@@ -3720,7 +3720,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 const resting_hr = parseInt(document.getElementById('calc-resting').value);
                 const max_hr = document.getElementById('calc-maxhr').value ? parseInt(document.getElementById('calc-maxhr').value) : null;
                 if (age && resting_hr) runCalculation('heart_rate_zones', { age, resting_hr, max_hr });
-              }} className="bg-blue-600 hover:bg-blue-700 text-white">
+              }} className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white">
                 Calcular Zonas
               </Button>
             </div>
@@ -3749,7 +3749,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 const test_type = document.getElementById('calc-test-type').value || 'cooper';
                 const distance_m = parseInt(document.getElementById('calc-distance').value);
                 if (distance_m) runCalculation('vo2max', { test_type, distance_m });
-              }} className="bg-blue-600 hover:bg-blue-700 text-white">
+              }} className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white">
                 Calcular VO2máx
               </Button>
             </div>
@@ -3785,7 +3785,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                 const weeks = parseInt(document.getElementById('calc-weeks').value);
                 const progression = document.getElementById('calc-progression').value || 'linear';
                 if (total_volume && weeks) runCalculation('volume_distribution', { total_volume, weeks, progression });
-              }} className="bg-blue-600 hover:bg-blue-700 text-white">
+              }} className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white">
                 Calcular Distribución
               </Button>
             </div>
@@ -3795,7 +3795,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
             <div className="space-y-4">
               <h4 className="font-bold text-slate-700">{t('periodization.intensityScales')}</h4>
               <p className="text-sm text-slate-500">{t('periodization.viewIntensityScales')}</p>
-              <Button onClick={() => runCalculation('intensity_scale', {})} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button onClick={() => runCalculation('intensity_scale', {})} className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white">
                 Ver Escalas
               </Button>
             </div>
@@ -3803,15 +3803,15 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
           
           {/* Results */}
           {calculatorResult && (
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
-              <h4 className="font-bold text-blue-800 mb-2">{t('periodization.results')}</h4>
-              <p className="text-sm text-blue-600 mb-4">{calculatorResult.explanation}</p>
+            <div className="bg-gradient-to-br from-[#D4AF37] to-[#D4AF37] rounded-xl p-6 border border-[#B8912A]">
+              <h4 className="font-bold text-[#B8912A] mb-2">{t('periodization.results')}</h4>
+              <p className="text-sm text-[#B8912A] mb-4">{calculatorResult.explanation}</p>
               
               {calculatorType === '1rm' && calculatorResult.result && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-4 gap-2 text-center">
                     <div className="bg-white rounded-lg p-3 shadow-sm">
-                      <p className="text-2xl font-bold text-blue-600">{calculatorResult.result['1rm_average']}</p>
+                      <p className="text-2xl font-bold text-[#B8912A]">{calculatorResult.result['1rm_average']}</p>
                       <p className="text-xs text-slate-500">1RM Promedio</p>
                     </div>
                     <div className="bg-white rounded-lg p-3 shadow-sm">
@@ -3845,7 +3845,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                         <p className="text-xs text-slate-500">{data.description}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-blue-600">{data.range}</p>
+                        <p className="font-bold text-[#B8912A]">{data.range}</p>
                         <p className="text-xs text-slate-400">{data.percentage}</p>
                       </div>
                     </div>
@@ -3855,9 +3855,9 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
               
               {calculatorType === 'vo2max' && (
                 <div className="text-center">
-                  <p className="text-4xl font-bold text-blue-600">{calculatorResult.result.vo2max}</p>
+                  <p className="text-4xl font-bold text-[#B8912A]">{calculatorResult.result.vo2max}</p>
                   <p className="text-slate-500">ml/kg/min</p>
-                  <Badge className={`mt-2 ${calculatorResult.result.fitness_level === 'excelente' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                  <Badge className={`mt-2 ${calculatorResult.result.fitness_level === 'excelente' ? 'bg-green-100 text-green-700' : 'bg-[#D4AF37] text-[#B8912A]'}`}>
                     Nivel: {calculatorResult.result.fitness_level}
                   </Badge>
                 </div>
@@ -3869,7 +3869,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                     <div key={week.week} className="flex items-center gap-2">
                       <span className="text-sm font-medium text-slate-600 w-16">Sem {week.week}</span>
                       <div className="flex-1 bg-slate-200 rounded-full h-4 overflow-hidden">
-                        <div className="h-full bg-blue-500 rounded-full" style={{ width: `${week.percentage}%` }}></div>
+                        <div className="h-full bg-[#D4AF37] rounded-full" style={{ width: `${week.percentage}%` }}></div>
                       </div>
                       <span className="text-sm font-bold text-slate-700 w-16 text-right">{week.volume}</span>
                     </div>
@@ -3885,7 +3885,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                       {Object.entries(calculatorResult.result.vasconcelos_raposo || {}).map(([level, data]) => (
                         <div key={level} className="bg-white rounded p-2 text-center">
                           <p className="text-xs font-medium text-slate-600 capitalize">{level}</p>
-                          <p className="text-sm font-bold text-blue-600">{data.range}</p>
+                          <p className="text-sm font-bold text-[#B8912A]">{data.range}</p>
                         </div>
                       ))}
                     </div>
@@ -3896,7 +3896,7 @@ const PeriodizationComplete = ({ athleteId, athleteName, activePlan, onPlanCreat
                       {Object.entries(calculatorResult.result.microcycle_types || {}).map(([type, data]) => (
                         <div key={type} className="bg-white rounded p-2">
                           <p className="text-sm font-medium text-slate-700 capitalize">{type}</p>
-                          <p className="text-lg font-bold text-blue-600">{data.load}%</p>
+                          <p className="text-lg font-bold text-[#B8912A]">{data.load}%</p>
                         </div>
                       ))}
                     </div>

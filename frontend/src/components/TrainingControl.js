@@ -191,7 +191,7 @@ const TrainingControl = ({ athleteId }) => {
   });
 
   if (loading) {
-    return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>;
+    return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" /></div>;
   }
 
   const avgWellness = records.length > 0 
@@ -200,7 +200,7 @@ const TrainingControl = ({ athleteId }) => {
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="bg-gradient-to-r from-cyan-600 to-blue-700 text-white p-6 rounded-xl shadow-lg">
+      <div className="bg-gradient-to-r from-cyan-600 to-[#D4AF37] text-white p-6 rounded-xl shadow-lg">
         <div className="flex items-center gap-3">
           <ClipboardList className="h-8 w-8" />
           <div>
@@ -218,10 +218,10 @@ const TrainingControl = ({ athleteId }) => {
             <p className="text-xs text-green-600/70">Bienestar Promedio</p>
           </CardContent>
         </Card>
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className="bg-[#D4AF37] border-[#B8912A]">
           <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-blue-600">{records.length}</p>
-            <p className="text-xs text-blue-600/70">Registros Totales</p>
+            <p className="text-2xl font-bold text-[#B8912A]">{records.length}</p>
+            <p className="text-xs text-[#B8912A]/70">Registros Totales</p>
           </CardContent>
         </Card>
         <Card className="bg-purple-50 border-purple-200">
@@ -328,7 +328,7 @@ const TrainingControl = ({ athleteId }) => {
                         </div>
                         {record.notes && <p className="text-sm text-gray-600 mt-1">{record.notes}</p>}
                         <div className="flex flex-wrap gap-2 mt-2">
-                          {record.hrResting && <span className="text-xs bg-blue-100 px-2 py-1 rounded">FC: {record.hrResting} bpm</span>}
+                          {record.hrResting && <span className="text-xs bg-[#D4AF37] px-2 py-1 rounded">FC: {record.hrResting} bpm</span>}
                           {record.hrv && <span className="text-xs bg-purple-100 px-2 py-1 rounded">HRV: {record.hrv} ms</span>}
                           {record.weight && <span className="text-xs bg-gray-100 px-2 py-1 rounded">Peso: {record.weight} kg</span>}
                         </div>

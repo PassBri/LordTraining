@@ -6,26 +6,26 @@
 
 /* Material Design 3 Color Palette */
 :root {
-    /* Primary - Blue */
-    --md-primary: #1976D2;
-    --md-primary-light: #42A5F5;
-    --md-primary-dark: #1565C0;
-    --md-primary-container: #E3F2FD;
-    --md-on-primary: #FFFFFF;
-    --md-on-primary-container: #0D47A1;
+    /* Primary - Gold (medal palette, brand) */
+    --md-primary: #D4AF37;
+    --md-primary-light: #E1C662;
+    --md-primary-dark: #B8912A;
+    --md-primary-container: #F7EFD6;
+    --md-on-primary: #1A1A1A;
+    --md-on-primary-container: #7A5E12;
     
-    /* Secondary - Teal */
-    --md-secondary: #00897B;
-    --md-secondary-light: #4DB6AC;
-    --md-secondary-dark: #00695C;
-    --md-secondary-container: #E0F2F1;
+    /* Secondary - Diamond (icy steel) */
+    --md-secondary: #3E7CA8;
+    --md-secondary-light: #6BA3C9;
+    --md-secondary-dark: #2C5D82;
+    --md-secondary-container: #E5F0F7;
     --md-on-secondary: #FFFFFF;
     
-    /* Tertiary - Orange (for accents) */
-    --md-tertiary: #F57C00;
-    --md-tertiary-light: #FFB74D;
-    --md-tertiary-dark: #E65100;
-    --md-tertiary-container: #FFF3E0;
+    /* Tertiary - Bronze (for accents) */
+    --md-tertiary: #C6864E;
+    --md-tertiary-light: #D8A374;
+    --md-tertiary-dark: #A56A38;
+    --md-tertiary-container: #F6EADE;
     
     /* Error */
     --md-error: #D32F2F;
@@ -52,10 +52,10 @@
     --md-outline-variant: #E0E0E0;
     
     /* Legacy variables for compatibility */
-    --primary: #1976D2;
-    --secondary: #00897B;
-    --accent-blue: #1976D2;
-    --accent-lime: #CCFF00;
+    --primary: #D4AF37;
+    --secondary: #3E7CA8;
+    --accent-blue: #D4AF37;
+    --accent-lime: #D4AF37;
     --success: #388E3C;
     --warning: #F9A825;
     --error: #D32F2F;
@@ -79,7 +79,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Outfit', 'Inter', sans-serif;
     font-weight: 600;
     text-transform: none;
     letter-spacing: -0.01em;
@@ -118,12 +118,12 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+    box-shadow: 0 2px 4px rgba(212, 175, 55, 0.25);
 }
 
 .btn-primary:hover {
     background-color: var(--md-primary-dark);
-    box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
+    box-shadow: 0 4px 8px rgba(212, 175, 55, 0.35);
 }
 
 .btn-primary:active {
@@ -182,7 +182,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .card-active {
     border-color: var(--md-primary);
-    box-shadow: 0 0 0 2px var(--md-primary-container), 0 4px 12px rgba(25, 118, 210, 0.15);
+    box-shadow: 0 0 0 2px var(--md-primary-container), 0 4px 12px rgba(212, 175, 55, 0.18);
 }
 
 /* Material Design Input styles */
@@ -241,7 +241,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .shadow-glow {
-    box-shadow: 0 0 24px rgba(25, 118, 210, 0.25);
+    box-shadow: 0 0 24px rgba(212, 175, 55, 0.28);
 }
 
 /* Scrollbar with Material Design - Elegant thin style */
@@ -402,7 +402,7 @@ hr, .border-b, .border-t {
 
 /* Stat card */
 .stat-value {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: 'Outfit', sans-serif;
     font-size: 3rem;
     font-weight: 800;
     line-height: 1;
@@ -577,25 +577,25 @@ hr, .border-b, .border-t {
         --card-foreground: 0 0% 13%;
         --popover: 0 0% 100%;
         --popover-foreground: 0 0% 13%;
-        --primary: 210 79% 46%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 174 100% 27%;
+        --primary: 46 65% 52%;
+        --primary-foreground: 40 40% 10%;
+        --secondary: 205 46% 45%;
         --secondary-foreground: 0 0% 100%;
         --muted: 0 0% 96%;
         --muted-foreground: 0 0% 46%;
-        --accent: 27 98% 47%;
+        --accent: 28 50% 54%;
         --accent-foreground: 0 0% 100%;
         --destructive: 0 70% 50%;
         --destructive-foreground: 0 0% 100%;
         --border: 0 0% 88%;
         --input: 0 0% 88%;
-        --ring: 210 79% 46%;
+        --ring: 46 65% 52%;
         --radius: 0.5rem;
-        --chart-1: 210 79% 46%;
-        --chart-2: 174 100% 27%;
-        --chart-3: 27 98% 47%;
-        --chart-4: 122 39% 40%;
-        --chart-5: 45 93% 56%;
+        --chart-1: 46 65% 52%;
+        --chart-2: 196 57% 73%;
+        --chart-3: 28 49% 54%;
+        --chart-4: 216 14% 80%;
+        --chart-5: 40 42% 40%;
     }
 }
 

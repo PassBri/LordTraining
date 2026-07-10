@@ -18,7 +18,7 @@ const API_URL = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEN
 const ENTITY_TYPES = {
   // Públicas
   federation:    { label: 'Federación',        icon: Landmark,  color: '#C62828', bg: '#FFEBEE', border: '#EF9A9A', group: 'publica' },
-  national_team: { label: 'Selección Nacional', icon: Flag,      color: '#1565C0', bg: '#E3F2FD', border: '#90CAF9', group: 'publica' },
+  national_team: { label: 'Selección Nacional', icon: Flag,      color: '#D4AF37', bg: '#E3F2FD', border: '#90CAF9', group: 'publica' },
   league:        { label: 'Liga / Torneo',      icon: Trophy,    color: '#E65100', bg: '#FFF3E0', border: '#FFCC80', group: 'publica' },
   // Privadas
   club:          { label: 'Club Deportivo',     icon: Shield,    color: '#2E7D32', bg: '#E8F5E9', border: '#A5D6A7', group: 'privada' },
@@ -110,7 +110,7 @@ const EntityManager = () => {
 
   const cfg = ENTITY_TYPES[formData.entity_type] || ENTITY_TYPES.club;
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin" style={{ color: '#1565C0' }} /></div>;
+  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin" style={{ color: '#D4AF37' }} /></div>;
 
   const renderEntityRow = (entity) => {
     const c = ENTITY_TYPES[entity.entity_type] || ENTITY_TYPES.club;
@@ -157,7 +157,7 @@ const EntityManager = () => {
           <h2 className="text-xl font-bold text-slate-800">{tt('Gestión de Entidades')}</h2>
           <p className="text-xs text-slate-500">{tt('Organiza federaciones, clubes, escuelas y más en tu estructura deportiva')}</p>
         </div>
-        <Button onClick={() => openCreate()} className="text-white text-xs h-8 px-3" style={{ backgroundColor: '#1565C0' }} data-testid="new-entity-btn">
+        <Button onClick={() => openCreate()} className="text-white text-xs h-8 px-3" style={{ backgroundColor: '#D4AF37' }} data-testid="new-entity-btn">
           <Plus className="w-3.5 h-3.5 mr-1" /> Nueva Entidad
         </Button>
       </div>

@@ -9,7 +9,7 @@ import { Activity, TrendingUp, AlertTriangle, HeartPulse, Gauge } from 'lucide-r
 
 const ZONE_STYLE = {
   optimo: { key: 'Optimo', color: '#10B981', bg: 'bg-emerald-50', text: 'text-emerald-700' },
-  bajo: { key: 'Bajo', color: '#3B82F6', bg: 'bg-blue-50', text: 'text-blue-700' },
+  bajo: { key: 'Bajo', color: '#D4AF37', bg: 'bg-[#D4AF37]', text: 'text-[#B8912A]' },
   precaucion: { key: 'Precaucion', color: '#F59E0B', bg: 'bg-amber-50', text: 'text-amber-700' },
   riesgo: { key: 'Riesgo', color: '#EF4444', bg: 'bg-red-50', text: 'text-red-700' },
   sin_datos: { key: 'SinDatos', color: '#94A3B8', bg: 'bg-slate-50', text: 'text-slate-500' },
@@ -30,7 +30,7 @@ const AdvancedMetrics = ({ metrics, onNavigate }) => {
       <Card className="shadow-lg border-0 bg-white" data-testid="acwr-card">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Gauge className="w-5 h-5 text-indigo-500" />
+            <Gauge className="w-5 h-5 text-[#B8912A]" />
             {t('dashboard.metrics.acwrTitle')}
             {m.acwr_current != null && (
               <span className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${zone.bg} ${zone.text}`} data-testid="acwr-zone-badge">

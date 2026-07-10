@@ -12,7 +12,7 @@ import { adminListUsers, adminCreateUser, adminUpdateUser, adminResetPassword, a
 
 const ROLES = [['coach', 'Entrenador'], ['athlete', 'Atleta'], ['admin', 'Administrador']];
 const PLANS = [['free', 'Free'], ['starter', 'Starter'], ['basic', 'Basic'], ['pro', 'Pro'], ['enterprise', 'Enterprise']];
-const PLAN_BADGE = { free: 'bg-slate-100 text-slate-600', starter: 'bg-slate-200 text-slate-700', basic: 'bg-blue-100 text-blue-700', pro: 'bg-emerald-100 text-emerald-700', enterprise: 'bg-amber-100 text-amber-800' };
+const PLAN_BADGE = { free: 'bg-slate-100 text-slate-600', starter: 'bg-slate-200 text-slate-700', basic: 'bg-[#D4AF37] text-[#B8912A]', pro: 'bg-emerald-100 text-emerald-700', enterprise: 'bg-amber-100 text-amber-800' };
 const labelOf = (arr, k) => (arr.find(x => x[0] === k) || [k, k])[1];
 const emptyUser = () => ({ name: '', email: '', password: '', role: 'coach', subscription: 'starter', is_super_admin: false });
 
@@ -102,7 +102,7 @@ export default function AdminUserManagement() {
                   <Badge className={`border-0 text-[10px] uppercase ${PLAN_BADGE[u.subscription] || 'bg-slate-100 text-slate-600'}`}>{labelOf(PLANS, u.subscription)}</Badge>
                   <div className="flex items-center gap-1 shrink-0">
                     <button onClick={() => setEditing(u)} title="Editar" className="p-1.5 text-slate-400 hover:text-[#6750A4] hover:bg-slate-100 rounded-lg" data-testid={`user-edit-${u.id}`}><Pencil className="w-4 h-4" /></button>
-                    <button onClick={() => setPwTarget(u)} title="Restablecer contraseña" className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-100 rounded-lg" data-testid={`user-pw-${u.id}`}><KeyRound className="w-4 h-4" /></button>
+                    <button onClick={() => setPwTarget(u)} title="Restablecer contraseña" className="p-1.5 text-slate-400 hover:text-[#B8912A] hover:bg-slate-100 rounded-lg" data-testid={`user-pw-${u.id}`}><KeyRound className="w-4 h-4" /></button>
                     {!isSelf && <button onClick={() => toggleStatus(u)} title={active ? 'Desactivar' : 'Activar'} className={`p-1.5 hover:bg-slate-100 rounded-lg ${active ? 'text-slate-400 hover:text-amber-600' : 'text-emerald-500'}`} data-testid={`user-status-${u.id}`}><Power className="w-4 h-4" /></button>}
                     {!isSelf && <button onClick={() => remove(u)} title="Eliminar" className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg" data-testid={`user-delete-${u.id}`}><Trash2 className="w-4 h-4" /></button>}
                   </div>
@@ -195,7 +195,7 @@ function PasswordDialog({ user, onClose }) {
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-sm bg-white" data-testid="password-dialog">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2"><KeyRound className="w-5 h-5 text-blue-500" />Restablecer contraseña</DialogTitle>
+          <DialogTitle className="flex items-center gap-2"><KeyRound className="w-5 h-5 text-[#B8912A]" />Restablecer contraseña</DialogTitle>
           <DialogDescription>Define una nueva contraseña para <b>{user.email}</b>. Compártesela de forma segura.</DialogDescription>
         </DialogHeader>
         <div className="py-1">
@@ -204,7 +204,7 @@ function PasswordDialog({ user, onClose }) {
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={save} disabled={saving} className="bg-blue-600 hover:bg-blue-700 text-white" data-testid="password-save">{saving && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Actualizar</Button>
+          <Button onClick={save} disabled={saving} className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white" data-testid="password-save">{saving && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Actualizar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -117,7 +117,7 @@ const SessionPlanning = ({ athleteId, onSave }) => {
     <div className="mb-6">
       <div className="flex items-center justify-between mb-3">
         <h3 className={`font-semibold text-lg ${
-          phase === 'initial' ? 'text-blue-600' : 
+          phase === 'initial' ? 'text-[#B8912A]' : 
           phase === 'principal' ? 'text-amber-600' : 'text-green-600'
         }`}>
           {phaseName}
@@ -126,7 +126,7 @@ const SessionPlanning = ({ athleteId, onSave }) => {
           size="sm" 
           onClick={() => addActivity(phase)}
           className={`text-xs ${
-            phase === 'initial' ? 'bg-blue-500 hover:bg-blue-600' : 
+            phase === 'initial' ? 'bg-[#D4AF37] hover:bg-[#D4AF37]' : 
             phase === 'principal' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-green-500 hover:bg-green-600'
           }`}
         >
@@ -353,7 +353,7 @@ const SessionPlanning = ({ athleteId, onSave }) => {
             <h2 className="font-semibold text-gray-800">{t('sessions.sessionStructureTitle')}</h2>
           </div>
 
-          {renderPhaseTable('initial', 'Fase Inicial', 'bg-blue-50 text-blue-700')}
+          {renderPhaseTable('initial', 'Fase Inicial', 'bg-[#D4AF37] text-[#B8912A]')}
           {renderPhaseTable('principal', 'Fase Principal', 'bg-amber-50 text-amber-700')}
           {renderPhaseTable('final', 'Fase Final', 'bg-green-50 text-green-700')}
         </CardContent>

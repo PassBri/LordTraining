@@ -39,7 +39,7 @@ export const CalcMacrocycle = () => {
   const start = new Date(compDate); start.setDate(start.getDate() - total * 7);
 
   return (
-    <CalcCard title="Macrociclo · Duración + Distribución de períodos" subtitle="17 modelos de periodización compatibles" icon={Calendar} color="#3B82F6" badge="Módulo 1" testid="calc-macrocycle">
+    <CalcCard title="Macrociclo · Duración + Distribución de períodos" subtitle="17 modelos de periodización compatibles" icon={Calendar} color="#D4AF37" badge="Módulo 1" testid="calc-macrocycle">
       <Select label="Objetivo" value={obj} onChange={setObj} options={[
         { value: 'fitness', label: 'Fitness · 12 sem' },
         { value: 'build', label: 'Construcción · 24 sem' },
@@ -66,10 +66,10 @@ export const CalcMacrocycle = () => {
         { value: 'sequential', label: 'Secuencial (Tschiene)' },
       ]} />
       <Field label="Fecha competición" value={comp} onChange={setComp} type="date" />
-      <BigResult value={`${total} sem`} label="Duración macrociclo" color="#3B82F6"
+      <BigResult value={`${total} sem`} label="Duración macrociclo" color="#D4AF37"
         sub={`Inicio: ${start.toISOString().split('T')[0]}`} />
       <div className="grid grid-cols-3 gap-2">
-        <MiniStat label="Preparatorio" value={`${prepW} sem`} color="#3B82F6" />
+        <MiniStat label="Preparatorio" value={`${prepW} sem`} color="#D4AF37" />
         <MiniStat label="Competitivo" value={`${compW} sem`} color="#DC2626" />
         <MiniStat label="Transitorio" value={`${transW} sem`} color="#10B981" />
       </div>
@@ -84,7 +84,7 @@ export const CalcLoadWaves = () => {
     const arr = [];
     const b = num(base);
     if (pattern === 'linear') {
-      for (let i = 1; i <= 8; i++) arr.push({ s: i, p: Math.round(b * (1 + 0.05 * (i - 1))), c: '#3B82F6' });
+      for (let i = 1; i <= 8; i++) arr.push({ s: i, p: Math.round(b * (1 + 0.05 * (i - 1))), c: '#D4AF37' });
     } else if (pattern === 'wave') {
       const w = [85, 100, 110, 70, 95, 110, 120, 65];
       w.forEach((m, i) => arr.push({ s: i + 1, p: Math.round(b * m / 100), c: i % 4 === 3 ? '#10B981' : '#F59E0B' }));
@@ -93,7 +93,7 @@ export const CalcLoadWaves = () => {
       w.forEach((m, i) => arr.push({ s: i + 1, p: Math.round(b * m / 100), c: i < 4 ? '#8B5CF6' : i === 4 ? '#10B981' : '#DC2626' }));
     } else { // step
       const w = [80, 90, 100, 65, 90, 100, 110, 70];
-      w.forEach((m, i) => arr.push({ s: i + 1, p: Math.round(b * m / 100), c: m < 80 ? '#10B981' : '#3B82F6' }));
+      w.forEach((m, i) => arr.push({ s: i + 1, p: Math.round(b * m / 100), c: m < 80 ? '#10B981' : '#D4AF37' }));
     }
     return arr;
   }, [base, pattern]);
@@ -123,7 +123,7 @@ export const CalcMesocycle = () => {
   const [tipo, setTipo] = useState('ordinary');
   const [vol, setVol] = useState(100);
   const tipos = {
-    ordinary:    { v: 100, i: 70, txt: 'Mesociclo ordinario · desarrollo equilibrado', c: '#3B82F6' },
+    ordinary:    { v: 100, i: 70, txt: 'Mesociclo ordinario · desarrollo equilibrado', c: '#D4AF37' },
     shock:       { v: 130, i: 90, txt: 'Mesociclo de choque · sobrecarga deliberada', c: '#DC2626' },
     recovery:    { v: 60, i: 50, txt: 'Mesociclo recuperativo · regeneración', c: '#10B981' },
     competitive: { v: 75, i: 95, txt: 'Mesociclo competitivo · puesta a punto', c: '#F59E0B' },
@@ -220,7 +220,7 @@ export const GenLinear = () => {
     };
   });
   return (
-    <CalcCard title="Generador · Periodización LINEAL" subtitle="Volumen ↘ · Intensidad ↗ (Matveiev clásico)" icon={GitBranch} color="#3B82F6" badge="Módulo 10" testid="calc-gen-linear">
+    <CalcCard title="Generador · Periodización LINEAL" subtitle="Volumen ↘ · Intensidad ↗ (Matveiev clásico)" icon={GitBranch} color="#D4AF37" badge="Módulo 10" testid="calc-gen-linear">
       <div className="grid grid-cols-3 gap-2">
         <Field label="Semanas" value={weeks} onChange={setWeeks} />
         <Field label="Vol inicial" value={startVol} onChange={setStartVol} unit="%" />
@@ -230,7 +230,7 @@ export const GenLinear = () => {
         <table className="w-full text-xs">
           <thead><tr className="border-b border-slate-200">
             <th className="text-left p-1 font-bold text-slate-500">{tc('Sem')}</th>
-            <th className="text-right p-1 font-bold text-blue-500">{tc('Vol %')}</th>
+            <th className="text-right p-1 font-bold text-[#B8912A]">{tc('Vol %')}</th>
             <th className="text-right p-1 font-bold text-red-500">{tc('Int %')}</th>
           </tr></thead>
           <tbody>
@@ -262,8 +262,8 @@ export const GenDUP = () => {
           <div key={sem} className="flex items-center gap-2 p-1.5 bg-slate-50 rounded-md text-xs">
             <span className="font-bold tabular-nums w-12">SEM {sem}</span>
             {days.map((d, di) => (
-              <div key={di} className="flex-1 text-center px-2 py-1 rounded" style={{ background: ['#EC489920', '#3B82F620', '#DC262620'][di] }}>
-                <p className="font-bold text-[10px]" style={{ color: ['#EC4899', '#3B82F6', '#DC2626'][di] }}>{d}</p>
+              <div key={di} className="flex-1 text-center px-2 py-1 rounded" style={{ background: ['#EC489920', '#D4AF3720', '#DC262620'][di] }}>
+                <p className="font-bold text-[10px]" style={{ color: ['#EC4899', '#D4AF37', '#DC2626'][di] }}>{d}</p>
                 <p className="text-[9px] text-slate-600">{reps[d]} · {intensities[d]}</p>
               </div>
             ))}
@@ -280,7 +280,7 @@ export const GenBlocks = () => {
   const [weeks, setWeeks] = useState(12);
   const w = num(weeks);
   const fases = [
-    { f: 'Acumulación', dur: Math.ceil(w * 0.35), goal: 'Volumen alto · técnica · base aeróbica', c: '#3B82F6' },
+    { f: 'Acumulación', dur: Math.ceil(w * 0.35), goal: 'Volumen alto · técnica · base aeróbica', c: '#D4AF37' },
     { f: 'Transformación', dur: Math.ceil(w * 0.35), goal: 'Intensidad creciente · trabajo específico', c: '#F59E0B' },
     { f: 'Realización', dur: Math.floor(w * 0.30), goal: 'Velocidad/potencia máxima · puesta a punto', c: '#DC2626' }
   ];
@@ -309,7 +309,7 @@ export const GenReverse = () => {
     { name: 'Tapering', delta: -2, c: '#10B981', desc: '2 sem antes · descarga 40%' },
     { name: 'Pico Específico', delta: -6, c: '#DC2626', desc: '6 sem antes · alta intensidad' },
     { name: 'Específico', delta: -12, c: '#F59E0B', desc: '12 sem antes · trabajo específico' },
-    { name: 'Preparatorio', delta: -24, c: '#3B82F6', desc: '24 sem antes · base general' },
+    { name: 'Preparatorio', delta: -24, c: '#D4AF37', desc: '24 sem antes · base general' },
   ];
   const cd = new Date(comp);
   return (
@@ -342,8 +342,8 @@ export const GenATR = () => {
           <div key={i} className="flex items-center gap-1">
             <span className="text-xs font-bold w-16">Ciclo {i + 1}</span>
             <div className="flex-1 grid grid-cols-3 gap-1">
-              <div className="text-center bg-blue-50 border-l-2 border-blue-500 px-2 py-1 rounded">
-                <p className="text-[9px] font-bold text-blue-600">A · 4 sem</p></div>
+              <div className="text-center bg-[#D4AF37] border-l-2 border-[#B8912A] px-2 py-1 rounded">
+                <p className="text-[9px] font-bold text-[#B8912A]">A · 4 sem</p></div>
               <div className="text-center bg-amber-50 border-l-2 border-amber-500 px-2 py-1 rounded">
                 <p className="text-[9px] font-bold text-amber-600">T · 4 sem</p></div>
               <div className="text-center bg-red-50 border-l-2 border-red-500 px-2 py-1 rounded">
@@ -361,7 +361,7 @@ export const GenWUP = () => {
   const [weeks, setWeeks] = useState(8);
   const w = num(weeks);
   const pattern = ['Hipertrofia', 'Fuerza', 'Potencia', 'Descarga'];
-  const colors = ['#EC4899', '#3B82F6', '#DC2626', '#10B981'];
+  const colors = ['#EC4899', '#D4AF37', '#DC2626', '#10B981'];
   return (
     <CalcCard title="Generador · WUP (Weekly Undulating)" subtitle="Énfasis semanal rotativo · 4 semanas/ciclo" icon={Repeat} color="#06B6D4" badge="Módulo 10" testid="calc-gen-wup">
       <Field label="Semanas" value={weeks} onChange={setWeeks} />

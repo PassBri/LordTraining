@@ -20,7 +20,7 @@ export const useTournaments = ({ t }) => {
   const [tournamentForm, setTournamentForm] = useState({
     name: '', description: '', sport: '', format: 'single_elimination',
     start_date: '', end_date: '', venue: '', city: '', scoring_system: 'standard',
-    points_win: 3, points_draw: 1, points_loss: 0, primary_color: '#3B82F6', secondary_color: '#10B981'
+    points_win: 3, points_draw: 1, points_loss: 0, primary_color: '#D4AF37', secondary_color: '#10B981'
   });
   const [categoryDialogOpenTournament, setCategoryDialogOpenTournament] = useState(false);
   const [tournamentCategoryForm, setTournamentCategoryForm] = useState({ name: '', gender: '', max_participants: '' });
@@ -38,7 +38,7 @@ export const useTournaments = ({ t }) => {
     { value: 'group_stage_knockout', label: t('data.x_grupos_eliminacion'), icon: '📊' },
     { value: 'league', label: 'Liga', icon: '📈' },
   ];
-  const STATUS_COLORS = { draft: 'bg-slate-100 text-slate-700', registration: 'bg-blue-100 text-blue-700', in_progress: 'bg-green-100 text-green-700', completed: 'bg-purple-100 text-purple-700' };
+  const STATUS_COLORS = { draft: 'bg-slate-100 text-slate-700', registration: 'bg-[#D4AF37] text-[#B8912A]', in_progress: 'bg-green-100 text-green-700', completed: 'bg-purple-100 text-purple-700' };
   const STATUS_LABELS = { draft: 'Borrador', registration: 'Inscripciones', in_progress: 'En Curso', completed: 'Finalizado' };
   const getFormatIcon = (format) => TOURNAMENT_FORMATS.find(f => f.value === format)?.icon || '🏆';
 
@@ -71,7 +71,7 @@ export const useTournaments = ({ t }) => {
       await createTournament({ ...tournamentForm, categories: [] });
       toast.success('Torneo creado');
       setTournamentDialogOpen(false);
-      setTournamentForm({ name: '', description: '', sport: '', format: 'single_elimination', start_date: '', end_date: '', venue: '', city: '', scoring_system: 'standard', points_win: 3, points_draw: 1, points_loss: 0, primary_color: '#3B82F6', secondary_color: '#10B981' });
+      setTournamentForm({ name: '', description: '', sport: '', format: 'single_elimination', start_date: '', end_date: '', venue: '', city: '', scoring_system: 'standard', points_win: 3, points_draw: 1, points_loss: 0, primary_color: '#D4AF37', secondary_color: '#10B981' });
       fetchTournamentsData();
     } catch (error) {
       toast.error(t('data.error_al_crear_torneo'));

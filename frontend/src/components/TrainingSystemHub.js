@@ -72,7 +72,7 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan, hid
         {bars.map((v, i) => (
           <div key={i} className="flex-1 rounded-t-sm transition-all" style={{
             height: `${v}%`,
-            background: i % 4 === 0 ? '#007AFF' : i % 4 === 1 ? '#CCFF00' : i % 4 === 2 ? '#1e293b' : '#475569',
+            background: i % 4 === 0 ? '#007AFF' : i % 4 === 1 ? '#D4AF37' : i % 4 === 2 ? '#1e293b' : '#475569',
             opacity: 0.6 + (v / 200),
           }} />
         ))}
@@ -109,10 +109,10 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan, hid
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 bg-[#CCFF00] rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-[#D4AF37] rounded-lg flex items-center justify-center">
                   <Activity className="w-4 h-4 text-slate-900" />
                 </div>
-                <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#CCFF00]" style={{ fontFamily: BC }}>
+                <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#D4AF37]" style={{ fontFamily: BC }}>
                   {t('dashboard.sections.periodization')}
                 </span>
               </div>
@@ -157,7 +157,7 @@ const TrainingSystemHub = ({ athleteId, athleteName, onNavigate, activePlan, hid
       {/* Module Cards - Floating Round Style */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {[
-          { key: 'periodization', icon: BookOpen, label: 'Periodización', sub: 'Estructura del plan', pct: health.periodization, color: '#007AFF', shadowColor: 'shadow-blue-200/60' },
+          { key: 'periodization', icon: BookOpen, label: 'Periodización', sub: 'Estructura del plan', pct: health.periodization, color: '#007AFF', shadowColor: 'shadow-[#D4AF37]/60' },
           { key: 'tests', icon: Clipboard, label: 'Evaluaciones', sub: `${systemData.tests.length} tests`, pct: health.tests, color: '#10B981', shadowColor: 'shadow-emerald-200/60' },
           { key: 'load', icon: BarChart3, label: 'Carga', sub: 'Volumen e intensidad', pct: health.load, color: '#F59E0B', shadowColor: 'shadow-amber-200/60' },
           { key: 'control', icon: TrendingUp, label: 'Control', sub: 'Seguimiento y ajustes', pct: Math.round((health.tests + health.load) / 2), color: '#EF4444', shadowColor: 'shadow-rose-200/60' },

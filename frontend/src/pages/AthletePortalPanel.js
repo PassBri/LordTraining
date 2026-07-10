@@ -55,10 +55,10 @@ const AthletePortalPanel = () => {
   const todaySessions = (plan?.sessions || []).filter(s => s.fecha && s.fecha.slice(0, 10) === todayStr2);
   const todayPending = todaySessions.filter(s => !s.completada);
 
-  if (loading) return <div className="min-h-screen bg-[#0a0e14] flex items-center justify-center"><Loader2 className="w-8 h-8 text-[#CCFF00] animate-spin" /></div>;
+  if (loading) return <div className="min-h-screen bg-[#0a0e14] flex items-center justify-center"><Loader2 className="w-8 h-8 text-[#D4AF37] animate-spin" /></div>;
 
   const SLIDERS = [
-    { key: 'sleep', label: t('athlete.sleepQuality'), color: '#3B82F6' },
+    { key: 'sleep', label: t('athlete.sleepQuality'), color: '#D4AF37' },
     { key: 'muscle_soreness', label: t('athlete.muscleSoreness'), color: '#EF4444' },
     { key: 'stress', label: t('athlete.stress'), color: '#F59E0B' },
     { key: 'motivation', label: t('athlete.motivation'), color: '#10B981' },
@@ -68,7 +68,7 @@ const AthletePortalPanel = () => {
     <div className="min-h-screen bg-[#0a0e14]" data-testid="athlete-panel-page">
       <header className="border-b border-white/10 bg-slate-950/60 backdrop-blur sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
-          <span className="text-white font-bold tracking-tight">Lord<span className="text-[#CCFF00]">Training</span></span>
+          <span className="text-white font-bold tracking-tight">Lord<span className="text-[#D4AF37]">Training</span></span>
           <div className="flex items-center gap-3">
             <span className="text-sm text-slate-300">{info.name || t('athlete.athleteDefault', 'Atleta')}</span>
             <button onClick={logout} className="text-slate-400 hover:text-white" data-testid="athlete-logout"><LogOut className="w-4 h-4" /></button>
@@ -77,7 +77,7 @@ const AthletePortalPanel = () => {
         <div className="max-w-6xl mx-auto px-5 flex gap-1">
           {[{ id: 'plan', label: t('athlete.myPlan'), icon: ClipboardList }, { id: 'readiness', label: t('athlete.myState'), icon: Heart }, { id: 'records', label: t('athlete.records'), icon: Trophy }].map((t2) => (
             <button key={t2.id} onClick={() => setTab(t2.id)} data-testid={`athlete-tab-${t2.id}`}
-              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${tab === t2.id ? 'border-[#CCFF00] text-[#CCFF00]' : 'border-transparent text-slate-400 hover:text-white'}`}>
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${tab === t2.id ? 'border-[#D4AF37] text-[#D4AF37]' : 'border-transparent text-slate-400 hover:text-white'}`}>
               <t2.icon className="w-4 h-4" />{t2.label}
             </button>
           ))}
@@ -86,8 +86,8 @@ const AthletePortalPanel = () => {
 
       <main className="max-w-6xl mx-auto px-5 py-6">
         {tab === 'plan' && todaySessions.length > 0 && !reminderDismissed && (
-          <div className="mb-5 rounded-2xl border border-[#CCFF00]/40 bg-[#CCFF00]/10 p-4 flex items-start gap-3" data-testid="athlete-today-reminder">
-            <BellRing className="w-5 h-5 text-[#CCFF00] mt-0.5 shrink-0" />
+          <div className="mb-5 rounded-2xl border border-[#D4AF37]/40 bg-[#D4AF37]/10 p-4 flex items-start gap-3" data-testid="athlete-today-reminder">
+            <BellRing className="w-5 h-5 text-[#D4AF37] mt-0.5 shrink-0" />
             <div className="flex-1">
               <p className="text-white font-semibold text-sm">
                 {todayPending.length > 0
@@ -113,9 +113,9 @@ const AthletePortalPanel = () => {
 
         {tab === 'readiness' && (
           <div className="max-w-lg mx-auto rounded-2xl bg-slate-900/70 border border-white/10 p-6" data-testid="athlete-readiness-form">
-            <h2 className="text-white font-semibold flex items-center gap-2 mb-1"><Heart className="w-5 h-5 text-[#CCFF00]" />{t('athlete.dailyLog')}</h2>
+            <h2 className="text-white font-semibold flex items-center gap-2 mb-1"><Heart className="w-5 h-5 text-[#D4AF37]" />{t('athlete.dailyLog')}</h2>
             <p className="text-slate-400 text-sm mb-5">{t('athlete.dailyLogHint')}</p>
-            {todayReadiness && <div className="mb-5 rounded-xl bg-[#CCFF00]/10 border border-[#CCFF00]/30 p-3 text-center"><span className="text-slate-300 text-sm">{t('athlete.availabilityToday')} </span><span className="text-[#CCFF00] font-bold text-lg">{todayReadiness.overall}%</span></div>}
+            {todayReadiness && <div className="mb-5 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 p-3 text-center"><span className="text-slate-300 text-sm">{t('athlete.availabilityToday')} </span><span className="text-[#D4AF37] font-bold text-lg">{todayReadiness.overall}%</span></div>}
             <div className="space-y-5">
               {SLIDERS.map((s) => (
                 <div key={s.key}>
@@ -124,7 +124,7 @@ const AthletePortalPanel = () => {
                 </div>
               ))}
               <textarea value={readiness.notes || ''} onChange={(e) => setReadiness({ ...readiness, notes: e.target.value })} rows={2} placeholder={t('athlete.notesOptional')} className="w-full rounded-lg bg-white/5 border border-white/10 text-white text-sm p-2.5 placeholder:text-slate-500" data-testid="readiness-notes" />
-              <button onClick={saveReadiness} disabled={savingR} className="w-full h-11 rounded-lg bg-[#CCFF00] text-slate-900 font-semibold flex items-center justify-center gap-2" data-testid="readiness-save">
+              <button onClick={saveReadiness} disabled={savingR} className="w-full h-11 rounded-lg bg-[#D4AF37] text-slate-900 font-semibold flex items-center justify-center gap-2" data-testid="readiness-save">
                 {savingR ? <Loader2 className="w-4 h-4 animate-spin" /> : <Activity className="w-4 h-4" />}{t('athlete.saveMyState')}
               </button>
             </div>
@@ -147,13 +147,13 @@ const AthletePortalPanel = () => {
               )}
             </div>
             <div className="rounded-2xl bg-slate-900/70 border border-white/10 p-6">
-              <h2 className="text-white font-semibold flex items-center gap-2 mb-4"><Activity className="w-5 h-5 text-[#CCFF00]" />{t('athlete.physicalCapabilities')}</h2>
+              <h2 className="text-white font-semibold flex items-center gap-2 mb-4"><Activity className="w-5 h-5 text-[#D4AF37]" />{t('athlete.physicalCapabilities')}</h2>
               {records.capabilities.length === 0 ? <p className="text-slate-500 text-sm py-6 text-center">{t('athlete.noEvaluation')}</p> : (
                 <div className="space-y-3">
                   {records.capabilities.map((c, i) => (
                     <div key={i}>
                       <div className="flex justify-between text-sm mb-1"><span className="text-slate-300">{c.ability}</span><span className="text-white font-semibold">{c.value}%</span></div>
-                      <div className="h-2 rounded-full bg-white/10 overflow-hidden"><div className="h-full bg-[#CCFF00]" style={{ width: `${c.value}%` }} /></div>
+                      <div className="h-2 rounded-full bg-white/10 overflow-hidden"><div className="h-full bg-[#D4AF37]" style={{ width: `${c.value}%` }} /></div>
                     </div>
                   ))}
                 </div>

@@ -22,7 +22,7 @@ const tokenH = () => {
 
 const ENTITY_META = {
   federation: { icon: Crown, color: '#7C3AED', label: 'Federación' },
-  club: { icon: Building2, color: '#0EA5E9', label: 'Club' },
+  club: { icon: Building2, color: '#D4AF37', label: 'Club' },
   school: { icon: GraduationCap, color: '#10B981', label: 'Escuela' },
   national_team: { icon: Shield, color: '#EF4444', label: 'Selección' },
   team: { icon: Users, color: '#F59E0B', label: 'Equipo' },
@@ -30,7 +30,7 @@ const ENTITY_META = {
 };
 
 const KPI_TILES = [
-  { key: 'clubs', label: 'Clubes', icon: Building2, color: '#0EA5E9' },
+  { key: 'clubs', label: 'Clubes', icon: Building2, color: '#D4AF37' },
   { key: 'schools', label: 'Escuelas', icon: GraduationCap, color: '#10B981' },
   { key: 'teams', label: 'Equipos', icon: Users, color: '#F59E0B' },
   { key: 'athletes', label: 'Atletas', icon: Activity, color: '#EF4444' },
@@ -291,7 +291,7 @@ export default function FederationPanel({ onOpenMasterReport }) {
             <RefreshCw className="w-3.5 h-3.5 mr-1.5" />Actualizar
           </Button>
           <Button
-            size="sm" className="h-9 text-xs bg-slate-900 text-[#CCFF00] hover:bg-slate-800"
+            size="sm" className="h-9 text-xs bg-slate-900 text-[#D4AF37] hover:bg-slate-800"
             onClick={() => onOpenMasterReport?.({ entity_id: activeId, style: 'federation' })}
             data-testid="fed-master-report-btn">
             <FileBarChart2 className="w-3.5 h-3.5 mr-1.5" />Reporte Federación

@@ -1,5 +1,11 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-10 — Re-skin de marca de la app (Opción A): login + dashboard + módulos
+- **Tema global (`index.css`)**: acento primario azul `#1976D2` → **oro `#D4AF37`** en variables `--md-*` y shadcn (`--primary`,`--ring`,`--accent`,`--chart-1..5` → paleta de medallas diamante/oro/plata/bronce). Botón `.btn-primary`, `.card-active`, `.shadow-glow`, `.sidebar-item.active` ahora dorados. Títulos (`h1..h6`) y `.stat-value` → tipografía **Outfit**.
+- **Login (`AuthPage.js`)**: lima/navy → **obsidiana + oro** (paleta medallas), slate→zinc. La pizarra de vista previa ya combina (grafito+oro por los cambios del tactical-board).
+- **Dashboard + ~15 módulos internos**: remapeo consciente de contexto del acento azul de marca → oro (relleno/gráficas = oro brillante `#D4AF37`; texto/bordes = oro oscuro `#B8912A` legible sobre blanco). 89 archivos actualizados + lima→oro en 45 archivos (incl. `BrandLogo.js`). Ej.: serie "Volumen" de gráficas pasó de azul a oro; iconos/KPIs dorados.
+- **Se preservaron los colores semánticos** (rojo=alerta/intensidad, verde=ok/densidad, ámbar=warning) para no perder significado. La app sigue en tema CLARO (Opción A: re-skin de marca, no tema oscuro). Verificado por screenshots (login + dashboard). Compila limpio.
+
 ## 2026-07-10 — Paleta de medallas + coherencia landing↔pizarra táctica
 - **Landing → paleta de medallas** (💎 diamante `#8FCFE6`, 🥇 oro `#D4AF37`, 🥈 plata `#C3C9D4`, 🥉 bronce `#C6864E`): se remapearon TODOS los acentos vivos restantes (azules/cianes→diamante, morados/verdes→plata, rojos/rosas/naranjas→bronce, ámbar→oro) tanto en clases Tailwind como en hex. Afecta gráficas de features, avatares (Central + testimonios), secciones de audiencias, how-it-works y quote marks. Resultado armónico y metálico, temático de deporte.
 - **Pizarra táctica real (`public/tactical-board.html`) — estilo pizarra + oro**: lima neón (`#CCFF00`/`#c8f700`/`#a5d400`/rgba lima) → oro `#D4AF37`; superficies navy (`#0b1120`/`#0f172a`/`#13213a`/`#060a15`) → grafito neutro; `--primary`/`--accent` a oro. El **campo oscuro** pasó de verde `#1f4a34` a **grafito frío `#171d24`** con tiza blanca (`getFieldColors`), igualando las miniaturas del landing. El tablero ahora **abre en modo oscuro por defecto** (`loadTheme` default dark salvo preferencia 'light' guardada). Verificado por screenshot.

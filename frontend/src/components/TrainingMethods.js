@@ -328,14 +328,14 @@ const TrainingMethods = ({ athleteId }) => {
       <div className="flex justify-between items-start mb-3">
         <div>
           <h3 className="font-bold text-sm text-slate-900">{method.method}</h3>
-          <span className="inline-block bg-blue-50 text-blue-700 text-[10px] font-medium px-2 py-0.5 rounded-full mt-1.5">
+          <span className="inline-block bg-[#D4AF37] text-[#B8912A] text-[10px] font-medium px-2 py-0.5 rounded-full mt-1.5">
             {method.classification}
           </span>
         </div>
         <div className="flex gap-0.5">
           <Button 
             size="sm" variant="ghost" 
-            className="h-7 w-7 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+            className="h-7 w-7 p-0 text-slate-400 hover:text-[#B8912A] hover:bg-[#D4AF37] rounded-full"
             onClick={() => handleEditMethod(method, category)}
           >
             <Edit2 className="h-3.5 w-3.5" />
@@ -358,8 +358,8 @@ const TrainingMethods = ({ athleteId }) => {
             const Icon = icons[key];
             return (
               <div key={key} className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                  <Icon className="h-2.5 w-2.5 text-blue-500" />
+                <div className="w-5 h-5 rounded-full bg-[#D4AF37] flex items-center justify-center shrink-0">
+                  <Icon className="h-2.5 w-2.5 text-[#B8912A]" />
                 </div>
                 <div className="min-w-0">
                   <span className="text-[9px] text-slate-400 block truncate uppercase tracking-wider">{labels[key]}</span>
@@ -376,7 +376,7 @@ const TrainingMethods = ({ athleteId }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
       </div>
     );
   }
@@ -387,8 +387,8 @@ const TrainingMethods = ({ athleteId }) => {
       <div className="bg-slate-900 rounded-2xl p-5 shadow-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
-              <Dumbbell className="w-5 h-5 text-blue-400" />
+            <div className="w-10 h-10 bg-[#D4AF37]/20 rounded-full flex items-center justify-center">
+              <Dumbbell className="w-5 h-5 text-[#B8912A]" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-white tracking-tight">Métodos de Entrenamiento</h2>
@@ -398,7 +398,7 @@ const TrainingMethods = ({ athleteId }) => {
           <Button 
             onClick={handleSaveMethods}
             disabled={saving}
-            className="bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-xl text-xs"
+            className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white border-0 rounded-xl text-xs"
             data-testid="save-methods-btn"
           >
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Save className="h-3.5 w-3.5 mr-1" />}
@@ -409,7 +409,7 @@ const TrainingMethods = ({ athleteId }) => {
 
       {/* Form Modal */}
       {showForm && (
-        <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-5 space-y-4">
+        <div className="bg-white rounded-xl border border-[#B8912A] shadow-lg p-5 space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-base font-bold text-slate-900">
               {editingMethod ? 'Editar Método' : 'Nuevo Método'}
@@ -473,7 +473,7 @@ const TrainingMethods = ({ athleteId }) => {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => setShowForm(false)} className="rounded-xl">Cancelar</Button>
-            <Button onClick={handleFormSubmit} className="bg-blue-600 hover:bg-blue-700 rounded-xl">
+            <Button onClick={handleFormSubmit} className="bg-[#D4AF37] hover:bg-[#D4AF37] rounded-xl">
               <Save className="h-4 w-4 mr-2" />
               {editingMethod ? 'Actualizar' : 'Agregar'}
             </Button>

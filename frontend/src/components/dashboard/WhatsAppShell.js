@@ -84,7 +84,7 @@ const WhatsAppShell = ({ ctx }) => {
                   onChange={(e) => setProSearch(e.target.value)}
                   placeholder={t('common.search_placeholder', { defaultValue: 'Buscar módulo o plan...' })}
                   data-testid="wa-search"
-                  className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-white/35 focus:outline-none focus:border-[#CCFF00]/50 focus:bg-white/10 transition-colors"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-white/35 focus:outline-none focus:border-[#D4AF37]/50 focus:bg-white/10 transition-colors"
                 />
               </div>
             </div>
@@ -103,7 +103,7 @@ const WhatsAppShell = ({ ctx }) => {
                 data-testid={`wa-nav-${it.key}`}
                 title={it.label}
                 className={`w-full flex items-center rounded-lg text-sm font-medium transition-all duration-200 ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5'} ${
-                  it.active ? `bg-[#CCFF00]/10 text-[#CCFF00] ${collapsed ? 'ring-1 ring-[#CCFF00]/40' : 'border-l-4 border-[#CCFF00] pl-2'}` : 'text-white/80 hover:bg-white/10 hover:text-white'
+                  it.active ? `bg-[#D4AF37]/10 text-[#D4AF37] ${collapsed ? 'ring-1 ring-[#D4AF37]/40' : 'border-l-4 border-[#D4AF37] pl-2'}` : 'text-white/80 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 <Icon className={navIconCls} strokeWidth={it.active ? 2.4 : 1.9} />
@@ -144,7 +144,7 @@ const WhatsAppShell = ({ ctx }) => {
                     onClick={() => setScoutingTab(s.key)}
                     data-testid={`wa-scouting-${s.key}`}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 ${
-                      isActive ? 'bg-[#CCFF00]/10 text-[#CCFF00] border-l-4 border-[#CCFF00] pl-2' : 'text-white/70 hover:bg-white/10 hover:text-white'
+                      isActive ? 'bg-[#D4AF37]/10 text-[#D4AF37] border-l-4 border-[#D4AF37] pl-2' : 'text-white/70 hover:bg-white/10 hover:text-white'
                     }`}
                   >
                     <Icon className="w-4 h-4 shrink-0" strokeWidth={isActive ? 2.4 : 1.8} />
@@ -197,7 +197,7 @@ const WhatsAppShell = ({ ctx }) => {
                 <button
                   onClick={() => setActiveDataSection('create-plan')}
                   data-testid="wa-create-plan"
-                  className="inline-flex items-center gap-1 text-[10px] font-bold text-[#CCFF00] hover:text-white transition-colors"
+                  className="inline-flex items-center gap-1 text-[10px] font-bold text-[#D4AF37] hover:text-white transition-colors"
                 >
                   <Plus className="w-3 h-3" /> {t('data.nuevo', { defaultValue: 'Nuevo' })}
                 </button>
@@ -216,12 +216,12 @@ const WhatsAppShell = ({ ctx }) => {
                         onClick={() => handleSetActivePlan(plan)}
                         data-testid={`wa-plan-${plan.id}`}
                         className={`w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 ${
-                          isActive ? 'bg-[#CCFF00]/10 border-l-4 border-[#CCFF00] pl-2' : 'hover:bg-white/10'
+                          isActive ? 'bg-[#D4AF37]/10 border-l-4 border-[#D4AF37] pl-2' : 'hover:bg-white/10'
                         }`}
                       >
-                        <Clipboard className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#CCFF00]' : 'text-white/50'}`} strokeWidth={isActive ? 2.4 : 1.8} />
+                        <Clipboard className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#D4AF37]' : 'text-white/50'}`} strokeWidth={isActive ? 2.4 : 1.8} />
                         <span className="min-w-0 flex-1">
-                          <span className={`block text-[13px] font-semibold truncate ${isActive ? 'text-[#CCFF00]' : 'text-white/85'}`}>{plan.name}</span>
+                          <span className={`block text-[13px] font-semibold truncate ${isActive ? 'text-[#D4AF37]' : 'text-white/85'}`}>{plan.name}</span>
                           <span className="block text-[10px] text-white/40 truncate">
                             {[plan.sport, plan.total_weeks ? `${plan.total_weeks} ${t('periodization.weeksLower', { defaultValue: 'sem' })}` : null].filter(Boolean).join(' · ')}
                           </span>
@@ -253,7 +253,7 @@ const WhatsAppShell = ({ ctx }) => {
                           onClick={() => setActiveDataSection(item.id)}
                           data-testid={`wa-section-${item.id}`}
                           className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 ${
-                            isActive ? 'bg-[#CCFF00]/10 text-[#CCFF00] border-l-4 border-[#CCFF00] pl-2' : 'text-white/70 hover:bg-white/10 hover:text-white'
+                            isActive ? 'bg-[#D4AF37]/10 text-[#D4AF37] border-l-4 border-[#D4AF37] pl-2' : 'text-white/70 hover:bg-white/10 hover:text-white'
                           }`}
                         >
                           <Icon className="w-4 h-4 shrink-0" strokeWidth={isActive ? 2.4 : 1.8} />
@@ -270,7 +270,7 @@ const WhatsAppShell = ({ ctx }) => {
 
         {/* Footer user */}
         <div className={`py-3 border-t border-white/10 flex items-center shrink-0 ${collapsed ? 'justify-center px-2' : 'gap-3 px-4'}`} data-testid="whatsapp-user">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#CCFF00] to-emerald-400 text-slate-900 flex items-center justify-center font-bold text-sm shrink-0" title={user?.name}>
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#D4AF37] to-emerald-400 text-slate-900 flex items-center justify-center font-bold text-sm shrink-0" title={user?.name}>
             {user?.name?.charAt(0)?.toUpperCase() || 'U'}
           </div>
           {!collapsed && (
@@ -297,7 +297,7 @@ const WhatsAppShell = ({ ctx }) => {
                 <CheckCircle className="w-3.5 h-3.5" /> {activePlan?.name || t('data.plan_activo_2')}
               </span>
             )}
-            <button onClick={() => setIsCoachDrawerOpen(true)} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-[#CCFF00] text-xs font-semibold hover:bg-[#151b2b] transition-colors" data-testid="wa-coach-ai">
+            <button onClick={() => setIsCoachDrawerOpen(true)} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-[#D4AF37] text-xs font-semibold hover:bg-[#151b2b] transition-colors" data-testid="wa-coach-ai">
               <Brain className="w-4 h-4" /> Coach AI
             </button>
           </div>

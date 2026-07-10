@@ -18,18 +18,18 @@ const API = `${(process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND
 
 const CATEGORIES = ['Clásico', 'Ondulatorio', 'Avanzado', 'Específico', 'Fuerza', 'Equipo', 'Custom'];
 const CATEGORY_COLORS = {
-  'Clásico': 'bg-blue-100 text-blue-700 border-blue-200',
+  'Clásico': 'bg-[#D4AF37] text-[#B8912A] border-[#B8912A]',
   'Ondulatorio': 'bg-emerald-100 text-emerald-700 border-emerald-200',
   'Avanzado': 'bg-purple-100 text-purple-700 border-purple-200',
   'Específico': 'bg-orange-100 text-orange-700 border-orange-200',
   'Fuerza': 'bg-rose-100 text-rose-700 border-rose-200',
   'Equipo': 'bg-teal-100 text-teal-700 border-teal-200',
-  'Custom': 'bg-slate-900 text-[#CCFF00] border-slate-700',
+  'Custom': 'bg-slate-900 text-[#D4AF37] border-slate-700',
 };
 const ICON_CHOICES = ['📊', '🔄', '📦', '📈', '🌊', '⚖️', '🎯', '💪', '⚽', '🔺', '⚡', '🔬', '🇳🇴', '📏', '🧱', '🎚️', '🎛️', '🤖', '⏩', '⬇️', '🔀', '👥', '🧩', '🏆', '🏈', '🎓', '🏋️', '🏃', '🎾'];
-const COLOR_CHOICES = ['#CCFF00', '#3B82F6', '#8B5CF6', '#10B981', '#EF4444', '#F59E0B', '#06B6D4', '#A855F7', '#EC4899', '#FBBF24', '#0EA5E9', '#059669', '#DC2626'];
+const COLOR_CHOICES = ['#D4AF37', '#D4AF37', '#8B5CF6', '#10B981', '#EF4444', '#F59E0B', '#06B6D4', '#A855F7', '#EC4899', '#FBBF24', '#D4AF37', '#059669', '#DC2626'];
 
-const emptyPhase = () => ({ name: '', color: '#3B82F6', volume: 70, intensity: 70, duration_weeks: '4', description: '' });
+const emptyPhase = () => ({ name: '', color: '#D4AF37', volume: 70, intensity: 70, duration_weeks: '4', description: '' });
 
 const emptyModel = () => ({
   name: '',
@@ -37,7 +37,7 @@ const emptyModel = () => ({
   category: 'Custom',
   description: '',
   icon: '📊',
-  color: '#CCFF00',
+  color: '#D4AF37',
   phases: [emptyPhase()],
   characteristics: [],
   applicable_sports: [],
@@ -131,10 +131,10 @@ const PeriodizationModelsManager = () => {
         category: editing.category || 'Custom',
         description: editing.description || '',
         icon: editing.icon || '📊',
-        color: editing.color || '#CCFF00',
+        color: editing.color || '#D4AF37',
         phases: editing.phases.map(p => ({
           name: p.name || 'Fase',
-          color: p.color || '#3B82F6',
+          color: p.color || '#D4AF37',
           volume: Number(p.volume) || 0,
           intensity: Number(p.intensity) || 0,
           duration_weeks: String(p.duration_weeks || '4'),
@@ -239,7 +239,7 @@ const PeriodizationModelsManager = () => {
           {compareIds.length > 0 && (
             <Button
               onClick={() => setComparatorOpen(true)}
-              className="gap-2 bg-slate-900 text-[#CCFF00] hover:bg-slate-800 font-bold"
+              className="gap-2 bg-slate-900 text-[#D4AF37] hover:bg-slate-800 font-bold"
               data-testid="open-comparator-btn"
             >
               <GitCompare className="w-4 h-4" />
@@ -250,7 +250,7 @@ const PeriodizationModelsManager = () => {
           <Button variant="outline" onClick={resetDefaults} data-testid="reset-defaults-btn" className="gap-2">
             <RotateCcw className="w-4 h-4" /> Restaurar defaults
           </Button>
-          <Button onClick={openCreate} className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] gap-2" data-testid="create-model-btn">
+          <Button onClick={openCreate} className="bg-[#D4AF37] text-slate-900 hover:bg-[#b8e600] gap-2" data-testid="create-model-btn">
             <Plus className="w-4 h-4" /> Nuevo Modelo
           </Button>
         </div>
@@ -259,9 +259,9 @@ const PeriodizationModelsManager = () => {
       {/* Compare info bar */}
       {compareIds.length > 0 && (
         <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white px-4 py-2.5 rounded-lg flex items-center gap-3" data-testid="compare-info-bar">
-          <GitCompare className="w-4 h-4 text-[#CCFF00]" />
+          <GitCompare className="w-4 h-4 text-[#D4AF37]" />
           <span className="text-sm">
-            <strong className="text-[#CCFF00]">{compareIds.length}</strong> modelo{compareIds.length > 1 ? 's seleccionados' : ' seleccionado'} para comparar
+            <strong className="text-[#D4AF37]">{compareIds.length}</strong> modelo{compareIds.length > 1 ? 's seleccionados' : ' seleccionado'} para comparar
             {compareIds.length < 2 && <span className="text-slate-400 ml-2">(selecciona al menos 2)</span>}
           </span>
           <button onClick={clearCompare} className="ml-auto text-xs text-slate-300 hover:text-white underline">
@@ -314,13 +314,13 @@ const PeriodizationModelsManager = () => {
               {grouped[cat].map(m => (
                 <div
                   key={m.id}
-                  className={`bg-white border rounded-xl p-4 hover:shadow-lg transition-shadow relative group ${compareIds.includes(m.id) ? 'border-[#CCFF00] ring-2 ring-[#CCFF00]/30' : 'border-slate-200'}`}
+                  className={`bg-white border rounded-xl p-4 hover:shadow-lg transition-shadow relative group ${compareIds.includes(m.id) ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/30' : 'border-slate-200'}`}
                   data-testid={`model-card-${m.id}`}
                 >
                   {/* Compare toggle */}
                   <button
                     onClick={() => toggleCompare(m.id)}
-                    className={`absolute top-2 right-2 w-6 h-6 rounded-md flex items-center justify-center border-2 transition-all ${compareIds.includes(m.id) ? 'bg-[#CCFF00] border-[#CCFF00] text-slate-900' : 'bg-white border-slate-300 text-slate-300 hover:border-slate-900'}`}
+                    className={`absolute top-2 right-2 w-6 h-6 rounded-md flex items-center justify-center border-2 transition-all ${compareIds.includes(m.id) ? 'bg-[#D4AF37] border-[#D4AF37] text-slate-900' : 'bg-white border-slate-300 text-slate-300 hover:border-slate-900'}`}
                     title={compareIds.includes(m.id) ? 'Quitar del comparador' : 'Añadir al comparador'}
                     data-testid={`toggle-compare-${m.id}`}
                   >
@@ -338,11 +338,11 @@ const PeriodizationModelsManager = () => {
                       {m.author && <p className="text-[11px] text-slate-500 mt-0.5">{m.author}</p>}
                     </div>
                     {m.is_default ? (
-                      <span className="text-[9px] font-bold text-[#007AFF] bg-blue-50 px-1.5 py-0.5 rounded-full border border-blue-100">
+                      <span className="text-[9px] font-bold text-[#007AFF] bg-[#D4AF37] px-1.5 py-0.5 rounded-full border border-[#B8912A]">
                         DEFAULT
                       </span>
                     ) : (
-                      <span className="text-[9px] font-bold text-slate-900 bg-[#CCFF00] px-1.5 py-0.5 rounded-full">
+                      <span className="text-[9px] font-bold text-slate-900 bg-[#D4AF37] px-1.5 py-0.5 rounded-full">
                         MIO
                       </span>
                     )}
@@ -396,7 +396,7 @@ const PeriodizationModelsManager = () => {
                     </button>
                     <button
                       onClick={() => openEdit(m)}
-                      className="p-1.5 hover:bg-blue-50 rounded text-slate-500 hover:text-blue-600"
+                      className="p-1.5 hover:bg-[#D4AF37] rounded text-slate-500 hover:text-[#B8912A]"
                       title="Editar"
                       data-testid={`edit-model-${m.id}`}
                     >
@@ -561,7 +561,7 @@ const PeriodizationModelsManager = () => {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditorOpen(false)}>Cancelar</Button>
-            <Button onClick={saveModel} disabled={saving} className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] gap-2" data-testid="save-model-btn">
+            <Button onClick={saveModel} disabled={saving} className="bg-[#D4AF37] text-slate-900 hover:bg-[#b8e600] gap-2" data-testid="save-model-btn">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Guardar modelo
             </Button>

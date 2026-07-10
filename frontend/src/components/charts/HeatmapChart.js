@@ -6,7 +6,7 @@ const DIAS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 const TIPO_COLORS = {
   restablecimiento: '#A78BFA',
   competitivo: '#F59E0B',
-  carga: '#3B82F6',
+  carga: '#D4AF37',
   choque: '#EF4444',
 };
 

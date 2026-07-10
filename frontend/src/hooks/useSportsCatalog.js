@@ -51,7 +51,7 @@ const sportIcons = {
  */
 export const useSportsCatalog = ({ t }) => {
   const [sportsCatalog, setSportsCatalog] = useState([]);
-  const [newCategory, setNewCategory] = useState({ name: '', icon: '🏆', color: '#3B82F6' });
+  const [newCategory, setNewCategory] = useState({ name: '', icon: '🏆', color: '#D4AF37' });
   const [newSport, setNewSport] = useState({ name: '', category_id: '', icon: '🏃' });
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showAddSport, setShowAddSport] = useState(null); // category_id or null
@@ -92,7 +92,7 @@ export const useSportsCatalog = ({ t }) => {
       });
       if (response.ok) {
         await fetchSportsCatalog();
-        setNewCategory({ name: '', icon: '🏆', color: '#3B82F6' });
+        setNewCategory({ name: '', icon: '🏆', color: '#D4AF37' });
         setShowAddCategory(false);
       }
     } catch (error) {

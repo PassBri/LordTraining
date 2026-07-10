@@ -15,18 +15,18 @@ const API = (process.env.REACT_APP_BACKEND_URL&&process.env.REACT_APP_BACKEND_UR
 
 const PHASE_COLORS = {
   'Preparación General': '#10b981',
-  'Preparación Específica': '#3b82f6',
+  'Preparación Específica': '#D4AF37',
   'Pre-competitivo': '#f59e0b',
   'Competitivo': '#ef4444',
   'Transición': '#8b5cf6',
   'AC - Meso 1': '#10b981',
-  'CE - Meso 1': '#3b82f6',
+  'CE - Meso 1': '#D4AF37',
   'RE - Meso 1': '#ef4444',
 };
 
 const SESSION_TYPE_COLORS = {
   fuerza: { bg: 'bg-red-50', text: 'text-red-700', icon: Dumbbell },
-  resistencia: { bg: 'bg-blue-50', text: 'text-blue-700', icon: Activity },
+  resistencia: { bg: 'bg-[#D4AF37]', text: 'text-[#B8912A]', icon: Activity },
   velocidad: { bg: 'bg-amber-50', text: 'text-amber-700', icon: Flame },
   tecnica: { bg: 'bg-purple-50', text: 'text-purple-700', icon: Target },
   tactica: { bg: 'bg-violet-50', text: 'text-violet-700', icon: Target },
@@ -194,8 +194,8 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
         <DialogHeader className="px-6 py-4 border-b border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 shrink-0">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-[#CCFF00]/15 border border-[#CCFF00]/40 flex items-center justify-center">
-                <CalendarDays className="w-6 h-6 text-[#CCFF00]" strokeWidth={2.2} />
+              <div className="w-11 h-11 rounded-xl bg-[#D4AF37]/15 border border-[#D4AF37]/40 flex items-center justify-center">
+                <CalendarDays className="w-6 h-6 text-[#D4AF37]" strokeWidth={2.2} />
               </div>
               <div>
                 <DialogTitle className="text-white text-xl tracking-tight">
@@ -207,7 +207,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
               </div>
             </div>
             <span
-              className="px-3.5 py-1.5 rounded-full bg-[#CCFF00] text-slate-900 text-xs font-bold tracking-wide shadow-lg shadow-[#CCFF00]/30"
+              className="px-3.5 py-1.5 rounded-full bg-[#D4AF37] text-slate-900 text-xs font-bold tracking-wide shadow-lg shadow-[#D4AF37]/30"
               data-testid="sessions-export-counter"
             >
               {t('sessions.selectedCount', { sel: totalSelected, total: totalAvailable })}
@@ -234,7 +234,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                 onClick={() => setTheme('dark')}
                 data-testid="sessions-export-theme-dark"
                 className={`px-3 h-8 text-xs font-semibold transition flex items-center gap-1.5 ${
-                  theme === 'dark' ? 'bg-slate-900 text-[#CCFF00]' : 'text-slate-500 hover:bg-slate-50 border-l border-slate-200'
+                  theme === 'dark' ? 'bg-slate-900 text-[#D4AF37]' : 'text-slate-500 hover:bg-slate-50 border-l border-slate-200'
                 }`}
               >
                 <Moon className="w-3.5 h-3.5" /> {t('sessions.themeDark')}
@@ -248,7 +248,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                 onClick={() => setLayout('classic')}
                 data-testid="sessions-export-layout-classic"
                 className={`px-3 h-8 text-xs font-semibold transition flex items-center gap-1.5 ${
-                  layout === 'classic' ? 'bg-blue-100 text-blue-900 border-l border-blue-200' : 'text-slate-500 hover:bg-slate-50 border-l border-slate-200'
+                  layout === 'classic' ? 'bg-[#D4AF37] text-[#B8912A] border-l border-[#B8912A]' : 'text-slate-500 hover:bg-slate-50 border-l border-slate-200'
                 }`}
               >
                 <FileText className="w-3.5 h-3.5" /> {t('sessions.layoutClassic')}
@@ -302,7 +302,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                 const mesoIds = [];
                 meso.microcycles.forEach(mc => mc.sessions.forEach(s => { if (s.id) mesoIds.push(s.id); }));
                 const mesoSelectedCount = mesoIds.filter(id => selected.has(id)).length;
-                const mesoColor = PHASE_COLORS[meso.meso_name] || PHASE_COLORS[meso.phase] || '#0EA5E9';
+                const mesoColor = PHASE_COLORS[meso.meso_name] || PHASE_COLORS[meso.phase] || '#D4AF37';
 
                 return (
                   <div
@@ -332,7 +332,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                       </div>
                       <div className="flex items-center gap-2">
                         {mesoSelectedCount > 0 && (
-                          <span className="text-[10px] px-2 py-1 rounded-full bg-[#CCFF00] text-slate-900 font-bold">
+                          <span className="text-[10px] px-2 py-1 rounded-full bg-[#D4AF37] text-slate-900 font-bold">
                             {mesoSelectedCount}/{mesoIds.length}
                           </span>
                         )}
@@ -369,7 +369,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                                   </span>
                                 )}
                                 {microSelectedCount > 0 && (
-                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#CCFF00] text-slate-900 font-bold">
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#D4AF37] text-slate-900 font-bold">
                                     {microSelectedCount}/{microIds.length}
                                   </span>
                                 )}
@@ -394,13 +394,13 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                                     key={s.id}
                                     className={`group cursor-pointer relative flex items-start gap-2.5 p-3 rounded-lg border-2 transition-all ${
                                       checked
-                                        ? 'border-[#CCFF00] bg-gradient-to-br from-[#CCFF00]/20 to-[#CCFF00]/5 shadow-md ring-2 ring-[#CCFF00]/40 scale-[1.015]'
+                                        ? 'border-[#D4AF37] bg-gradient-to-br from-[#D4AF37]/20 to-[#D4AF37]/5 shadow-md ring-2 ring-[#D4AF37]/40 scale-[1.015]'
                                         : 'border-slate-200 bg-white hover:border-slate-400 hover:bg-slate-50 hover:shadow-sm'
                                     }`}
                                     data-testid={`sessions-export-card-${s.id}`}
                                   >
                                     {checked && (
-                                      <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#CCFF00] border-2 border-white flex items-center justify-center shadow-md">
+                                      <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#D4AF37] border-2 border-white flex items-center justify-center shadow-md">
                                         <Check className="w-3.5 h-3.5 text-slate-900" strokeWidth={3} />
                                       </div>
                                     )}
@@ -503,7 +503,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                   onClick={() => handleShare('link')}
                   disabled={!!exporting || sharing || totalSelected === 0}
                   data-testid="sessions-export-link-btn"
-                  className="h-9 border-sky-300 text-sky-700 hover:bg-sky-50"
+                  className="h-9 border-[#B8912A] text-[#B8912A] hover:bg-[#D4AF37]"
                   title={t('sessions.copyShareLink')}
                 >
                   {sharing
@@ -542,7 +542,7 @@ export default function SessionsExportModal({ open, onOpenChange, plan, athleteN
                 onClick={() => handleExport('combined')}
                 disabled={!!exporting || sharing || totalSelected === 0}
                 data-testid="sessions-export-combined-btn"
-                className="h-9 bg-slate-900 hover:bg-slate-800 text-[#CCFF00] font-bold px-4"
+                className="h-9 bg-slate-900 hover:bg-slate-800 text-[#D4AF37] font-bold px-4"
               >
                 {exporting === 'combined'
                   ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />

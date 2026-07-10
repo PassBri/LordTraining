@@ -9,7 +9,7 @@ import {
 const CAP_OPTIONS = [
   { id: 'fuerza_maxima', label: 'Fuerza Max', color: '#EF4444' },
   { id: 'fuerza_explosiva', label: 'F.Explosiva', color: '#F59E0B' },
-  { id: 'resistencia_aerobica', label: 'R.Aerobica', color: '#3B82F6' },
+  { id: 'resistencia_aerobica', label: 'R.Aerobica', color: '#D4AF37' },
   { id: 'velocidad', label: 'Velocidad', color: '#10B981' },
   { id: 'coordinacion', label: 'Coordinacion', color: '#8B5CF6' },
   { id: 'flexibilidad', label: 'Flexibilidad', color: '#EC4899' },
@@ -23,7 +23,7 @@ const CustomTooltip = ({ active, payload }) => {
       <div className="text-[11px] font-bold text-slate-800 mb-1">{d.label}</div>
       <div className="space-y-0.5 text-[10px]">
         <div className="flex justify-between"><span className="text-slate-400">Series</span><span className="font-bold text-cyan-600">{d.series}</span></div>
-        <div className="flex justify-between"><span className="text-slate-400">Volumen</span><span className="font-bold text-blue-600">{d.volumen}</span></div>
+        <div className="flex justify-between"><span className="text-slate-400">Volumen</span><span className="font-bold text-[#B8912A]">{d.volumen}</span></div>
         <div className="flex justify-between"><span className="text-slate-400">Intensidad</span><span className="font-bold text-red-500">{d.intensidad}%</span></div>
         <div className="flex justify-between"><span className="text-slate-400">Carga</span><span className="font-bold text-amber-600">{d.carga}</span></div>
       </div>

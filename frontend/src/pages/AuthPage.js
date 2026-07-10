@@ -190,10 +190,10 @@ const AuthVisual = () => {
   const sport = SPORTS[sportIdx];
 
   return (
-  <div className="relative h-full overflow-hidden" style={{background:'#08090e'}}>
+  <div className="relative h-full overflow-hidden" style={{background:'#09090b'}}>
 
     {/* Field container */}
-    <div className="absolute overflow-hidden" style={{top:'17%',left:'13%',right:'13%',bottom:'17%',background:'#1e3a1e',borderRadius:'16px',boxShadow:'0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)'}}>
+    <div className="absolute overflow-hidden" style={{top:'17%',left:'13%',right:'13%',bottom:'17%',background:'#1c160b',borderRadius:'16px',boxShadow:'0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)'}}>
       {/* SVG field lines */}
       <svg className="absolute inset-0 w-full h-full" viewBox={sport.vb} preserveAspectRatio="xMidYMid meet"
         style={{opacity:visible?1:0,transition:'opacity 0.3s ease'}}>
@@ -230,7 +230,7 @@ const AuthVisual = () => {
       {/* Sport dots indicator */}
       <div className="absolute bottom-3 left-4 flex gap-1.5 z-10">
         {SPORTS.map((_,i) => (
-          <div key={i} className="w-[4px] h-[4px] rounded-full transition-colors duration-400" style={{background:i===sportIdx?'#c8f700':'rgba(255,255,255,0.15)'}}/>
+          <div key={i} className="w-[4px] h-[4px] rounded-full transition-colors duration-400" style={{background:i===sportIdx?'#D4AF37':'rgba(255,255,255,0.15)'}}/>
         ))}
       </div>
     </div>
@@ -240,8 +240,8 @@ const AuthVisual = () => {
       <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl whitespace-nowrap" style={{background:'rgba(18,20,28,0.9)',border:'1px solid rgba(255,255,255,0.08)',backdropFilter:'blur(16px)',boxShadow:'0 8px 24px rgba(0,0,0,0.45)'}}>
         <BrandLogo variant="icon" theme="light" size={18} />
         <span className="text-[13px] font-semibold text-white/80">{t('auth.visual.week')} · {t('auth.visual.phase')}</span>
-        <span className="w-[5px] h-[5px] rounded-full bg-[#c8f700] ml-1" style={{animation:'livePulse 1.5s infinite'}}/>
-        <span className="text-[11px] text-[#c8f700]/70">Live</span>
+        <span className="w-[5px] h-[5px] rounded-full bg-[#D4AF37] ml-1" style={{animation:'livePulse 1.5s infinite'}}/>
+        <span className="text-[11px] text-[#D4AF37]/70">Live</span>
       </div>
     </div>
 
@@ -252,13 +252,13 @@ const AuthVisual = () => {
         <div className="flex items-center gap-2">
           <svg width="44" height="44" className="-rotate-90">
             <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="2.5"/>
-            <circle cx="22" cy="22" r="18" fill="none" stroke="#c8f700" strokeWidth="2.5"
+            <circle cx="22" cy="22" r="18" fill="none" stroke="#D4AF37" strokeWidth="2.5"
               strokeDasharray={2*Math.PI*18} strokeDashoffset={2*Math.PI*18*0.15}
               strokeLinecap="round"/>
           </svg>
           <div>
-            <span className="text-[32px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>{readiness}</span>
-            <span className="text-[10px] text-[#c8f700]/50 block">Optimal</span>
+            <span className="text-[32px] font-black text-[#D4AF37] leading-none block" style={{fontFamily:BC}}>{readiness}</span>
+            <span className="text-[10px] text-[#D4AF37]/50 block">Optimal</span>
           </div>
         </div>
       </div>
@@ -268,18 +268,18 @@ const AuthVisual = () => {
     <div className="absolute" style={{top:'16%',right:'18px'}}>
       <div className="px-3.5 py-3 rounded-2xl" style={{background:'rgba(18,20,28,0.9)',border:'1px solid rgba(255,255,255,0.08)',backdropFilter:'blur(16px)',boxShadow:'0 8px 24px rgba(0,0,0,0.45)'}}>
         <span className="text-[8px] text-white/30 uppercase tracking-[0.12em] font-bold block mb-1">{t('auth.visual.acwr')}</span>
-        <span className="text-[26px] font-black text-[#378ADD] leading-none block" style={{fontFamily:BC}}>{acwr}</span>
+        <span className="text-[26px] font-black text-[#D4AF37] leading-none block" style={{fontFamily:BC}}>{acwr}</span>
         <svg viewBox="0 0 80 20" className="w-20 h-5 mt-1.5">
-          <path d="M0,16 L11,13 L22,14 L33,10 L44,11 L55,7 L66,8 L80,4" fill="none" stroke="#378ADD" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M0,16 L11,13 L22,14 L33,10 L44,11 L55,7 L66,8 L80,4" fill="none" stroke="#D4AF37" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
-        <span className="text-[10px] text-[#378ADD]/50 mt-1 block">{t('auth.visual.optimal_zone')}</span>
+        <span className="text-[10px] text-[#D4AF37]/50 mt-1 block">{t('auth.visual.optimal_zone')}</span>
       </div>
     </div>
 
     {/* HUD — Adherence */}
     <div className="absolute" style={{bottom:'24%',right:'18px'}}>
       <div className="px-3.5 py-2.5 rounded-2xl" style={{background:'rgba(18,20,28,0.9)',border:'1px solid rgba(255,255,255,0.08)',backdropFilter:'blur(16px)',boxShadow:'0 8px 24px rgba(0,0,0,0.45)'}}>
-        <span className="text-[24px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>94%</span>
+        <span className="text-[24px] font-black text-[#D4AF37] leading-none block" style={{fontFamily:BC}}>94%</span>
         <span className="text-[10px] text-white/30 uppercase tracking-[0.1em] mt-0.5 block">{t('auth.visual.adherence')}</span>
       </div>
     </div>
@@ -288,7 +288,7 @@ const AuthVisual = () => {
     <div className="absolute top-0 left-0 right-0 z-20 px-7 pt-6 pb-14 overflow-visible" style={{background:'linear-gradient(to bottom, rgba(8,9,14,0.95) 0%, rgba(8,9,14,0.6) 60%, transparent 100%)'}}>
       <div className="mb-1.5 overflow-visible">
         <h2 className="text-[22px] font-semibold text-white/90 whitespace-nowrap" style={{fontFamily:INT}}>
-          {typedText}<span className="inline-block w-[1.5px] h-[17px] bg-[#c8f700] ml-0.5" style={{animation:'blink 0.53s step-end infinite'}}/>
+          {typedText}<span className="inline-block w-[1.5px] h-[17px] bg-[#D4AF37] ml-0.5" style={{animation:'blink 0.53s step-end infinite'}}/>
         </h2>
       </div>
       <p className="text-[12px] text-white/30">{t('auth.visual.system_line')}</p>
@@ -298,7 +298,7 @@ const AuthVisual = () => {
     <div className="absolute bottom-0 left-0 right-0 z-20 px-5 py-3 flex items-center justify-between" style={{background:'rgba(8,9,14,0.92)',borderTop:'0.5px solid rgba(255,255,255,0.06)'}}>
       <div className="flex items-center gap-2">
         <div className="flex">
-          {[{bg:'#1a3a1a',c:'#c8f700',b:'#c8f700',t:'JP'},{bg:'#1a2a3a',c:'#378ADD',b:'#378ADD',t:'MA'},{bg:'#1a1a3a',c:'#7F77DD',b:'#7F77DD',t:'LC'},{bg:'rgba(255,255,255,0.05)',c:'rgba(255,255,255,0.35)',b:'rgba(255,255,255,0.08)',t:'+21'}].map((a,i) => (
+          {[{bg:'#1c160b',c:'#D4AF37',b:'#D4AF37',t:'JP'},{bg:'#141821',c:'#D4AF37',b:'#D4AF37',t:'MA'},{bg:'#1c160b',c:'#C6864E',b:'#C6864E',t:'LC'},{bg:'rgba(255,255,255,0.05)',c:'rgba(255,255,255,0.35)',b:'rgba(255,255,255,0.08)',t:'+21'}].map((a,i) => (
             <div key={i} className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-bold" style={{background:a.bg,color:a.c,border:`1.5px solid ${a.b}`,marginLeft:i>0?'-6px':'0',zIndex:4-i,position:'relative'}}>{a.t}</div>
           ))}
         </div>
@@ -307,7 +307,7 @@ const AuthVisual = () => {
       <div className="flex items-center gap-4">
         {[{v:'17',l:t('landing.hero.stats.models')},{v:'6',l:t('landing.hero.stats.controls')},{v:'150+',l:t('landing.hero.stats.exercises')}].map((s,i) => (
           <div key={i} className="text-center" style={{borderLeft:i>0?'0.5px solid rgba(255,255,255,0.05)':'none',paddingLeft:i>0?'12px':'0'}}>
-            <span className="text-[14px] font-black text-[#c8f700] leading-none block" style={{fontFamily:BC}}>{s.v}</span>
+            <span className="text-[14px] font-black text-[#D4AF37] leading-none block" style={{fontFamily:BC}}>{s.v}</span>
             <span className="text-[7px] text-white/15 mt-0.5 block">{s.l}</span>
           </div>
         ))}
@@ -413,14 +413,14 @@ const AuthPage = () => {
   };
 
   const [activeTab, setActiveTab] = useState('login');
-  const inputClass = "pl-10 h-11 border-slate-700/50 focus:border-[#c8f700] focus:ring-[#c8f700]/10 rounded-lg bg-slate-800/50 text-[14px] text-white placeholder:text-slate-500";
+  const inputClass = "pl-10 h-11 border-zinc-700/50 focus:border-[#D4AF37] focus:ring-[#D4AF37]/10 rounded-lg bg-zinc-800/50 text-[14px] text-white placeholder:text-zinc-500";
 
   return (
     <div className="min-h-screen flex auth-reset" style={{ fontFamily: INT }}>
       <style>{`.auth-reset h1,.auth-reset h2,.auth-reset h3,.auth-reset h4{font-family:inherit;font-weight:inherit;text-transform:none;letter-spacing:normal;}`}</style>
 
       {/* Left — Form (dark theme matching landing) */}
-      <div className="w-full lg:w-[45%] flex flex-col justify-center px-8 md:px-14 lg:px-16 py-8" style={{background:'#0b0e14'}}>
+      <div className="w-full lg:w-[45%] flex flex-col justify-center px-8 md:px-14 lg:px-16 py-8" style={{background:'#09090b'}}>
         <div className="max-w-[380px] w-full mx-auto">
 
           {/* Brand logo — top of page */}
@@ -440,7 +440,7 @@ const AuthPage = () => {
           <div className="flex items-center justify-end mb-4">
             <div className="flex items-center gap-2">
               <LanguageSelector variant="dark" compact />
-              <Link to="/" className="flex items-center gap-1 text-[12px] text-slate-500 hover:text-white transition-colors">
+              <Link to="/" className="flex items-center gap-1 text-[12px] text-zinc-500 hover:text-white transition-colors">
                 <ArrowLeft className="w-3.5 h-3.5" />
                 {t('common.back')}
               </Link>
@@ -451,26 +451,26 @@ const AuthPage = () => {
           <h1 className="text-[22px] font-bold text-white mb-1 text-center" style={{ fontFamily: INT }} data-testid="auth-title">
             {t('common.welcome')} a {t('common.appName')}
           </h1>
-          <p className="text-[13px] text-slate-400 mb-1 text-center" data-testid="auth-subtitle">
+          <p className="text-[13px] text-zinc-400 mb-1 text-center" data-testid="auth-subtitle">
             {t('common.tagline')}
           </p>
-          <p className="text-[12px] text-slate-500 mb-4 text-center">
-            {t('auth.login.freeTrial')} · <a href="/#pricing" className="text-[#c8f700] hover:underline">{t('landing.nav.pricing')}</a>
+          <p className="text-[12px] text-zinc-500 mb-4 text-center">
+            {t('auth.login.freeTrial')} · <a href="/#pricing" className="text-[#D4AF37] hover:underline">{t('landing.nav.pricing')}</a>
           </p>
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-800/50 p-1 rounded-lg h-10 border border-slate-700/30">
+            <TabsList className="grid w-full grid-cols-2 mb-4 bg-zinc-800/50 p-1 rounded-lg h-10 border border-zinc-700/30">
               <TabsTrigger
                 value="login"
-                className="rounded-md text-[13px] font-medium text-slate-400 data-[state=active]:bg-[#c8f700] data-[state=active]:text-[#0b0e14] data-[state=active]:shadow-sm data-[state=active]:font-bold"
+                className="rounded-md text-[13px] font-medium text-zinc-400 data-[state=active]:bg-[#D4AF37] data-[state=active]:text-[#09090b] data-[state=active]:shadow-sm data-[state=active]:font-bold"
                 data-testid="login-tab"
               >
                 {t('auth.login.submit')}
               </TabsTrigger>
               <TabsTrigger
                 value="register"
-                className="rounded-md text-[13px] font-medium text-slate-400 data-[state=active]:bg-[#c8f700] data-[state=active]:text-[#0b0e14] data-[state=active]:shadow-sm data-[state=active]:font-bold"
+                className="rounded-md text-[13px] font-medium text-zinc-400 data-[state=active]:bg-[#D4AF37] data-[state=active]:text-[#09090b] data-[state=active]:shadow-sm data-[state=active]:font-bold"
                 data-testid="register-tab"
               >
                 {t('auth.register.submit')}
@@ -481,9 +481,9 @@ const AuthPage = () => {
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="login-email" className="text-[13px] text-slate-400 font-medium">{t('auth.login.email')}</Label>
+                  <Label htmlFor="login-email" className="text-[13px] text-zinc-400 font-medium">{t('auth.login.email')}</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                     <Input
                       id="login-email"
                       type="email"
@@ -497,9 +497,9 @@ const AuthPage = () => {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="login-password" className="text-[13px] text-slate-400 font-medium">{t('auth.login.password')}</Label>
+                  <Label htmlFor="login-password" className="text-[13px] text-zinc-400 font-medium">{t('auth.login.password')}</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                     <Input
                       id="login-password"
                       type={showPassword ? 'text' : 'password'}
@@ -510,19 +510,19 @@ const AuthPage = () => {
                       className={`${inputClass} pr-10`}
                       data-testid="login-password-input"
                     />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
                 <div className="text-right">
-                  <button type="button" onClick={() => toast.info(t('auth.login.resetSent'))} className="text-[12px] text-slate-500 hover:text-[#c8f700] transition-colors">
+                  <button type="button" onClick={() => toast.info(t('auth.login.resetSent'))} className="text-[12px] text-zinc-500 hover:text-[#D4AF37] transition-colors">
                     {t('auth.login.forgotPassword')}
                   </button>
                 </div>
                 <Button
                   type="submit"
-                  className="w-full h-11 bg-[#c8f700] hover:bg-[#d9ff20] text-[#0b0e14] text-[13px] font-bold rounded-lg hover:-translate-y-[1px] transition-all"
+                  className="w-full h-11 bg-[#D4AF37] hover:bg-[#E1C662] text-[#09090b] text-[13px] font-bold rounded-lg hover:-translate-y-[1px] transition-all"
                   disabled={isLoading}
                   data-testid="login-submit-btn"
                 >
@@ -530,9 +530,9 @@ const AuthPage = () => {
                   {t('auth.login.submit')}
                 </Button>
               </form>
-              <p className="text-center text-[12px] text-slate-500 mt-6">
+              <p className="text-center text-[12px] text-zinc-500 mt-6">
                 {t('auth.login.noAccount')}{' '}
-                <button onClick={() => setActiveTab('register')} className="text-[#c8f700] hover:underline font-medium">
+                <button onClick={() => setActiveTab('register')} className="text-[#D4AF37] hover:underline font-medium">
                   {t('auth.login.createAccount')}
                 </button>
               </p>
@@ -542,42 +542,42 @@ const AuthPage = () => {
             <TabsContent value="register">
               <form onSubmit={handleRegister} className="space-y-3.5">
                 <div className="space-y-1.5">
-                  <Label htmlFor="register-name" className="text-[13px] text-slate-400 font-medium">{t('auth.register.name')}</Label>
+                  <Label htmlFor="register-name" className="text-[13px] text-zinc-400 font-medium">{t('auth.register.name')}</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                     <Input id="register-name" type="text" placeholder="Juan Perez" value={registerName} onChange={(e) => setRegisterName(e.target.value)} required className={inputClass} data-testid="register-name-input" />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="register-email" className="text-[13px] text-slate-400 font-medium">{t('auth.register.email')}</Label>
+                  <Label htmlFor="register-email" className="text-[13px] text-zinc-400 font-medium">{t('auth.register.email')}</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                     <Input id="register-email" type="email" placeholder="correo@ejemplo.com" value={registerEmail} onChange={(e) => setRegisterEmail(e.target.value)} required className={inputClass} data-testid="register-email-input" />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="register-password" className="text-[13px] text-slate-400 font-medium">{t('auth.register.password')}</Label>
+                  <Label htmlFor="register-password" className="text-[13px] text-zinc-400 font-medium">{t('auth.register.password')}</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                     <Input id="register-password" type={showPassword ? 'text' : 'password'} placeholder={t('auth.register.passwordRequirements')} value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} required minLength={6} className={`${inputClass} pr-10`} data-testid="register-password-input" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[13px] text-slate-400 font-medium">{t('auth.register.role')}</Label>
+                  <Label className="text-[13px] text-zinc-400 font-medium">{t('auth.register.role')}</Label>
                   <Select value={registerRole} onValueChange={setRegisterRole}>
-                    <SelectTrigger className="h-11 border-slate-700/50 focus:border-[#c8f700] rounded-lg bg-slate-800/50 text-[14px] text-white" data-testid="register-role-select">
+                    <SelectTrigger className="h-11 border-zinc-700/50 focus:border-[#D4AF37] rounded-lg bg-zinc-800/50 text-[14px] text-white" data-testid="register-role-select">
                       <SelectValue placeholder={t('auth.register.role')} />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-700">
+                    <SelectContent className="bg-zinc-800 border-zinc-700">
                       {USER_ROLES.map(role => {
                         const IconComponent = ROLE_ICONS[role.id] || UserCircle;
                         return (
-                          <SelectItem key={role.id} value={role.id} className="py-2.5 text-white focus:bg-slate-700 focus:text-white">
+                          <SelectItem key={role.id} value={role.id} className="py-2.5 text-white focus:bg-zinc-700 focus:text-white">
                             <div className="flex items-center gap-2.5">
-                              <IconComponent className="w-4 h-4 text-[#c8f700]" />
+                              <IconComponent className="w-4 h-4 text-[#D4AF37]" />
                               <span className="text-[13px] font-medium">{role.name}</span>
                             </div>
                           </SelectItem>
@@ -588,7 +588,7 @@ const AuthPage = () => {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full h-11 bg-[#c8f700] hover:bg-[#d9ff20] text-[#0b0e14] text-[13px] font-bold rounded-lg hover:-translate-y-[1px] transition-all"
+                  className="w-full h-11 bg-[#D4AF37] hover:bg-[#E1C662] text-[#09090b] text-[13px] font-bold rounded-lg hover:-translate-y-[1px] transition-all"
                   disabled={isLoading}
                   data-testid="register-submit-btn"
                 >
@@ -596,30 +596,30 @@ const AuthPage = () => {
                   {t('auth.register.submit')}
                 </Button>
               </form>
-              <p className="text-center text-[12px] text-slate-500 mt-4">
+              <p className="text-center text-[12px] text-zinc-500 mt-4">
                 {t('auth.login.haveAccount')}{' '}
-                <button onClick={() => setActiveTab('login')} className="text-[#c8f700] hover:underline font-medium">
+                <button onClick={() => setActiveTab('login')} className="text-[#D4AF37] hover:underline font-medium">
                   {t('auth.login.submit')}
                 </button>
               </p>
-              <p className="text-center text-[11px] text-slate-600 mt-3">
+              <p className="text-center text-[11px] text-zinc-600 mt-3">
                 {t('auth.register.termsText')}
               </p>
             </TabsContent>
           </Tabs>
 
           <div className="flex items-center justify-center gap-3 mt-8 pt-5 border-t border-white/5" data-testid="auth-legal-links">
-            <Link to="/terminos" className="text-[11px] text-slate-600 hover:text-amber-400 transition-colors">Términos</Link>
-            <span className="text-slate-700">·</span>
-            <Link to="/privacidad" className="text-[11px] text-slate-600 hover:text-amber-400 transition-colors">Privacidad</Link>
-            <span className="text-slate-700">·</span>
-            <Link to="/politicas" className="text-[11px] text-slate-600 hover:text-amber-400 transition-colors">Políticas</Link>
+            <Link to="/terminos" className="text-[11px] text-zinc-600 hover:text-amber-400 transition-colors">Términos</Link>
+            <span className="text-zinc-700">·</span>
+            <Link to="/privacidad" className="text-[11px] text-zinc-600 hover:text-amber-400 transition-colors">Privacidad</Link>
+            <span className="text-zinc-700">·</span>
+            <Link to="/politicas" className="text-[11px] text-zinc-600 hover:text-amber-400 transition-colors">Políticas</Link>
           </div>
         </div>
       </div>
 
       {/* Right — Visual panel */}
-      <div className="hidden lg:flex w-[55%] flex-col relative overflow-hidden" style={{ background: '#080b12' }}>
+      <div className="hidden lg:flex w-[55%] flex-col relative overflow-hidden" style={{ background: '#0a0a0c' }}>
         <AuthVisual />
       </div>
     </div>

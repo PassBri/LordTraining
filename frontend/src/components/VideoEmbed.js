@@ -36,7 +36,7 @@ export function VideoGallery({ videos = [], dark = false }) {
           if (!p) {
             return (
               <a key={i} href={v.url} target="_blank" rel="noreferrer" data-testid={`video-link-${i}`}
-                className={`flex items-center gap-2 rounded-lg px-3 py-3 text-sm font-medium transition ${dark ? 'bg-white/5 text-sky-400 hover:bg-white/10 border border-white/10' : 'bg-slate-50 text-sky-600 hover:bg-slate-100 border border-slate-200'}`}>
+                className={`flex items-center gap-2 rounded-lg px-3 py-3 text-sm font-medium transition ${dark ? 'bg-white/5 text-[#B8912A] hover:bg-white/10 border border-white/10' : 'bg-slate-50 text-[#B8912A] hover:bg-slate-100 border border-slate-200'}`}>
                 <ExternalLink className="w-4 h-4 shrink-0" /><span className="truncate">{v.title || 'Abrir video'}</span>
               </a>
             );
@@ -48,7 +48,7 @@ export function VideoGallery({ videos = [], dark = false }) {
                 ? <img src={p.thumb} alt={v.title || ''} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition" />
                 : <div className="w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#1e293b,#0f172a)' }}><Video className="w-8 h-8 text-slate-500" /></div>}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-11 h-11 rounded-full bg-black/55 backdrop-blur flex items-center justify-center group-hover:scale-110 group-hover:bg-[#CCFF00] transition-all">
+                <div className="w-11 h-11 rounded-full bg-black/55 backdrop-blur flex items-center justify-center group-hover:scale-110 group-hover:bg-[#D4AF37] transition-all">
                   <Play className="w-5 h-5 text-white group-hover:text-slate-900 fill-current ml-0.5" />
                 </div>
               </div>

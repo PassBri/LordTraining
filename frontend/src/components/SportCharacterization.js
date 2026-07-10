@@ -186,7 +186,7 @@ const SportCharacterization = ({ athleteId, onSave }) => {
 
   const getColorClasses = (color) => {
     const colors = {
-      blue: 'text-blue-600 bg-blue-50',
+      blue: 'text-[#B8912A] bg-[#D4AF37]',
       green: 'text-green-600 bg-green-50',
       amber: 'text-amber-600 bg-amber-50',
       red: 'text-red-600 bg-red-50',
@@ -200,7 +200,7 @@ const SportCharacterization = ({ athleteId, onSave }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#B8912A]" />
       </div>
     );
   }
@@ -208,7 +208,7 @@ const SportCharacterization = ({ athleteId, onSave }) => {
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-xl shadow-lg">
+      <div className="bg-gradient-to-r from-[#D4AF37] to-[#D4AF37] text-white p-6 rounded-xl shadow-lg">
         <h1 className="text-2xl font-bold mb-2">{tt('Caracterización del Deporte')}</h1>
         <p className="opacity-90 text-sm">
           Esta estructura proporciona una vista holística del deporte o actividad física,
@@ -236,7 +236,7 @@ const SportCharacterization = ({ athleteId, onSave }) => {
                     value={formData[field.name]}
                     onChange={(e) => handleInputChange(field.name, e.target.value)}
                     placeholder={field.placeholder}
-                    className="min-h-[100px] resize-y border-gray-200 focus:border-blue-500"
+                    className="min-h-[100px] resize-y border-gray-200 focus:border-[#B8912A]"
                     data-testid={`sport-${field.name}`}
                   />
                 </div>
@@ -251,7 +251,7 @@ const SportCharacterization = ({ athleteId, onSave }) => {
         <Button 
           onClick={handleSave}
           disabled={saving}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 shadow-lg"
+          className="bg-[#D4AF37] hover:bg-[#D4AF37] text-white px-8 py-2 shadow-lg"
           data-testid="save-sport-btn"
         >
           {saving ? (

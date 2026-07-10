@@ -93,13 +93,13 @@ const AthleteSummary = ({ athlete, onNavigate }) => {
     if (avg >= 75) return { level: 'Alta', pct: '70-85%', color: '#f97316' };
     if (avg >= 60) return { level: 'Media', pct: '55-70%', color: '#eab308' };
     if (avg >= 40) return { level: 'Baja', pct: '40-55%', color: '#22c55e' };
-    return { level: 'Recuperación', pct: '< 40%', color: '#3b82f6' };
+    return { level: 'Recuperación', pct: '< 40%', color: '#D4AF37' };
   };
 
   const recommendedLoad = calculateRecommendedLoad();
 
   const charSections = [
-    { title: 'Información General', icon: User, color: '#1976D2',
+    { title: 'Información General', icon: User, color: '#D4AF37',
       fields: [
         { label: 'Nombre', key: 'name', type: 'input', ph: 'Nombre completo...' },
         { label: 'Edad', key: 'age', type: 'input', ph: 'Edad...' },
@@ -196,12 +196,12 @@ const AthleteSummary = ({ athlete, onNavigate }) => {
       {/* Metrics Row - horizontal cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
         {/* Anthropometric */}
-        <div className="rounded-xl p-3 border border-blue-100" style={{ backgroundColor: '#E3F2FD' }}>
+        <div className="rounded-xl p-3 border border-[#B8912A]" style={{ backgroundColor: '#E3F2FD' }}>
           <div className="flex items-center justify-between mb-2">
-            <h4 className="font-semibold text-xs flex items-center gap-1.5" style={{ color: '#1565C0' }}>
+            <h4 className="font-semibold text-xs flex items-center gap-1.5" style={{ color: '#D4AF37' }}>
               <Ruler className="w-3.5 h-3.5" /> Antropometría
             </h4>
-            <Button variant="ghost" size="sm" className="h-5 text-[10px] px-1" style={{ color: '#1565C0' }} onClick={() => onNavigate?.('anthropometric')}>
+            <Button variant="ghost" size="sm" className="h-5 text-[10px] px-1" style={{ color: '#D4AF37' }} onClick={() => onNavigate?.('anthropometric')}>
               Ver <ChevronRight className="w-3 h-3" />
             </Button>
           </div>
@@ -213,14 +213,14 @@ const AthleteSummary = ({ athlete, onNavigate }) => {
                 { icon: Activity, val: anthropometricData.measurements.bodyFat || anthropometricData.measurements.bmi, label: anthropometricData.measurements.bodyFat ? 'Grasa%' : 'IMC' }
               ].map((item, i) => (
                 <div key={i} className="bg-white rounded-lg p-1.5 text-center shadow-sm">
-                  <item.icon className="w-3 h-3 mx-auto mb-0.5" style={{ color: '#1976D2' }} />
+                  <item.icon className="w-3 h-3 mx-auto mb-0.5" style={{ color: '#D4AF37' }} />
                   <p className="text-sm font-bold text-slate-800">{item.val || '--'}</p>
                   <p className="text-[9px] text-slate-500">{item.label}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-center py-1" style={{ color: '#1976D2' }}>{tt('Sin datos')}</p>
+            <p className="text-xs text-center py-1" style={{ color: '#D4AF37' }}>{tt('Sin datos')}</p>
           )}
         </div>
 
@@ -300,7 +300,7 @@ const AthleteSummary = ({ athlete, onNavigate }) => {
                               value={charData[field.key]}
                               onChange={(e) => setCharData({ ...charData, [field.key]: e.target.value })}
                               placeholder={field.ph}
-                              className="h-8 text-xs border-slate-200 focus:border-blue-400"
+                              className="h-8 text-xs border-slate-200 focus:border-[#B8912A]"
                               data-testid={`char-${field.key}`}
                             />
                           ) : (
@@ -308,7 +308,7 @@ const AthleteSummary = ({ athlete, onNavigate }) => {
                               value={charData[field.key]}
                               onChange={(e) => setCharData({ ...charData, [field.key]: e.target.value })}
                               placeholder={field.ph}
-                              className="min-h-[60px] text-xs border-slate-200 focus:border-blue-400 resize-y"
+                              className="min-h-[60px] text-xs border-slate-200 focus:border-[#B8912A] resize-y"
                               data-testid={`char-${field.key}`}
                             />
                           )}
@@ -323,7 +323,7 @@ const AthleteSummary = ({ athlete, onNavigate }) => {
                   onClick={handleSaveCharacterization}
                   disabled={saving}
                   className="text-white shadow-md text-xs px-5 h-8"
-                  style={{ backgroundColor: '#1565C0' }}
+                  style={{ backgroundColor: '#D4AF37' }}
                   data-testid="save-characterization-btn"
                 >
                   {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Save className="w-3.5 h-3.5 mr-1.5" />}
