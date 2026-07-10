@@ -447,26 +447,26 @@ const SCOUT_IMG = 'https://images.unsplash.com/photo-1591805953001-f6ad7822d736?
 
 const ScoutingSection = ({ t }) => {
   const tools = [
-    { icon: Activity, title: 'Evaluación de atletas', desc: 'Registra pruebas físicas, técnicas y tácticas.' },
-    { icon: Users, title: 'Comparación de jugadores', desc: 'Compara múltiples atletas mediante indicadores clave.' },
-    { icon: LineChart, title: 'Seguimiento del desarrollo', desc: 'Visualiza la evolución del rendimiento a lo largo del tiempo.' },
-    { icon: FileText, title: 'Reportes profesionales', desc: 'Genera informes para clubes, academias o procesos de selección.' },
-    { icon: Layers, title: 'Base de datos de talentos', desc: 'Organiza y filtra jugadores según edad, posición, rendimiento o potencial.' },
-    { icon: BarChart3, title: 'Dashboards analíticos', desc: 'Transforma datos en información útil para la toma de decisiones.' },
+    { icon: Activity, title: t('landing.scouting.tool_1_title'), desc: t('landing.scouting.tool_1_desc') },
+    { icon: Users, title: t('landing.scouting.tool_2_title'), desc: t('landing.scouting.tool_2_desc') },
+    { icon: LineChart, title: t('landing.scouting.tool_3_title'), desc: t('landing.scouting.tool_3_desc') },
+    { icon: FileText, title: t('landing.scouting.tool_4_title'), desc: t('landing.scouting.tool_4_desc') },
+    { icon: Layers, title: t('landing.scouting.tool_5_title'), desc: t('landing.scouting.tool_5_desc') },
+    { icon: BarChart3, title: t('landing.scouting.tool_6_title'), desc: t('landing.scouting.tool_6_desc') },
   ];
   const benefits = [
-    'Identifica talento con mayor precisión.',
-    'Reduce la subjetividad en las evaluaciones.',
-    'Centraliza toda la información del atleta.',
-    'Facilita el trabajo colaborativo entre entrenadores y scouts.',
-    'Optimiza procesos de reclutamiento y seguimiento.',
-    'Toma decisiones respaldadas por datos.',
+    t('landing.scouting.benefit_1'),
+    t('landing.scouting.benefit_2'),
+    t('landing.scouting.benefit_3'),
+    t('landing.scouting.benefit_4'),
+    t('landing.scouting.benefit_5'),
+    t('landing.scouting.benefit_6'),
   ];
   const audiences = [
-    { icon: Building2, label: 'Clubes' },
-    { icon: GraduationCap, label: 'Academias' },
-    { icon: Shield, label: 'Federaciones' },
-    { icon: UserCheck, label: 'Entrenadores' },
+    { icon: Building2, label: t('landing.scouting.aud_clubs') },
+    { icon: GraduationCap, label: t('landing.scouting.aud_academies') },
+    { icon: Shield, label: t('landing.scouting.aud_federations') },
+    { icon: UserCheck, label: t('landing.scouting.aud_coaches') },
   ];
 
   return (
@@ -476,15 +476,15 @@ const ScoutingSection = ({ t }) => {
       <div className="max-w-[1120px] mx-auto relative z-10">
         {/* Header */}
         <Reveal direction="up" className="text-center mb-12">
-          <SectionTag>Scouting &amp; Talent ID</SectionTag>
+          <SectionTag>{t('landing.scouting.tag')}</SectionTag>
           <h2 className="text-[28px] md:text-[40px] font-bold text-white leading-[1.12] mb-3" style={{fontFamily:INT}} data-testid="scouting-title">
-            Scouting &amp; <span className="text-[#CCFF00]">Talent Identification</span>
+            {t('landing.scouting.title_1')} <span className="text-[#CCFF00]">{t('landing.scouting.title_2')}</span>
           </h2>
           <p className="text-slate-300 text-[15px] md:text-[17px] max-w-[640px] mx-auto mb-4">
-            Descubre, evalúa y desarrolla el talento con herramientas respaldadas por datos.
+            {t('landing.scouting.subtitle')}
           </p>
           <p className="text-slate-400 text-[13px] md:text-[14px] leading-[1.7] max-w-[720px] mx-auto">
-            LordTraining ofrece un ecosistema de herramientas diseñadas para entrenadores, scouts y organizaciones deportivas que buscan tomar mejores decisiones en la identificación y seguimiento de atletas. Centraliza la información, evalúa el rendimiento y compara perfiles utilizando métricas objetivas para reducir el sesgo en la toma de decisiones.
+            {t('landing.scouting.description')}
           </p>
         </Reveal>
 
@@ -492,7 +492,7 @@ const ScoutingSection = ({ t }) => {
         <div className="grid lg:grid-cols-2 gap-8 items-center mb-14">
           <Reveal direction="left">
             <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl" data-testid="scouting-image">
-              <img src={SCOUT_IMG} alt="Scout analizando datos y observando jugadores" className="w-full h-[300px] md:h-[360px] object-cover" loading="lazy" />
+              <img src={SCOUT_IMG} alt={t('landing.scouting.badge_title')} className="w-full h-[300px] md:h-[360px] object-cover" loading="lazy" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
               {/* floating stat card */}
               <div className="absolute bottom-4 left-4 bg-slate-900/90 backdrop-blur-md border border-slate-700/60 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
@@ -500,19 +500,19 @@ const ScoutingSection = ({ t }) => {
                   <Eye className="w-4.5 h-4.5 text-[#CCFF00]" />
                 </div>
                 <div>
-                  <div className="text-[15px] font-black text-white leading-none" style={{fontFamily:BC}}>Análisis objetivo</div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">Decisiones basadas en datos</div>
+                  <div className="text-[15px] font-black text-white leading-none" style={{fontFamily:BC}}>{t('landing.scouting.badge_title')}</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">{t('landing.scouting.badge_sub')}</div>
                 </div>
               </div>
               <div className="absolute top-4 right-4 bg-slate-900/90 backdrop-blur-md border border-slate-700/60 rounded-xl px-3 py-2 shadow-xl">
                 <div className="text-[18px] font-black text-[#CCFF00] leading-none" style={{fontFamily:BC}}>−42%</div>
-                <div className="text-[9px] text-slate-400 mt-0.5">sesgo en evaluación</div>
+                <div className="text-[9px] text-slate-400 mt-0.5">{t('landing.scouting.stat_label')}</div>
               </div>
             </div>
           </Reveal>
 
           <Reveal direction="right">
-            <h3 className="text-[13px] font-black uppercase tracking-[0.14em] text-[#CCFF00] mb-4" style={{fontFamily:BC}}>Beneficios</h3>
+            <h3 className="text-[13px] font-black uppercase tracking-[0.14em] text-[#CCFF00] mb-4" style={{fontFamily:BC}}>{t('landing.scouting.benefits_title')}</h3>
             <ul className="space-y-3" data-testid="scouting-benefits">
               {benefits.map((b, i) => (
                 <li key={i} className="flex items-start gap-3">
@@ -536,7 +536,7 @@ const ScoutingSection = ({ t }) => {
 
         {/* Tools grid */}
         <Reveal direction="up" className="mb-4 text-center">
-          <h3 className="text-[20px] md:text-[24px] font-bold text-white" style={{fontFamily:INT}}>Herramientas disponibles</h3>
+          <h3 className="text-[20px] md:text-[24px] font-bold text-white" style={{fontFamily:INT}}>{t('landing.scouting.tools_title')}</h3>
         </Reveal>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-14" data-testid="scouting-tools">
           {tools.map((tool, i) => (
@@ -557,14 +557,14 @@ const ScoutingSection = ({ t }) => {
           <div className="relative rounded-3xl overflow-hidden border border-[#CCFF00]/20 bg-gradient-to-br from-slate-900 to-slate-950 px-6 py-10 md:px-12 md:py-12 text-center" data-testid="scouting-cta">
             <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-80 h-40 rounded-full bg-[#CCFF00]/[0.06] blur-3xl pointer-events-none" />
             <h3 className="relative text-[24px] md:text-[32px] font-bold text-white mb-2" style={{fontFamily:INT}}>
-              Empieza a descubrir talento con <span className="text-[#CCFF00]">LordTraining</span>
+              {t('landing.scouting.cta_pre')} <span className="text-[#CCFF00]">LordTraining</span>
             </h3>
             <p className="relative text-[14px] text-slate-400 mb-7 max-w-[520px] mx-auto">
-              Herramientas profesionales de scouting para clubes, academias, federaciones y entrenadores.
+              {t('landing.scouting.cta_sub')}
             </p>
             <Link to="/auth" className="relative inline-block">
               <Button className="bg-[#CCFF00] text-slate-900 hover:bg-[#b8e600] h-12 px-8 text-[13px] font-bold rounded-xl shadow-lg shadow-[#CCFF00]/20 transition-all hover:-translate-y-0.5" style={{fontFamily:BC}} data-testid="scouting-cta-btn">
-                Optimizar mi Scouting <ArrowRight className="w-4 h-4 ml-2 inline" />
+                {t('landing.scouting.cta_btn')} <ArrowRight className="w-4 h-4 ml-2 inline" />
               </Button>
             </Link>
           </div>
