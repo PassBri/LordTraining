@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Loader2, LogOut, Heart, Trophy, Activity, ClipboardList, BellRing, X } from 'lucide-react';
 import AthletePlanView from '../components/athlete/AthletePlanView';
-import LevelBadge from '../components/LevelBadge';
+import LevelBadge, { getLevel } from '../components/LevelBadge';
 import { athleteGetPlan, athleteCompleteSession, athleteSaveReadiness, athleteGetReadiness, athleteGetRecords } from '../services/athleteApi';
 
 const AthletePortalPanel = () => {
@@ -134,7 +134,45 @@ const AthletePortalPanel = () => {
         )}
 
         {tab === 'records' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5" data-testid="athlete-records">
+          <div className="space-y-5" data-testid="athlete-records">
+            {records.evaluation_score != null && (() => {
+              const lvl = getLevel(records.evaluation_score);
+              if (!lvl) return null;
+              const NEXT = { rookie: 40, bronze: 60, silver: 75, gold: 90, diamond: null };
+              const MIN = { rookie: 0, bronze: 40, silver: 60, gold: 75, diamond: 90 };
+              const nextMin = NEXT[lvl.key];
+              const curMin = MIN[lvl.key];
+              const pct = nextMin ? Math.max(4, Math.round(((records.evaluation_score - curMin) / (nextMin - curMin)) * 100)) : 100;
+              const NextIcon = lvl.Icon;
+              return (
+                <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-[#D4AF37]/25 p-6 md:p-7" data-testid="athlete-my-level">
+                  <div className="flex items-center gap-5 flex-wrap">
+                    <div className="w-20 h-20 rounded-2xl flex items-center justify-center shrink-0" style={{ background: lvl.grad, boxShadow: `0 8px 24px ${lvl.ring}55` }}>
+                      <NextIcon size={40} strokeWidth={2} style={{ color: lvl.text }} />
+                    </div>
+                    <div className="flex-1 min-w-[200px]">
+                      <p className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">{t('athlete.myLevel', 'Mi Nivel')}</p>
+                      <h2 className="text-2xl font-extrabold text-white leading-tight">{t('athlete.level', 'Nivel')} {lvl.label}</h2>
+                      <p className="text-sm text-slate-400 mt-0.5 tabular-nums">{records.evaluation_score} / 100 pts</p>
+                    </div>
+                  </div>
+                  {nextMin ? (
+                    <div className="mt-5">
+                      <div className="flex justify-between text-xs mb-1.5">
+                        <span className="text-slate-400">{t('athlete.progressToNext', 'Progreso al siguiente nivel')}</span>
+                        <span className="text-[#D4AF37] font-bold">{t('athlete.missing', 'Faltan')} {nextMin - records.evaluation_score} pts</span>
+                      </div>
+                      <div className="h-2.5 rounded-full bg-white/10 overflow-hidden">
+                        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: lvl.grad }} />
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="mt-5 text-sm text-[#8FCFE6] font-semibold">{t('athlete.maxLevel', '¡Nivel máximo alcanzado!')}</p>
+                  )}
+                </div>
+              );
+            })()}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <div className="rounded-2xl bg-slate-900/70 border border-white/10 p-6">
               <h2 className="text-white font-semibold flex items-center gap-2 mb-4"><Trophy className="w-5 h-5 text-amber-400" />{t('athlete.personalRecords')}</h2>
               {records.records.length === 0 ? <p className="text-slate-500 text-sm py-6 text-center">{t('athlete.noRecords')}</p> : (
@@ -161,6 +199,7 @@ const AthletePortalPanel = () => {
                 </div>
               )}
             </div>
+          </div>
           </div>
         )}
       </main>
