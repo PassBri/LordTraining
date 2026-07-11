@@ -1245,10 +1245,14 @@ async def serve_file(path: str, authorization: str = Header(None), auth: str = Q
         token = auth
     if not token:
         raise HTTPException(401, "No autorizado")
-    from server import get_current_user
-    from fastapi.security import HTTPAuthorizationCredentials
+    import jwt as _jwt
+    from core.auth import JWT_SECRET, JWT_ALGORITHM
     try:
-        await get_current_user(HTTPAuthorizationCredentials(scheme="Bearer", credentials=token))
+        payload = _jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        if payload.get("type", "access") == "refresh":
+            raise HTTPException(401, "Token inválido")
+    except HTTPException:
+        raise
     except Exception:
         raise HTTPException(401, "Token inválido")
     rec = await _files.find_one({"storage_path": path, "is_deleted": False})

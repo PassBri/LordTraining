@@ -74,11 +74,14 @@ const HelpTutorialButton = ({ category = 'general' }) => {
         onClick={() => setOpen(true)}
         data-testid="help-tutorials-btn"
         title="Ver tutoriales de esta sección"
-        className="fixed bottom-6 left-6 z-40 flex items-center gap-2 px-4 h-11 rounded-full bg-[#0A0F1E] text-[#D4AF37] border border-[#D4AF37]/40 shadow-lg hover:bg-[#111830] hover:-translate-y-0.5 transition-all font-semibold text-sm">
-        <GraduationCap className="w-4 h-4" /> Tutoriales
+        className="group fixed bottom-6 right-24 z-40 w-14 h-14 rounded-full bg-[#0A0F1E] text-[#D4AF37] border border-[#D4AF37]/40 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center">
+        <GraduationCap className="w-6 h-6 group-hover:scale-110 transition-transform" />
+        <span className="absolute -top-9 left-1/2 -translate-x-1/2 px-2 py-1 rounded-md bg-slate-900 text-white text-[11px] font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          Tutoriales
+        </span>
         {unseenCount > 0 && (
           <span data-testid="help-tutorials-badge"
-            className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#EF4444] text-white text-[10px] font-black flex items-center justify-center border-2 border-[#0a0e14] animate-pulse">
+            className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 rounded-full bg-[#EF4444] text-white text-[10px] font-black flex items-center justify-center border-2 border-[#fafaf8] animate-pulse">
             {unseenCount}
           </span>
         )}
