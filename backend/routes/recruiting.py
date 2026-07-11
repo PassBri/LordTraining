@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Header,
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import uuid
 import os
 import base64
@@ -35,6 +35,7 @@ _stats = _db["prospect_stats"]
 _sport_templates = _db["sport_templates"]
 _contacts = _db["recruiting_contacts"]
 _settings = _db["recruiting_settings"]
+_share_events = _db["recruiting_share_events"]
 
 
 def get_current_user_dep():
@@ -821,7 +822,41 @@ async def track_prospect_share(pid: str, body: TrackIn, user=Depends(get_current
     stats = await _bump_stat({"id": pid, "coach_id": uid}, body.action)
     if stats is None:
         raise HTTPException(404, "Prospecto no encontrado")
+    await _log_share_event(pid, uid, body.action)
     return {"share_stats": stats}
+
+
+async def _log_share_event(prospect_id: str, coach_id: str, action: str):
+    now = datetime.now(timezone.utc)
+    try:
+        await _share_events.insert_one({
+            "prospect_id": prospect_id, "coach_id": coach_id, "action": action,
+            "ts": now.isoformat(), "tsx": now.timestamp(),
+        })
+    except Exception:
+        pass
+
+
+async def _trend_map(coach_id: str):
+    """Devuelve {prospect_id: {recent7, prev7, trending}} basado en compartidos/descargas."""
+    now = datetime.now(timezone.utc).timestamp()
+    cut7, cut14 = now - 7 * 86400, now - 14 * 86400
+    events = await _share_events.find(
+        {"coach_id": coach_id, "action": {"$in": ["share", "download"]}, "tsx": {"$gte": cut14}},
+        {"_id": 0, "prospect_id": 1, "tsx": 1},
+    ).to_list(50000)
+    recent, prev = {}, {}
+    for e in events:
+        pid = e.get("prospect_id")
+        if e.get("tsx", 0) >= cut7:
+            recent[pid] = recent.get(pid, 0) + 1
+        else:
+            prev[pid] = prev.get(pid, 0) + 1
+    out = {}
+    for pid in set(list(recent) + list(prev)):
+        r, pv = recent.get(pid, 0), prev.get(pid, 0)
+        out[pid] = {"recent7": r, "prev7": pv, "trending": r >= 2 and r >= pv}
+    return out
 
 
 @router.get("/share-ranking")
@@ -833,6 +868,7 @@ async def share_ranking(limit: int = Query(5, ge=1, le=20), user=Depends(get_cur
          "sport_name": 1, "sport": 1, "overall_score": 1, "share_id": 1,
          "share_enabled": 1, "share_stats": 1},
     ).to_list(2000)
+    trends = await _trend_map(uid)
     rows = []
     for p in items:
         st = p.get("share_stats") or {}
@@ -840,6 +876,7 @@ async def share_ranking(limit: int = Query(5, ge=1, le=20), user=Depends(get_cur
         total = d + s
         if total <= 0 and v <= 0:
             continue
+        tr = trends.get(p["id"], {})
         rows.append({
             "id": p["id"], "name": p.get("name"), "position": p.get("position"),
             "sport_name": p.get("sport_name") or p.get("sport"),
@@ -847,6 +884,7 @@ async def share_ranking(limit: int = Query(5, ge=1, le=20), user=Depends(get_cur
             "has_photo": bool(p.get("photo_path")),
             "share_id": p.get("share_id") if p.get("share_enabled") else None,
             "downloads": d, "shares": s, "views": v, "total": total,
+            "recent7": tr.get("recent7", 0), "trending": bool(tr.get("trending")),
         })
     rows.sort(key=lambda r: (-(r["total"]), -r["views"]))
     return {"items": rows[:limit], "count": len(rows)}
@@ -873,6 +911,48 @@ async def public_card(share_id: str, format: str = Query("post")):
     except Exception as e:
         raise HTTPException(500, f"Error generando tarjeta: {e}")
     return Response(content=img, media_type="image/png",
+                    headers={"Cache-Control": "public, max-age=3600"})
+
+
+def _uid_from_token(authorization, auth):
+    tok = None
+    if authorization and authorization.startswith("Bearer "):
+        tok = authorization.split(" ", 1)[1]
+    elif auth:
+        tok = auth
+    if not tok:
+        raise HTTPException(401, "No autorizado")
+    import jwt as _jwt
+    from core.auth import JWT_SECRET, JWT_ALGORITHM
+    try:
+        payload = _jwt.decode(tok, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        if payload.get("type", "access") == "refresh":
+            raise HTTPException(401, "Token inválido")
+        return payload["user_id"]
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(401, "Token inválido")
+
+
+@router.get("/qr")
+async def qr_code(data: str = Query(..., max_length=1500), color: str = Query("#0A0F1E"),
+                  authorization: str = Header(None), auth: str = Query(None)):
+    _uid_from_token(authorization, auth)
+    try:
+        import qrcode
+        from qrcode.constants import ERROR_CORRECT_H
+        import io as _io
+        qr = qrcode.QRCode(error_correction=ERROR_CORRECT_H, box_size=14, border=3)
+        qr.add_data(data)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color=_valid_hex(color, "#0A0F1E"),
+                            back_color="white").convert("RGB")
+        buf = _io.BytesIO()
+        img.save(buf, format="PNG")
+    except Exception as e:
+        raise HTTPException(500, f"Error generando QR: {e}")
+    return Response(content=buf.getvalue(), media_type="image/png",
                     headers={"Cache-Control": "public, max-age=3600"})
 
 
@@ -905,6 +985,7 @@ async def public_card_page(share_id: str, request: Request,
     is_bot = any(x in ua for x in _BOT_UA)
     if not is_bot:
         await _prospects.update_one({"share_id": share_id}, {"$inc": {"share_stats.views": 1}})
+        await _log_share_event(p["id"], p["coach_id"], "view")
     img_url = _abs_url(request, f"/api/recruiting/public/{share_id}/card?format={fmt}", b)
     page_url = _abs_url(request, f"/api/recruiting/public/{share_id}/card-page?format={fmt}", b)
     profile_url = f"{fo.rstrip('/')}/scouting/p/{share_id}" if fo else None

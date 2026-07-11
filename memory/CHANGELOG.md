@@ -1,5 +1,11 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-11 — Scouting: QR descargable del enlace + badge de tendencia (🔥 7 días)
+- **QR del enlace de la tarjeta** (`recruiting.py`): nuevo `GET /qr?data=&color=&auth=` (auth por header o `?auth=` para `<img>`) genera un PNG del QR (qrcode, corrección H) con el color de acento. Frontend (`ScoutingModule.js`): en "Enlace de la tarjeta" se muestra el QR + botón **Descargar QR** (`card-qr-img`, `card-qr-download-btn`). Descargar QR cuenta como compartido.
+- **Tendencia últimos 7 días**: nueva colección `recruiting_share_events` (se registra cada download/share/view con `tsx` epoch). `share-ranking` calcula `recent7`/`prev7` y `trending` (recent7≥2 y ≥ prev7). El leaderboard `SharedTalentsBoard` muestra un badge **🔥 +N** (`trend-badge-{id}`) para talentos en alza.
+- **Verificado**: curl (QR 200 con auth / 401 sin auth; ranking con `recent7`/`trending`) + captura (badge 🔥 +3 en leaderboard y QR en el diálogo).
+
+
 ## 2026-07-11 — Scouting: enlace de tarjeta con Open Graph + contadores + leaderboard "Talentos más compartidos"
 - **Enlace público de la tarjeta con vista previa (OG)** (`recruiting.py`): `GET /public/{share_id}/card` (PNG sin auth) y `GET /public/{share_id}/card-page` (HTML con meta Open Graph/Twitter → al pegar en WhatsApp/Facebook muestra la tarjeta). `_abs_url` honra `?b=` (base pública) para el patrón de ingress k8s. Filtro de bots (`_BOT_UA`) evita contar vistas de crawlers.
 - **Contadores separados por prospecto**: `share_stats {downloads, shares, views}` en el doc; `POST /prospects/{pid}/track {action}` incrementa vía `$inc`. `ProspectOut` ahora expone `share_stats`.

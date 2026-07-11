@@ -498,6 +498,12 @@ export function SharedTalentsBoard({ onOpenId, limit = 5, className = '' }) {
                 <div className="font-bold text-slate-800 text-sm truncate">{r.name}</div>
                 <div className="text-[11px] text-slate-400 truncate">{r.position || '—'}{r.sport_name ? ` · ${r.sport_name}` : ''}</div>
               </div>
+              {r.trending && (
+                <span className="flex items-center gap-0.5 text-[10px] font-black px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-600 shrink-0"
+                  data-testid={`trend-badge-${r.id}`} title={`+${r.recent7} en los últimos 7 días`}>
+                  <Flame className="w-3 h-3" />+{r.recent7}
+                </span>
+              )}
               <div className="flex items-center gap-2.5 text-[11px] font-semibold text-slate-500">
                 <span className="flex items-center gap-0.5" title="Descargas"><Download className="w-3.5 h-3.5" />{r.downloads}</span>
                 <span className="flex items-center gap-0.5" title="Compartidos"><Share2 className="w-3.5 h-3.5" />{r.shares}</span>
@@ -777,6 +783,27 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
     setCardLinkCopied(true); track('share');
     toast.success(tt('Enlace de la tarjeta copiado'));
     setTimeout(() => setCardLinkCopied(false), 1800);
+  };
+  const qrUrl = (fmt) => {
+    const link = cardLink(fmt);
+    if (!link) return null;
+    return `${API_URL}/api/recruiting/qr?data=${encodeURIComponent(link)}&color=${encodeURIComponent(branding.accent_color || '#0A0F1E')}&auth=${encodeURIComponent(token())}`;
+  };
+  const downloadQr = async () => {
+    const u = qrUrl(previewFmt);
+    if (!u) return;
+    try {
+      const res = await fetch(u);
+      if (!res.ok) throw new Error();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `${(p.name || 'prospecto').replace(/\s+/g, '_')}-qr.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      track('share');
+      toast.success(tt('QR descargado'));
+    } catch { toast.error(tt('No se pudo generar el QR')); }
   };
   const cardFile = async (format) => {
     const res = await fetch(`${API_URL}/api/recruiting/prospects/${p.id}/social-card?format=${format}&${cardParams()}`, { headers: { Authorization: `Bearer ${token()}` } });
@@ -1098,7 +1125,16 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
                           <Button variant="outline" className="border-slate-300 px-3" data-testid="card-link-open-btn"><Globe className="w-4 h-4" /></Button>
                         </a>
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-1.5">Al pegarlo en WhatsApp o Facebook mostrará la vista previa de la tarjeta.</p>
+                      <div className="flex items-center gap-3 mt-2.5" data-testid="card-qr-wrap">
+                        <img src={qrUrl(previewFmt) || ''} alt="QR" data-testid="card-qr-img"
+                          className="w-[76px] h-[76px] rounded-lg border border-slate-200 bg-white p-1 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] text-slate-400 mb-1.5">Al pegar el enlace en WhatsApp o Facebook mostrará la vista previa de la tarjeta. Comparte también el QR.</p>
+                          <Button size="sm" variant="outline" onClick={downloadQr} className="border-slate-300 h-8 text-[12px]" data-testid="card-qr-download-btn">
+                            <Download className="w-3.5 h-3.5 mr-1" />Descargar QR
+                          </Button>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Contadores de compartición */}
