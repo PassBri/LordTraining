@@ -655,7 +655,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
   };
   const copyLink = () => { navigator.clipboard?.writeText(shareUrl); setCopied(true); toast.success(tt('Enlace copiado')); setTimeout(() => setCopied(false), 1800); };
   const [cardLoading, setCardLoading] = useState('');
-  const [branding, setBranding] = useState({ entity_name: '', slogan: '', logo_path: null });
+  const [branding, setBranding] = useState({ entity_name: '', slogan: '', logo_path: null, accent_color: '#D4AF37' });
   const [brandSaving, setBrandSaving] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
   const [previewFmt, setPreviewFmt] = useState('post');
@@ -665,12 +665,13 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
     const q = new URLSearchParams();
     q.set('entity', branding.entity_name || '');
     q.set('slogan', branding.slogan || '');
+    q.set('accent', branding.accent_color || '#D4AF37');
     if (branding.logo_path) q.set('logo_path', branding.logo_path);
     return q.toString();
   };
   useEffect(() => {
     if (!shareOpen) return;
-    api('/settings').then(s => setBranding({ entity_name: s.entity_name || '', slogan: s.slogan || '', logo_path: s.logo_path || null })).catch(() => {});
+    api('/settings').then(s => setBranding({ entity_name: s.entity_name || '', slogan: s.slogan || '', logo_path: s.logo_path || null, accent_color: s.accent_color || '#D4AF37' })).catch(() => {});
   }, [shareOpen]);
   // Vista previa en vivo (debounce)
   useEffect(() => {
@@ -680,7 +681,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
       setPreviewUrl(url);
     }, 450);
     return () => clearTimeout(t);
-  }, [shareOpen, previewFmt, branding.entity_name, branding.slogan, branding.logo_path]);
+  }, [shareOpen, previewFmt, branding.entity_name, branding.slogan, branding.logo_path, branding.accent_color]);
   const uploadLogo = async (file) => {
     if (!file) return;
     setLogoUploading(true);
@@ -914,6 +915,17 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
                           <Input value={branding.entity_name} onChange={e => setBranding(b => ({ ...b, entity_name: e.target.value }))} placeholder={tt('Nombre de la entidad / club')} className="bg-white h-8 text-[13px]" data-testid="branding-entity-input" maxLength={60} />
                           <Input value={branding.slogan} onChange={e => setBranding(b => ({ ...b, slogan: e.target.value }))} placeholder={tt('Tu lema (ej. Formando campeones)')} className="bg-white h-8 text-[13px]" data-testid="branding-slogan-input" maxLength={80} />
                         </div>
+                      </div>
+                      <div className="flex items-center gap-2 pt-0.5">
+                        <span className="text-[11px] font-semibold text-slate-500">Color:</span>
+                        {['#D4AF37', '#CCFF00', '#EF4444', '#3B82F6', '#22C55E', '#8B5CF6', '#F97316', '#0EA5E9'].map(c => (
+                          <button key={c} type="button" onClick={() => setBranding(b => ({ ...b, accent_color: c }))}
+                            data-testid={`accent-${c.replace('#', '')}`}
+                            className={`w-6 h-6 rounded-full border-2 transition-transform ${branding.accent_color?.toUpperCase() === c ? 'border-slate-900 scale-110' : 'border-white'}`}
+                            style={{ backgroundColor: c }} />
+                        ))}
+                        <input type="color" value={branding.accent_color || '#D4AF37'} onChange={e => setBranding(b => ({ ...b, accent_color: e.target.value }))}
+                          data-testid="accent-custom" className="w-7 h-7 rounded cursor-pointer border border-slate-200 bg-white p-0.5" title="Color personalizado" />
                       </div>
                       <Button size="sm" onClick={saveBranding} disabled={brandSaving} variant="outline" className="w-full border-slate-300 h-8 text-[12px]" data-testid="branding-save-btn">
                         {brandSaving ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Check className="w-3.5 h-3.5 mr-1" />}Guardar marca

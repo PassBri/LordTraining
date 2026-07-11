@@ -1005,7 +1005,8 @@ async def dashboard(user=Depends(get_current_user_dep())):
 
 # ───────────────────────── CONFIGURACIÓN DE ALERTAS ─────────────────────────
 DEFAULT_SETTINGS = {"eval_days": 14, "expiry_days": 30,
-                    "entity_name": "", "slogan": "", "logo_path": None}
+                    "entity_name": "", "slogan": "", "logo_path": None,
+                    "accent_color": "#D4AF37"}
 
 
 async def _get_settings(uid):
@@ -1019,6 +1020,14 @@ class SettingsIn(BaseModel):
     entity_name: str = ""
     slogan: str = ""
     logo_path: Optional[str] = None
+    accent_color: str = "#D4AF37"
+
+
+def _valid_hex(c, fallback="#D4AF37"):
+    c = (c or "").strip()
+    if re.fullmatch(r"#[0-9A-Fa-f]{6}", c):
+        return c
+    return fallback
 
 
 @router.get("/settings")
@@ -1033,6 +1042,7 @@ async def update_settings(payload: SettingsIn, user=Depends(get_current_user_dep
            "entity_name": (payload.entity_name or "").strip()[:60],
            "slogan": (payload.slogan or "").strip()[:80],
            "logo_path": payload.logo_path,
+           "accent_color": _valid_hex(payload.accent_color),
            "updated_at": datetime.now(timezone.utc).isoformat()}
     await _settings.update_one({"coach_id": uid}, {"$set": doc}, upsert=True)
     return await _get_settings(uid)
@@ -1386,7 +1396,11 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
     W = 1080
     H = 1350 if fmt == "post" else 1920
     obsidian = (10, 15, 30)
-    gold = (212, 175, 55)
+    _b = branding or {}
+    try:
+        gold = _hex2rgb((_b.get("accent_color") or "#D4AF37"))
+    except Exception:
+        gold = (212, 175, 55)
 
     def font(size, bold=True):
         try:
@@ -1485,11 +1499,11 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
             draw.text((60, ty), label[:26], font=lf, fill=(230, 235, 245))
             vtxt = str(val)
             vw = draw.textlength(vtxt, font=vf)
-            draw.text((60 + bar_w - vw, ty), vtxt, font=vf, fill=col)
+            draw.text((60 + bar_w - vw, ty), vtxt, font=vf, fill=gold)
             track_y = ty + 38
             draw.rounded_rectangle([60, track_y, 60 + bar_w, track_y + 13], radius=6, fill=(30, 40, 60))
             fill_w = max(13, int(bar_w * val / 100.0))
-            draw.rounded_rectangle([60, track_y, 60 + fill_w, track_y + 13], radius=6, fill=col)
+            draw.rounded_rectangle([60, track_y, 60 + fill_w, track_y + 13], radius=6, fill=gold)
             ty += 66
 
     # Footer con marca personalizada (logo + entidad + lema) o marca por defecto
@@ -1529,7 +1543,7 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
 @router.get("/prospects/{pid}/social-card")
 async def social_card(pid: str, format: str = Query("post"),
                       entity: Optional[str] = Query(None), slogan: Optional[str] = Query(None),
-                      logo_path: Optional[str] = Query(None),
+                      logo_path: Optional[str] = Query(None), accent: Optional[str] = Query(None),
                       authorization: str = Header(None), auth: str = Query(None)):
     # Auth: header o query (?auth=token) para poder usarse en <img src> (preview en vivo).
     tok = None
@@ -1558,6 +1572,7 @@ async def social_card(pid: str, format: str = Query("post"),
     branding = {
         "entity_name": entity if entity is not None else settings.get("entity_name", ""),
         "slogan": slogan if slogan is not None else settings.get("slogan", ""),
+        "accent_color": _valid_hex(accent) if accent else settings.get("accent_color", "#D4AF37"),
     }
     lp = logo_path if logo_path is not None else settings.get("logo_path")
     logo = await _photo_bytes(lp) if lp else None
