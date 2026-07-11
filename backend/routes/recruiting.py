@@ -1252,7 +1252,9 @@ async def dashboard(user=Depends(get_current_user_dep())):
 # ───────────────────────── CONFIGURACIÓN DE ALERTAS ─────────────────────────
 DEFAULT_SETTINGS = {"eval_days": 14, "expiry_days": 30,
                     "entity_name": "", "slogan": "", "logo_path": None,
-                    "accent_color": "#D4AF37"}
+                    "accent_color": "#D4AF37",
+                    "showcase_enabled": False, "showcase_id": None, "showcase_title": "",
+                    "showcase_hidden": [], "showcase_pinned": []}
 
 
 async def _get_settings(uid):
@@ -1328,6 +1330,150 @@ async def upload_logo(file: UploadFile = File(...), user=Depends(get_current_use
         "is_deleted": False, "created_at": datetime.now(timezone.utc).isoformat(),
     })
     return {"path": result["path"]}
+
+
+# ───────────────────────── VITRINA PÚBLICA "CANTERA" (Top Talentos) ─────────────────────────
+class ShowcaseSettingsIn(BaseModel):
+    enabled: Optional[bool] = None
+    title: Optional[str] = None
+
+
+class ShowcaseProspectIn(BaseModel):
+    hidden: Optional[bool] = None
+    pinned: Optional[bool] = None
+
+
+def _showcase_public(s: dict) -> dict:
+    return {
+        "showcase_enabled": bool(s.get("showcase_enabled")),
+        "showcase_id": s.get("showcase_id"),
+        "showcase_title": s.get("showcase_title") or "",
+        "showcase_hidden": s.get("showcase_hidden") or [],
+        "showcase_pinned": s.get("showcase_pinned") or [],
+    }
+
+
+@router.get("/showcase-settings")
+async def get_showcase_settings(user=Depends(get_current_user_dep())):
+    return _showcase_public(await _get_settings(_uid(user)))
+
+
+@router.post("/showcase-settings")
+async def update_showcase_settings(payload: ShowcaseSettingsIn, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    s = await _get_settings(uid)
+    upd = {}
+    if payload.enabled is not None:
+        upd["showcase_enabled"] = bool(payload.enabled)
+        if payload.enabled and not s.get("showcase_id"):
+            upd["showcase_id"] = uuid.uuid4().hex[:12]
+    if payload.title is not None:
+        upd["showcase_title"] = payload.title.strip()[:80]
+    if upd:
+        upd["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await _settings.update_one({"coach_id": uid}, {"$set": upd}, upsert=True)
+    return _showcase_public(await _get_settings(uid))
+
+
+@router.post("/showcase/prospect/{pid}")
+async def update_showcase_prospect(pid: str, payload: ShowcaseProspectIn, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    p = await _prospects.find_one({"id": pid, "coach_id": uid}, {"_id": 0, "id": 1})
+    if not p:
+        raise HTTPException(404, "Prospecto no encontrado")
+    s = await _get_settings(uid)
+    hidden = set(s.get("showcase_hidden") or [])
+    pinned = [x for x in (s.get("showcase_pinned") or []) if x != pid]
+    if payload.hidden is not None:
+        (hidden.add if payload.hidden else hidden.discard)(pid)
+    was_pinned = pid in (s.get("showcase_pinned") or [])
+    if payload.pinned is not None:
+        if payload.pinned:
+            pinned = [pid] + pinned
+            hidden.discard(pid)
+        was_pinned = bool(payload.pinned)
+    elif was_pinned:
+        pinned = [pid] + pinned
+    await _settings.update_one({"coach_id": uid}, {"$set": {
+        "showcase_hidden": list(hidden), "showcase_pinned": pinned,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }}, upsert=True)
+    return {"id": pid, "hidden": pid in hidden, "pinned": was_pinned}
+
+
+def _showcase_athlete(p: dict) -> dict:
+    ev = p.get("evaluation") or {}
+    ai = p.get("ai_recommendation") or {}
+    col, label = _card_level(p.get("overall_score"))
+    metrics = _top_metrics(ev, 3)
+    return {
+        "share_id": p.get("share_id"),
+        "name": p.get("name"),
+        "position": p.get("position"),
+        "sport_name": p.get("sport_name") or p.get("sport"),
+        "current_club": p.get("current_club"),
+        "age": p.get("age"),
+        "nationality": p.get("nationality"),
+        "overall_score": p.get("overall_score"),
+        "level_label": label,
+        "level_color": col,
+        "top_metrics": [{"label": l, "value": v} for l, v in metrics],
+        "strengths": [str(x) for x in (ai.get("strengths") or [])][:3],
+        "achievements": [str(x) for x in (p.get("achievements") or [])][:3],
+        "videos": [v for v in (p.get("video_links") or []) if v.get("is_public", True)][:6],
+        "has_photo": bool(p.get("photo_path")),
+    }
+
+
+async def _get_showcase(showcase_id: str):
+    s = await _settings.find_one({"showcase_id": showcase_id, "showcase_enabled": True}, {"_id": 0})
+    if not s:
+        raise HTTPException(404, "Vitrina no disponible")
+    return s
+
+
+@router.get("/public/showcase/{showcase_id}")
+async def public_showcase(showcase_id: str):
+    s = await _get_showcase(showcase_id)
+    coach_id = s["coach_id"]
+    hidden = set(s.get("showcase_hidden") or [])
+    pinned = s.get("showcase_pinned") or []
+    pin_idx = {pid: i for i, pid in enumerate(pinned)}
+    prospects = await _prospects.find(
+        {"coach_id": coach_id, "share_enabled": True}, {"_id": 0}).to_list(2000)
+    visible = [p for p in prospects if p["id"] not in hidden]
+    visible.sort(key=lambda p: (
+        0 if p["id"] in pin_idx else 1,
+        pin_idx.get(p["id"], 0),
+        -(p.get("overall_score") if p.get("overall_score") is not None else -1),
+        (p.get("name") or "").lower(),
+    ))
+    entity = (s.get("entity_name") or "").strip()
+    title = (s.get("showcase_title") or "").strip() or (f"Cantera {entity}" if entity else "Cantera · Top Talentos")
+    return {
+        "title": title,
+        "branding": {
+            "entity_name": entity,
+            "slogan": (s.get("slogan") or "").strip(),
+            "accent_color": _valid_hex(s.get("accent_color"), "#D4AF37"),
+            "has_logo": bool(s.get("logo_path")),
+        },
+        "count": len(visible),
+        "athletes": [_showcase_athlete(p) for p in visible],
+    }
+
+
+@router.get("/public/showcase/{showcase_id}/logo")
+async def public_showcase_logo(showcase_id: str):
+    s = await _get_showcase(showcase_id)
+    if not s.get("logo_path"):
+        raise HTTPException(404, "Sin logo")
+    try:
+        content, ctype = _get_object(s["logo_path"])
+    except Exception as e:
+        raise HTTPException(500, f"Error obteniendo logo: {e}")
+    return Response(content=content, media_type=ctype, headers={"Cache-Control": "public, max-age=86400"})
+
 
 
 # ───────────────────────── ALERTAS Y SEGUIMIENTO ─────────────────────────

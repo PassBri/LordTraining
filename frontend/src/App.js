@@ -23,6 +23,7 @@ import AthletePortalAuth from './pages/AthletePortalAuth';
 import AthletePortalPanel from './pages/AthletePortalPanel';
 import ThankYouPage from './pages/ThankYouPage';
 import PublicScoutingProfile from './pages/PublicScoutingProfile';
+import PublicShowcase from './pages/PublicShowcase';
 import PublicProgress from './pages/PublicProgress';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
@@ -125,6 +126,7 @@ function AppRoutes() {
 
       {/* Public scouting profile (no auth required) */}
       <Route path="/scouting/p/:shareId" element={<PublicScoutingProfile />} />
+      <Route path="/cantera/:showcaseId" element={<PublicShowcase />} />
       <Route path="/progress/p/:shareId" element={<PublicProgress />} />
       
       {/* Athlete portal (public + athlete-auth, NOT coach auth) */}

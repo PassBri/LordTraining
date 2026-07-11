@@ -1,0 +1,22 @@
+{
+  "summary": "Testing e2e de la 'Vitrina pública Cantera' (Top Talentos). Backend: 16/16 tests pytest OK cubriendo showcase-settings GET/POST, showcase/prospect/{pid} (hidden/pinned + 404), public/showcase/{id} (shape, branding, athlete fields, videos públicos, exclusión de ocultos, orden con pinned primero, 404 si showcase_id inexistente o vitrina desactivada) y public/showcase/{id}/logo. Frontend: página pública /cantera/966aba7292db renderiza public-showcase con título, 2 tarjetas, modal con métricas/fortalezas/videos y botón 'Ver ficha completa'. Coach: pestaña Vitrina (scouting-tab-showcase) renderiza showcase-manager con switch, título+guardar, enlace público+copy/open, y 2 talentos (Test Prospect, TEST_E2E_Prospect) con botones pin/hide funcionales. Estado restaurado post-tests.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_showcase.py",
+    "/app/test_reports/pytest/showcase_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "recruiting.py ya supera 1900 líneas. Recomendado dividir showcase/share/estadísticas/PDF en submódulos separados para mantenibilidad.",
+    "En update_showcase_prospect (recruiting.py ~L1378): la lógica de was_pinned/pinned al no enviar 'pinned' preserva la posición actual solo si estaba fijado; correcto, pero convendría un test para el escenario 'solo se envía hidden' verificando que el pinned actual no se pierde (no cubierto).",
+    "PublicShowcase.js L6: fallback API_URL tiene condición 'itrain.com' (¿debe ser 'lordtraining.com'?). Verificar intención en producción; no afecta preview."
+  ],
+  "updated_files": ["/app/backend/tests/test_showcase.py"],
+  "success_rate": {"backend": "100% (16/16)", "frontend": "100%"},
+  "test_credentials": "SuperAdmin juegolaureado@gmail.com / LordTraining2026! · showcase_id de prueba: 966aba7292db",
+  "seed_data_creation": "No se crearon nuevos prospectos. Se reutilizaron los existentes (Test Prospect, TEST_E2E_Prospect). Título de vitrina restaurado a 'Cantera · Top Talentos' y pin/hidden limpios al final.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Vitrina activa: showcase_id=966aba7292db con 2 talentos compartidos. Tests pytest en /app/backend/tests/test_showcase.py cubren todo el flujo showcase y son regresión válida. Página pública en /cantera/{id} y pestaña coach en Scouting → Vitrina (scouting-tab-showcase) totalmente funcionales."
+}

@@ -3,6 +3,7 @@ import i18nInstance from '../i18n';
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { Switch } from './ui/switch';
 import { Textarea } from './ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from './ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -18,7 +19,7 @@ import {
   FileDown, UserPlus, Camera, Video, Star, ChevronRight, MapPin, Loader2, Award,
   TrendingUp, AlertTriangle, GitCompare, Phone, Mail, Instagram, Share2, Copy, Globe, Check,
   BellRing, Contact, Map as MapIcon, Crown, CalendarClock, MessageCircle, Facebook, Download,
-  Eye, Flame, Link2
+  Eye, Flame, Link2, EyeOff, Pin
 } from 'lucide-react';
 
 // i18n: auto-traducción slug-based (scouting.lbl.*)
@@ -163,6 +164,7 @@ export default function ScoutingModule({ activeTab, onTabChange } = {}) {
           {tab === 'pipeline' && <Pipeline prospects={prospects} onOpen={setDetail} onMoved={refreshOne} setProspects={setProspects} />}
           {tab === 'evaluation' && <EvaluationTab prospects={prospects} onSaved={refreshOne} />}
           {tab === 'ranking' && <RankingTab dash={dash} prospects={prospects} compare={compare} setCompare={setCompare} onOpen={setDetail} />}
+          {tab === 'showcase' && <ShowcaseManager prospects={prospects} onOpen={setDetail} />}
           {tab === 'alerts' && <ScoutingAlerts onOpen={openById} />}
           {tab === 'contacts' && <ScoutingContacts prospects={prospects} />}
           {tab === 'map' && <ScoutingMap onOpen={openById} />}
@@ -470,6 +472,126 @@ function AIReport({ ai }) {
 }
 
 /* ---------------- Ranking / Dashboard ---------------- */
+function ShowcaseManager({ prospects, onOpen }) {
+  const [cfg, setCfg] = useState(null);
+  const [title, setTitle] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api('/showcase-settings').then(s => { setCfg(s); setTitle(s.showcase_title || ''); }).catch(() => setCfg({ showcase_enabled: false }));
+  }, []);
+
+  const shared = (prospects || []).filter(p => p.share_enabled);
+  const publicUrl = cfg?.showcase_id ? `${window.location.origin}/cantera/${cfg.showcase_id}` : null;
+  const hidden = new Set(cfg?.showcase_hidden || []);
+  const pinned = new Set(cfg?.showcase_pinned || []);
+
+  const toggleEnabled = async (val) => {
+    setSaving(true);
+    try { const s = await api('/showcase-settings', { method: 'POST', body: { enabled: val, title: title || undefined } }); setCfg(s); toast.success(val ? tt('Vitrina activada') : tt('Vitrina desactivada')); }
+    catch { toast.error(tt('Error')); }
+    setSaving(false);
+  };
+  const saveTitle = async () => {
+    try { const s = await api('/showcase-settings', { method: 'POST', body: { title } }); setCfg(s); toast.success(tt('Título guardado')); }
+    catch { toast.error(tt('Error')); }
+  };
+  const copyLink = () => { if (!publicUrl) return; navigator.clipboard?.writeText(publicUrl); setCopied(true); toast.success(tt('Enlace copiado')); setTimeout(() => setCopied(false), 1800); };
+  const setProspect = async (pid, patch) => {
+    try {
+      const r = await api(`/showcase/prospect/${pid}`, { method: 'POST', body: patch });
+      setCfg(c => {
+        const h = new Set(c.showcase_hidden || []); const pn = (c.showcase_pinned || []).filter(x => x !== pid);
+        if (r.hidden) h.add(pid); else h.delete(pid);
+        const npin = r.pinned ? [pid, ...pn] : pn;
+        return { ...c, showcase_hidden: [...h], showcase_pinned: npin };
+      });
+    } catch { toast.error(tt('Error')); }
+  };
+
+  if (!cfg) return <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /></div>;
+
+  const visibleCount = shared.filter(p => !hidden.has(p.id)).length;
+
+  return (
+    <div className="space-y-5" data-testid="showcase-manager">
+      {/* Panel de activación */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="w-11 h-11 rounded-xl bg-[#0f172a] flex items-center justify-center shrink-0"><Star className="w-6 h-6 text-[#D4AF37]" /></div>
+            <div>
+              <h3 className="font-black text-slate-800 text-lg leading-tight">{tt('Vitrina pública "Cantera"')}</h3>
+              <p className="text-[13px] text-slate-500 mt-0.5 max-w-lg">{tt('Una página pública con tu mejor talento (videos + caracterización) para universidades y agencias. Sin necesidad de cuenta.')}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Switch checked={!!cfg.showcase_enabled} onCheckedChange={toggleEnabled} disabled={saving} data-testid="showcase-enable-switch" />
+          </div>
+        </div>
+
+        {cfg.showcase_enabled && (
+          <div className="mt-4 space-y-3">
+            <div>
+              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{tt('Título de la vitrina')}</label>
+              <div className="flex gap-2 mt-1">
+                <Input value={title} onChange={e => setTitle(e.target.value)} maxLength={80} placeholder="Cantera · Top Talentos" className="bg-slate-50 text-[13px]" data-testid="showcase-title-input" />
+                <Button onClick={saveTitle} variant="outline" className="border-slate-300 shrink-0" data-testid="showcase-title-save-btn"><Check className="w-4 h-4" /></Button>
+              </div>
+            </div>
+            <div>
+              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{tt('Enlace público')}</label>
+              <div className="flex gap-2 mt-1">
+                <Input readOnly value={publicUrl || ''} onFocus={e => e.target.select()} className="bg-slate-50 text-slate-700 text-[13px]" data-testid="showcase-link-input" />
+                <Button onClick={copyLink} className="bg-slate-900 text-white shrink-0" data-testid="showcase-link-copy-btn">{copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}</Button>
+                <a href={publicUrl || '#'} target="_blank" rel="noreferrer"><Button variant="outline" className="border-slate-300 px-3" data-testid="showcase-link-open-btn"><Globe className="w-4 h-4" /></Button></a>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1.5">{visibleCount} {tt('talento(s) visibles en tu vitrina')} · {tt('personaliza tu marca (logo, lema, color) en el diálogo de Compartir de cualquier prospecto.')}</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Selección de talentos */}
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+          <Trophy className="w-4 h-4 text-amber-500" /><span className="font-black text-slate-800">{tt('Talentos de la vitrina')}</span>
+          <span className="text-[11px] text-slate-400 ml-2">{tt('Solo aparecen prospectos con enlace público activo. Fija o oculta a tu gusto.')}</span>
+        </div>
+        {shared.length === 0 ? (
+          <div className="p-8 text-center text-slate-400 text-sm" data-testid="showcase-no-shared">{tt('Activa el "Enlace de Scouting público" de un prospecto (botón Compartir) para incluirlo aquí.')}</div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {shared
+              .slice()
+              .sort((a, b) => (pinned.has(b.id) - pinned.has(a.id)) || ((b.overall_score || -1) - (a.overall_score || -1)))
+              .map(p => {
+                const isHidden = hidden.has(p.id); const isPinned = pinned.has(p.id);
+                return (
+                  <div key={p.id} className={`flex items-center gap-3 px-4 py-2.5 ${isHidden ? 'opacity-50' : ''}`} data-testid={`showcase-item-${p.id}`}>
+                    <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-200 shrink-0">
+                      {p.photo_path ? <img src={photoUrl(p.photo_path)} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-500 font-black">{p.name.slice(0, 1)}</div>}
+                    </div>
+                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onOpen(p)}>
+                      <div className="font-bold text-slate-800 text-sm truncate flex items-center gap-1.5">{p.name}{isPinned && <Pin className="w-3 h-3 text-amber-500 fill-amber-500" />}</div>
+                      <div className="text-[11px] text-slate-400 truncate">{p.position || '—'}{p.sport_name ? ` · ${p.sport_name}` : ''}</div>
+                    </div>
+                    {p.overall_score != null && <div className="w-9 h-9 rounded-lg flex items-center justify-center font-black text-white text-sm shrink-0" style={{ background: scoreColor(p.overall_score) }}>{p.overall_score}</div>}
+                    <Button size="sm" variant="outline" onClick={() => setProspect(p.id, { pinned: !isPinned })} title={isPinned ? 'Desfijar' : 'Fijar arriba'} data-testid={`showcase-pin-${p.id}`}
+                      className={`px-2.5 ${isPinned ? 'border-amber-300 text-amber-600 bg-amber-50' : 'border-slate-300 text-slate-500'}`}><Pin className="w-4 h-4" /></Button>
+                    <Button size="sm" variant="outline" onClick={() => setProspect(p.id, { hidden: !isHidden })} title={isHidden ? 'Mostrar' : 'Ocultar'} data-testid={`showcase-hide-${p.id}`}
+                      className={`px-2.5 ${isHidden ? 'border-slate-300 text-slate-400' : 'border-emerald-200 text-emerald-600 bg-emerald-50'}`}>{isHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</Button>
+                  </div>
+                );
+              })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function SharedTalentsBoard({ onOpenId, limit = 5, className = '' }) {
   const [rows, setRows] = useState(null);
   useEffect(() => {
