@@ -1,5 +1,14 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-11 — Vitrina pública "Cantera" (Top Talentos de la academia)
+- **Página pública compartible SIN cuenta** (`/cantera/{showcase_id}`, `PublicShowcase.js`): vitrina de marca con logo/lema/color del coach, tarjetas de talento (medalla de ranking, Score, nivel, club, nº de videos) y **modal por atleta** con caracterización completa: mejores métricas, fortalezas de la IA, logros, **videos públicos** (VideoGallery) y botón "Ver ficha completa".
+- **Selección híbrida**: automático por Score de evaluación (solo prospectos con enlace público activo), con opción de **ocultar** y **fijar** talentos.
+- **Backend** (`recruiting.py`): `showcase_*` en `recruiting_settings`; endpoints `GET/POST /showcase-settings`, `POST /showcase/prospect/{pid}` (hidden/pinned), `GET /public/showcase/{id}` (branding + athletes con `_showcase_athlete`), `GET /public/showcase/{id}/logo`.
+- **Gestión del coach**: nueva pestaña **"Vitrina"** en Scouting (`ShowcaseManager`): switch activar, título, enlace público (copiar/abrir) y lista de talentos con pin/ocultar. La marca (entidad, logo, lema, color) se configura desde el diálogo de Compartir de cualquier prospecto.
+- **Verificado (testing agent, iteración 119)**: 16/16 backend + 100% frontend PASS, sin issues.
+- Nota P2 (deuda técnica): `recruiting.py` >1900 líneas → dividir en submódulos (showcase/share/estadísticas/PDF).
+
+
 ## 2026-07-11 — Scouting: QR descargable del enlace + badge de tendencia (🔥 7 días)
 - **QR del enlace de la tarjeta** (`recruiting.py`): nuevo `GET /qr?data=&color=&auth=` (auth por header o `?auth=` para `<img>`) genera un PNG del QR (qrcode, corrección H) con el color de acento. Frontend (`ScoutingModule.js`): en "Enlace de la tarjeta" se muestra el QR + botón **Descargar QR** (`card-qr-img`, `card-qr-download-btn`). Descargar QR cuenta como compartido.
 - **Tendencia últimos 7 días**: nueva colección `recruiting_share_events` (se registra cada download/share/view con `tsx` epoch). `share-ranking` calcula `recent7`/`prev7` y `trending` (recent7≥2 y ≥ prev7). El leaderboard `SharedTalentsBoard` muestra un badge **🔥 +N** (`trend-badge-{id}`) para talentos en alza.
