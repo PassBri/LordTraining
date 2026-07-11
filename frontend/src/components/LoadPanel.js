@@ -239,15 +239,19 @@ export default function LoadPanel({ activePlan }) {
     const groups = {};
     data.forEach((d) => {
       const k = keyOf(d);
-      if (!groups[k]) groups[k] = { name: k, sum: 0, count: 0, weeks: 0 };
+      if (!groups[k]) groups[k] = { name: k, sum: 0, count: 0, weeks: 0, acwrSum: 0, acwrN: 0 };
       groups[k].sum += (d[metric] || 0);
       groups[k].count += 1;
       groups[k].weeks += 1;
+      if (d.acwr > 0) { groups[k].acwrSum += d.acwr; groups[k].acwrN += 1; }
     });
-    const arr = Object.values(groups).map((g) => ({
-      name: g.name, weeks: g.weeks,
-      value: m.agg === 'avg' ? +(g.sum / Math.max(g.count, 1)).toFixed(metric === 'acwr' ? 2 : 0) : Math.round(g.sum),
-    }));
+    const arr = Object.values(groups).map((g) => {
+      const acwrAvg = g.acwrN ? +(g.acwrSum / g.acwrN).toFixed(2) : 0;
+      return {
+        name: g.name, weeks: g.weeks, acwr: acwrAvg, zone: acwrZone(acwrAvg),
+        value: m.agg === 'avg' ? +(g.sum / Math.max(g.count, 1)).toFixed(metric === 'acwr' ? 2 : 0) : Math.round(g.sum),
+      };
+    });
     const max = Math.max(...arr.map((a) => a.value), 1);
     return { arr, max, unit: m.unit, color: m.color };
   })();
@@ -391,7 +395,7 @@ export default function LoadPanel({ activePlan }) {
 
       {/* Modal ampliado */}
       <Dialog open={expanded} onOpenChange={setExpanded}>
-        <DialogContent className="max-w-[95vw] w-[95vw] p-0 gap-0" data-testid="load-chart-modal">
+        <DialogContent className="max-w-[95vw] w-[95vw] p-0 gap-0 bg-white border border-slate-200" data-testid="load-chart-modal">
           <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-rose-600" />
@@ -447,6 +451,12 @@ export default function LoadPanel({ activePlan }) {
                       style={{ width: `${Math.max(pct, 4)}%`, background: `linear-gradient(90deg, ${breakdown.color} 0%, ${breakdown.color}cc 100%)` }}>
                       {pct >= 14 ? `${g.value}${breakdown.unit ? ' ' + breakdown.unit : ''}` : ''}
                     </div>
+                  </div>
+                  {/* Indicador de zona ACWR */}
+                  <div className="w-32 flex items-center gap-1.5 shrink-0" title={`ACWR ${g.acwr || '—'} · ${g.zone.label}`} data-testid={`dist-acwr-${i}`}>
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: g.zone.color }} />
+                    <span className="text-[11px] font-bold" style={{ color: g.zone.color }}>{g.acwr || '—'}</span>
+                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full truncate" style={{ background: g.zone.bg, color: g.zone.color }}>{g.zone.label}</span>
                   </div>
                   <div className="w-24 text-right">
                     <span className="text-[13px] font-black" style={{ color: breakdown.color }}>{g.value}{breakdown.unit ? ` ${breakdown.unit}` : ''}</span>
