@@ -801,7 +801,10 @@
     "lvlMacro": "Macrociclo",
     "lvlPhase": "Etapa",
     "lvlMeso": "Mesociclo",
-    "lvlMicro": "Microciclo"
+    "lvlMicro": "Microciclo",
+    "riskOnly": "Solo zonas de riesgo",
+    "noRiskTitle": "Sin tramos en riesgo",
+    "noRiskSub": "Ningún grupo supera ACWR 1.3 (Precaución/Sobrecarga)."
   },
   "periodization": {
     "prevAnalysis": "Análisis del Plan Anterior",

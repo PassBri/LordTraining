@@ -28,6 +28,7 @@ export default function LoadPanel({ activePlan }) {
   const [hidden, setHidden] = useState({});
   const [level, setLevel] = useState('meso');
   const [metric, setMetric] = useState('carga');
+  const [riskOnly, setRiskOnly] = useState(false);
   const toggleSeries = (key) => setHidden((h) => ({ ...h, [key]: !h[key] }));
   // Extraer microciclos directamente del activePlan (estructura plan→macro→meso→micro→sesiones).
   // Calcular carga total (UA = vol*int/100), RPE prom, ACWR por semana de manera autónoma.
@@ -437,11 +438,16 @@ export default function LoadPanel({ activePlan }) {
                 </button>
               ))}
             </div>
+            {/* Filtro: solo zonas de riesgo (ACWR > 1.3) */}
+            <button onClick={() => setRiskOnly((v) => !v)} data-testid="dist-risk-toggle"
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors ${riskOnly ? 'bg-red-500 text-white border-red-500' : 'bg-white text-red-500 border-red-200 hover:bg-red-50'}`}>
+              <AlertTriangle className="w-3.5 h-3.5" /> {t('loadPanel.riskOnly', 'Solo zonas de riesgo')}
+            </button>
           </div>
         </div>
         <CardContent className="p-4">
           <div className="space-y-2.5" data-testid="dist-rows">
-            {breakdown.arr.map((g, i) => {
+            {breakdown.arr.filter((g) => !riskOnly || g.acwr > 1.3).map((g, i) => {
               const pct = Math.round((g.value / breakdown.max) * 100);
               return (
                 <div key={g.name + i} className="flex items-center gap-3" data-testid={`dist-row-${i}`}>
@@ -465,6 +471,13 @@ export default function LoadPanel({ activePlan }) {
                 </div>
               );
             })}
+            {riskOnly && breakdown.arr.filter((g) => g.acwr > 1.3).length === 0 && (
+              <div className="flex flex-col items-center justify-center py-8 text-center" data-testid="dist-no-risk">
+                <Shield className="w-8 h-8 text-emerald-500 mb-2" />
+                <p className="text-sm font-bold text-slate-700">{t('loadPanel.noRiskTitle', 'Sin tramos en riesgo')}</p>
+                <p className="text-[12px] text-slate-400">{t('loadPanel.noRiskSub', 'Ningún grupo supera ACWR 1.3 (Precaución/Sobrecarga).')}</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
