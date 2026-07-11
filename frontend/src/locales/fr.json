@@ -772,7 +772,15 @@
     "ttIntensidad": "Intensité",
     "ttDensidad": "Densité",
     "ttSessions": "séances",
-    "ttLoad": "Charge"
+    "ttLoad": "Charge",
+    "expand": "Expand",
+    "legendHint": "Tap a legend to show or hide the series.",
+    "distTitle": "Load distribution",
+    "lvlGeneral": "General",
+    "lvlMacro": "Macrocycle",
+    "lvlPhase": "Phase",
+    "lvlMeso": "Mesocycle",
+    "lvlMicro": "Microcycle"
   },
   "periodization": {
     "prevAnalysis": "Analyse précédente",

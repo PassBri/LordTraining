@@ -772,7 +772,15 @@
     "ttIntensidad": "強度",
     "ttDensidad": "密度",
     "ttSessions": "セッション",
-    "ttLoad": "負荷"
+    "ttLoad": "負荷",
+    "expand": "Expand",
+    "legendHint": "Tap a legend to show or hide the series.",
+    "distTitle": "Load distribution",
+    "lvlGeneral": "General",
+    "lvlMacro": "Macrocycle",
+    "lvlPhase": "Phase",
+    "lvlMeso": "Mesocycle",
+    "lvlMicro": "Microcycle"
   },
   "periodization": {
     "prevAnalysis": "前回の分析",

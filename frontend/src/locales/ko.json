@@ -772,7 +772,15 @@
     "ttIntensidad": "강도",
     "ttDensidad": "밀도",
     "ttSessions": "세션",
-    "ttLoad": "부하"
+    "ttLoad": "부하",
+    "expand": "Expand",
+    "legendHint": "Tap a legend to show or hide the series.",
+    "distTitle": "Load distribution",
+    "lvlGeneral": "General",
+    "lvlMacro": "Macrocycle",
+    "lvlPhase": "Phase",
+    "lvlMeso": "Mesocycle",
+    "lvlMicro": "Microcycle"
   },
   "periodization": {
     "prevAnalysis": "이전 계획 분석",

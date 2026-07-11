@@ -772,7 +772,15 @@
     "ttIntensidad": "Intensitas",
     "ttDensidad": "Kepadatan",
     "ttSessions": "sesi",
-    "ttLoad": "Beban"
+    "ttLoad": "Beban",
+    "expand": "Expand",
+    "legendHint": "Tap a legend to show or hide the series.",
+    "distTitle": "Load distribution",
+    "lvlGeneral": "General",
+    "lvlMacro": "Macrocycle",
+    "lvlPhase": "Phase",
+    "lvlMeso": "Mesocycle",
+    "lvlMicro": "Microcycle"
   },
   "periodization": {
     "prevAnalysis": "Analisis Rencana Sebelumnya",

@@ -793,7 +793,15 @@
     "ttIntensidad": "Intensidad",
     "ttDensidad": "Densidad",
     "ttSessions": "sesiones",
-    "ttLoad": "Carga"
+    "ttLoad": "Carga",
+    "expand": "Ampliar",
+    "legendHint": "Toca una leyenda para mostrar u ocultar la serie.",
+    "distTitle": "Distribución de carga",
+    "lvlGeneral": "General",
+    "lvlMacro": "Macrociclo",
+    "lvlPhase": "Etapa",
+    "lvlMeso": "Mesociclo",
+    "lvlMicro": "Microciclo"
   },
   "periodization": {
     "prevAnalysis": "Análisis del Plan Anterior",

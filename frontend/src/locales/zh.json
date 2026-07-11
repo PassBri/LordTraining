@@ -772,7 +772,15 @@
     "ttIntensidad": "强度",
     "ttDensidad": "密度",
     "ttSessions": "次训练",
-    "ttLoad": "负荷"
+    "ttLoad": "负荷",
+    "expand": "Expand",
+    "legendHint": "Tap a legend to show or hide the series.",
+    "distTitle": "Load distribution",
+    "lvlGeneral": "General",
+    "lvlMacro": "Macrocycle",
+    "lvlPhase": "Phase",
+    "lvlMeso": "Mesocycle",
+    "lvlMicro": "Microcycle"
   },
   "periodization": {
     "prevAnalysis": "上一版计划分析",

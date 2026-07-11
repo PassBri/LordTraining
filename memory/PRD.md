@@ -1,5 +1,10 @@
 # iTRAIN - Plataforma
 
+## [Jul 2026] Mejoras sección Carga (LoadPanel) — VERIFICADO
+- Chart ampliable en modal (botón "Ampliar", data-testid load-chart-expand → load-chart-modal), leyendas activables/desactivables (click en leyenda oculta/muestra la serie), y nueva "Distribución de carga" con selector de NIVEL (General/Macrociclo/Etapa/Mesociclo/Microciclo) y MÉTRICA (Carga UA/Volumen/Intensidad %/ACWR) con barras grandes. Archivo `components/LoadPanel.js`. Claves i18n loadPanel.* añadidas a los 12 idiomas. Se reemplazó el heatmap por mesociclo anterior.
+- PENDIENTE (solicitado por usuario): botón "Compartir" nativo/enlaces rápidos (WhatsApp/IG/FB) para la tarjeta de scouting, además de descargar.
+
+
 ## [Jul 2026] Sesión fork: Nivel del Deportista en IA/Recruiting + Reportes Grupales + Video Tutoriales — VERIFICADO
 - **Mi Nivel (Portal Atleta)** VERIFICADO (screenshot): pestaña Records muestra medalla grande + barra progreso al siguiente nivel (score→Bronce/Plata/etc.).
 - **#2 IA con Nivel del Deportista** VERIFICADO (curl+testing iter_116): `GET /api/coach/athlete-score/{id}` (routes/coach_ranking.py) devuelve `evaluation_score`+`elite_level` (Diamante>90/Oro>75/Plata>60/Bronce>40). `AITrainingAssistant.js` hace fetch al seleccionar atleta e inyecta `elite_level`+`evaluation_score` en `athlete_context`; `ai_assistant.py` helper `_elite_ctx` lo agrega al prompt (chat + quick-suggestion). La IA ajusta recomendaciones al nivel.

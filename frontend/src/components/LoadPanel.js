@@ -1,13 +1,14 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from './ui/card';
+import { Dialog, DialogContent } from './ui/dialog';
 import {
   ResponsiveContainer, ComposedChart, Bar, Line, Area, XAxis, YAxis,
   CartesianGrid, Tooltip, ReferenceLine, Legend,
 } from 'recharts';
 import {
   Flame, Activity, TrendingUp, TrendingDown, AlertTriangle,
-  Heart, BarChart3, Shield, Calendar,
+  Heart, BarChart3, Shield, Calendar, Maximize2, X, Layers,
 } from 'lucide-react';
 
 /**
@@ -23,6 +24,11 @@ import {
  */
 export default function LoadPanel({ activePlan }) {
   const { t } = useTranslation();
+  const [expanded, setExpanded] = useState(false);
+  const [hidden, setHidden] = useState({});
+  const [level, setLevel] = useState('meso');
+  const [metric, setMetric] = useState('carga');
+  const toggleSeries = (key) => setHidden((h) => ({ ...h, [key]: !h[key] }));
   // Extraer microciclos directamente del activePlan (estructura plan→macro→meso→micro→sesiones).
   // Calcular carga total (UA = vol*int/100), RPE prom, ACWR por semana de manera autónoma.
   // Fallback inteligente: usa detailed_data.fases si existe, si no usa los campos directos
@@ -103,6 +109,8 @@ export default function LoadPanel({ activePlan }) {
             duration: Math.round(sumDuration),
             meso: meso.name || t('loadPanel.mesoDefault'),
             mesoColor: meso.color || '#0ea5e9',
+            macro: macro.name || 'Macrociclo',
+            fase: meso.phase || meso.fase || meso.stage || macro.phase || macro.stage || '',
           });
           weekCounter++;
         });
@@ -171,6 +179,79 @@ export default function LoadPanel({ activePlan }) {
   }
 
   const zone = stats ? acwrZone(stats.acwr) : null;
+
+  // Configuración de series (para toggle de leyendas)
+  const SERIES = [
+    { key: 'carga', name: t('loadPanel.seriesCarga'), color: '#EF4444' },
+    { key: 'vol', name: t('loadPanel.seriesVol'), color: '#84cc16' },
+    { key: 'int', name: t('loadPanel.seriesInt'), color: '#F59E0B' },
+    { key: 'acwr', name: 'ACWR', color: '#8B5CF6' },
+  ];
+
+  const renderChart = (height) => (
+    <ResponsiveContainer width="100%" height={height}>
+      <ComposedChart data={data} margin={{ top: 12, right: 16, left: 0, bottom: 4 }}>
+        <CartesianGrid strokeDasharray="3 4" stroke="rgba(148,163,184,0.15)" />
+        <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={{ stroke: '#e2e8f0' }} tickLine={false} interval="preserveStartEnd" minTickGap={16} />
+        <YAxis yAxisId="left" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} label={{ value: 'UA', angle: -90, position: 'insideLeft', fontSize: 10, fill: '#94a3b8' }} />
+        <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} domain={[0, 2]} label={{ value: 'ACWR', angle: 90, position: 'insideRight', fontSize: 10, fill: '#94a3b8' }} />
+        <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 8px 30px rgba(0,0,0,0.08)', fontSize: 11 }} formatter={(v, name) => [v, name]} />
+        <Legend
+          wrapperStyle={{ fontSize: 11, paddingTop: 6, cursor: 'pointer' }}
+          iconType="circle"
+          onClick={(e) => toggleSeries(e.dataKey || e.payload?.dataKey)}
+          formatter={(value, entry) => {
+            const off = hidden[entry?.dataKey];
+            return <span style={{ color: off ? '#cbd5e1' : '#475569', textDecoration: off ? 'line-through' : 'none' }}>{value}</span>;
+          }}
+        />
+        <ReferenceLine yAxisId="right" y={1.3} stroke="#F59E0B" strokeDasharray="4 4" strokeWidth={1} />
+        <ReferenceLine yAxisId="right" y={1.5} stroke="#EF4444" strokeDasharray="4 4" strokeWidth={1} />
+        <Bar yAxisId="left" dataKey="carga" name={t('loadPanel.seriesCarga')} fill="#EF4444" radius={[6, 6, 0, 0]} maxBarSize={42} fillOpacity={0.85} hide={!!hidden.carga} />
+        <Bar yAxisId="left" dataKey="vol" name={t('loadPanel.seriesVol')} fill="#84cc16" radius={[6, 6, 0, 0]} maxBarSize={42} fillOpacity={0.55} hide={!!hidden.vol} />
+        <Line yAxisId="left" type="monotone" dataKey="int" name={t('loadPanel.seriesInt')} stroke="#F59E0B" strokeWidth={2} dot={{ r: 3, fill: '#F59E0B' }} activeDot={{ r: 5 }} hide={!!hidden.int} />
+        <Area yAxisId="right" type="monotone" dataKey="acwr" name="ACWR" stroke="#8B5CF6" fill="#8B5CF6" fillOpacity={0.12} strokeWidth={2} dot={{ r: 3, fill: '#8B5CF6' }} hide={!!hidden.acwr} />
+      </ComposedChart>
+    </ResponsiveContainer>
+  );
+
+  // ── Distribución por nivel (General/Macro/Etapa/Meso/Micro) ──
+  const LEVELS = [
+    { id: 'general', label: t('loadPanel.lvlGeneral', 'General') },
+    { id: 'macro', label: t('loadPanel.lvlMacro', 'Macrociclo') },
+    { id: 'fase', label: t('loadPanel.lvlPhase', 'Etapa') },
+    { id: 'meso', label: t('loadPanel.lvlMeso', 'Mesociclo') },
+    { id: 'micro', label: t('loadPanel.lvlMicro', 'Microciclo') },
+  ].filter((l) => l.id !== 'fase' || data.some((d) => d.fase));
+
+  const METRICS = [
+    { id: 'carga', label: t('loadPanel.seriesCarga'), unit: 'UA', color: '#EF4444', agg: 'sum' },
+    { id: 'vol', label: t('loadPanel.seriesVol'), unit: '', color: '#84cc16', agg: 'sum' },
+    { id: 'int', label: t('loadPanel.seriesInt'), unit: '%', color: '#F59E0B', agg: 'avg' },
+    { id: 'acwr', label: 'ACWR', unit: '', color: '#8B5CF6', agg: 'avg' },
+  ];
+
+  const breakdown = (() => {
+    const m = METRICS.find((x) => x.id === metric);
+    const keyOf = (d) => level === 'general' ? (t('loadPanel.lvlGeneral', 'General'))
+      : level === 'macro' ? d.macro : level === 'fase' ? (d.fase || '—')
+      : level === 'meso' ? d.meso : d.week;
+    const groups = {};
+    data.forEach((d) => {
+      const k = keyOf(d);
+      if (!groups[k]) groups[k] = { name: k, sum: 0, count: 0, weeks: 0 };
+      groups[k].sum += (d[metric] || 0);
+      groups[k].count += 1;
+      groups[k].weeks += 1;
+    });
+    const arr = Object.values(groups).map((g) => ({
+      name: g.name, weeks: g.weeks,
+      value: m.agg === 'avg' ? +(g.sum / Math.max(g.count, 1)).toFixed(metric === 'acwr' ? 2 : 0) : Math.round(g.sum),
+    }));
+    const max = Math.max(...arr.map((a) => a.value), 1);
+    return { arr, max, unit: m.unit, color: m.color };
+  })();
+
 
   return (
     <div className="space-y-5" data-testid="load-panel" style={{ fontFamily: "'DM Sans',sans-serif" }}>
@@ -293,76 +374,88 @@ export default function LoadPanel({ activePlan }) {
             <BarChart3 className="w-4 h-4 text-rose-600" />
             <h3 className="text-sm font-bold text-slate-800">{t('loadPanel.chartTitle')}</h3>
           </div>
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{data.length} {t('loadPanel.weeksUnit')}</span>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{data.length} {t('loadPanel.weeksUnit')}</span>
+            <button onClick={() => setExpanded(true)} data-testid="load-chart-expand"
+              title={t('loadPanel.expand', 'Ampliar')}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-colors text-[11px] font-semibold">
+              <Maximize2 className="w-3.5 h-3.5" /> {t('loadPanel.expand', 'Ampliar')}
+            </button>
+          </div>
         </div>
         <CardContent className="p-3">
-          <ResponsiveContainer width="100%" height={300}>
-            <ComposedChart data={data} margin={{ top: 12, right: 16, left: 0, bottom: 4 }}>
-              <CartesianGrid strokeDasharray="3 4" stroke="rgba(148,163,184,0.15)" />
-              <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={{ stroke: '#e2e8f0' }} tickLine={false} />
-              <YAxis yAxisId="left" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} label={{ value: 'UA', angle: -90, position: 'insideLeft', fontSize: 10, fill: '#94a3b8' }} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} domain={[0, 2]} label={{ value: 'ACWR', angle: 90, position: 'insideRight', fontSize: 10, fill: '#94a3b8' }} />
-              <Tooltip
-                contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 8px 30px rgba(0,0,0,0.08)', fontSize: 11 }}
-                formatter={(v, name) => [v, name]}
-              />
-              <Legend wrapperStyle={{ fontSize: 11, paddingTop: 6 }} iconType="circle" />
-              {/* ACWR safe band */}
-              <ReferenceLine yAxisId="right" y={1.3} stroke="#F59E0B" strokeDasharray="4 4" strokeWidth={1} />
-              <ReferenceLine yAxisId="right" y={1.5} stroke="#EF4444" strokeDasharray="4 4" strokeWidth={1} />
-              <Bar yAxisId="left" dataKey="carga" name={t('loadPanel.seriesCarga')} fill="#EF4444" radius={[6, 6, 0, 0]} maxBarSize={42} fillOpacity={0.85} />
-              <Bar yAxisId="left" dataKey="vol" name={t('loadPanel.seriesVol')} fill="#84cc16" radius={[6, 6, 0, 0]} maxBarSize={42} fillOpacity={0.55} />
-              <Line yAxisId="left" type="monotone" dataKey="int" name={t('loadPanel.seriesInt')} stroke="#F59E0B" strokeWidth={2} dot={{ r: 3, fill: '#F59E0B' }} activeDot={{ r: 5 }} />
-              <Area yAxisId="right" type="monotone" dataKey="acwr" name="ACWR" stroke="#8B5CF6" fill="#8B5CF6" fillOpacity={0.12} strokeWidth={2} dot={{ r: 3, fill: '#8B5CF6' }} />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <p className="text-[10px] text-slate-400 mb-1 px-1">{t('loadPanel.legendHint', 'Toca una leyenda para mostrar u ocultar la serie.')}</p>
+          {renderChart(300)}
         </CardContent>
       </Card>
 
-      {/* Heatmap por mesociclo */}
-      <Card>
-        <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-indigo-600" />
-            <h3 className="text-sm font-bold text-slate-800">{t('loadPanel.mesoLoadTitle')}</h3>
+      {/* Modal ampliado */}
+      <Dialog open={expanded} onOpenChange={setExpanded}>
+        <DialogContent className="max-w-[95vw] w-[95vw] p-0 gap-0" data-testid="load-chart-modal">
+          <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-rose-600" />
+              <h3 className="text-sm font-bold text-slate-800">{t('loadPanel.chartTitle')} · {data.length} {t('loadPanel.weeksUnit')}</h3>
+            </div>
+            <button onClick={() => setExpanded(false)} className="text-slate-400 hover:text-slate-800" data-testid="load-chart-modal-close"><X className="w-5 h-5" /></button>
           </div>
-          <span className="text-[10px] text-slate-400">{t('loadPanel.mesoLoadSub')}</span>
+          <div className="p-4">
+            <p className="text-[11px] text-slate-400 mb-2">{t('loadPanel.legendHint', 'Toca una leyenda para mostrar u ocultar la serie.')}</p>
+            {renderChart(Math.round(window.innerHeight * 0.62))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Distribución de carga por nivel */}
+      <Card>
+        <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-indigo-600" />
+            <h3 className="text-sm font-bold text-slate-800">{t('loadPanel.distTitle', 'Distribución de carga')}</h3>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Nivel */}
+            <div className="flex rounded-lg overflow-hidden border border-slate-200" data-testid="dist-level-tabs">
+              {LEVELS.map((l) => (
+                <button key={l.id} onClick={() => setLevel(l.id)} data-testid={`dist-level-${l.id}`}
+                  className={`px-2.5 py-1 text-[11px] font-semibold transition-colors ${level === l.id ? 'bg-indigo-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}>
+                  {l.label}
+                </button>
+              ))}
+            </div>
+            {/* Métrica */}
+            <div className="flex rounded-lg overflow-hidden border border-slate-200" data-testid="dist-metric-tabs">
+              {METRICS.map((mm) => (
+                <button key={mm.id} onClick={() => setMetric(mm.id)} data-testid={`dist-metric-${mm.id}`}
+                  className="px-2.5 py-1 text-[11px] font-semibold transition-colors"
+                  style={metric === mm.id ? { background: mm.color, color: '#fff' } : { background: '#fff', color: '#64748b' }}>
+                  {mm.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-        <CardContent className="p-3">
-          {(() => {
-            const byMeso = {};
-            data.forEach(d => {
-              if (!byMeso[d.meso]) byMeso[d.meso] = { name: d.meso, total: 0, weeks: [] };
-              byMeso[d.meso].total += d.carga;
-              byMeso[d.meso].weeks.push(d);
-            });
-            const groups = Object.values(byMeso);
-            const totalAll = groups.reduce((s, g) => s + g.total, 0) || 1;
-            return (
-              <div className="space-y-2">
-                {groups.map((g, i) => {
-                  const pct = Math.round((g.total / totalAll) * 100);
-                  const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
-                  const color = colors[i % colors.length];
-                  return (
-                    <div key={g.name} className="flex items-center gap-3" data-testid={`meso-load-${i}`}>
-                      <div className="w-32 text-[11px] font-bold text-slate-700 truncate">{g.name}</div>
-                      <div className="flex-1 h-7 bg-slate-100 rounded-md overflow-hidden relative">
-                        <div className="h-full rounded-md transition-all flex items-center justify-end pr-2 text-[10px] text-white font-bold"
-                          style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color} 0%, ${color}dd 100%)` }}>
-                          {pct >= 8 ? `${pct}%` : ''}
-                        </div>
-                      </div>
-                      <div className="w-20 text-right">
-                        <span className="text-[12px] font-bold" style={{ color }}>{g.total} UA</span>
-                        <div className="text-[9px] text-slate-400">{g.weeks.length} {t('loadPanel.semShort')}</div>
-                      </div>
+        <CardContent className="p-4">
+          <div className="space-y-2.5" data-testid="dist-rows">
+            {breakdown.arr.map((g, i) => {
+              const pct = Math.round((g.value / breakdown.max) * 100);
+              return (
+                <div key={g.name + i} className="flex items-center gap-3" data-testid={`dist-row-${i}`}>
+                  <div className="w-36 text-[12px] font-bold text-slate-700 truncate" title={g.name}>{g.name}</div>
+                  <div className="flex-1 h-9 bg-slate-100 rounded-lg overflow-hidden relative">
+                    <div className="h-full rounded-lg transition-all duration-500 flex items-center justify-end pr-3 text-[12px] text-white font-bold"
+                      style={{ width: `${Math.max(pct, 4)}%`, background: `linear-gradient(90deg, ${breakdown.color} 0%, ${breakdown.color}cc 100%)` }}>
+                      {pct >= 14 ? `${g.value}${breakdown.unit ? ' ' + breakdown.unit : ''}` : ''}
                     </div>
-                  );
-                })}
-              </div>
-            );
-          })()}
+                  </div>
+                  <div className="w-24 text-right">
+                    <span className="text-[13px] font-black" style={{ color: breakdown.color }}>{g.value}{breakdown.unit ? ` ${breakdown.unit}` : ''}</span>
+                    <div className="text-[9px] text-slate-400">{g.weeks} {t('loadPanel.semShort')}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </CardContent>
       </Card>
 

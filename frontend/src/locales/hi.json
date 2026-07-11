@@ -772,7 +772,15 @@
     "ttIntensidad": "तीव्रता",
     "ttDensidad": "घनत्व",
     "ttSessions": "सत्र",
-    "ttLoad": "लोड"
+    "ttLoad": "लोड",
+    "expand": "Expand",
+    "legendHint": "Tap a legend to show or hide the series.",
+    "distTitle": "Load distribution",
+    "lvlGeneral": "General",
+    "lvlMacro": "Macrocycle",
+    "lvlPhase": "Phase",
+    "lvlMeso": "Mesocycle",
+    "lvlMicro": "Microcycle"
   },
   "periodization": {
     "prevAnalysis": "पिछले प्लान का विश्लेषण",

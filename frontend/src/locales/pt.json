@@ -776,7 +776,15 @@
     "ttIntensidad": "Intensidade",
     "ttDensidad": "Densidade",
     "ttSessions": "sessões",
-    "ttLoad": "Carga"
+    "ttLoad": "Carga",
+    "expand": "Expand",
+    "legendHint": "Tap a legend to show or hide the series.",
+    "distTitle": "Load distribution",
+    "lvlGeneral": "General",
+    "lvlMacro": "Macrocycle",
+    "lvlPhase": "Phase",
+    "lvlMeso": "Mesocycle",
+    "lvlMicro": "Microcycle"
   },
   "periodization": {
     "prevAnalysis": "Análise do Plano Anterior",

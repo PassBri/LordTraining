@@ -772,7 +772,15 @@
     "ttIntensidad": "الشدة",
     "ttDensidad": "الكثافة",
     "ttSessions": "جلسات",
-    "ttLoad": "الحمل"
+    "ttLoad": "الحمل",
+    "expand": "Expand",
+    "legendHint": "Tap a legend to show or hide the series.",
+    "distTitle": "Load distribution",
+    "lvlGeneral": "General",
+    "lvlMacro": "Macrocycle",
+    "lvlPhase": "Phase",
+    "lvlMeso": "Mesocycle",
+    "lvlMicro": "Microcycle"
   },
   "periodization": {
     "prevAnalysis": "التحليل السابق للخطة",
