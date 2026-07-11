@@ -17,7 +17,8 @@ import {
   Target, Plus, Users, Trello, ClipboardCheck, Trophy, X, Trash2, Edit2, Sparkles,
   FileDown, UserPlus, Camera, Video, Star, ChevronRight, MapPin, Loader2, Award,
   TrendingUp, AlertTriangle, GitCompare, Phone, Mail, Instagram, Share2, Copy, Globe, Check,
-  BellRing, Contact, Map as MapIcon, Crown, CalendarClock, MessageCircle, Facebook, Download
+  BellRing, Contact, Map as MapIcon, Crown, CalendarClock, MessageCircle, Facebook, Download,
+  Eye, Flame, Link2
 } from 'lucide-react';
 
 // i18n: auto-traducción slug-based (scouting.lbl.*)
@@ -469,6 +470,48 @@ function AIReport({ ai }) {
 }
 
 /* ---------------- Ranking / Dashboard ---------------- */
+export function SharedTalentsBoard({ onOpenId, limit = 5, className = '' }) {
+  const [rows, setRows] = useState(null);
+  useEffect(() => {
+    api(`/share-ranking?limit=${limit}`).then(r => setRows(r.items || [])).catch(() => setRows([]));
+  }, [limit]);
+  const medal = ['#D4AF37', '#94A3B8', '#B45309'];
+  return (
+    <div className={`bg-white rounded-xl border border-slate-200 overflow-hidden ${className}`} data-testid="shared-talents-board">
+      <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+        <Flame className="w-4 h-4 text-orange-500" /><span className="font-black text-slate-800">{tt('Talentos más compartidos')}</span>
+      </div>
+      {rows === null ? (
+        <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-slate-400" /></div>
+      ) : rows.length === 0 ? (
+        <div className="p-6 text-center text-slate-400 text-sm" data-testid="shared-talents-empty">{tt('Comparte o descarga tarjetas de tus prospectos para ver aquí quién genera más interés.')}</div>
+      ) : (
+        <div className="divide-y divide-slate-100">
+          {rows.map((r, i) => (
+            <div key={r.id} className={`flex items-center gap-3 px-4 py-2.5 ${onOpenId ? 'hover:bg-slate-50 cursor-pointer' : ''}`}
+              onClick={() => onOpenId?.(r.id)} data-testid={`shared-talent-row-${r.id}`}>
+              <div className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black text-white shrink-0" style={{ background: medal[i] || '#cbd5e1' }}>{i + 1}</div>
+              <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-200 shrink-0">
+                {r.has_photo && r.share_id ? <img src={`${API_URL}/api/recruiting/public/${r.share_id}/photo`} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-500 font-black">{(r.name || '?').slice(0, 1)}</div>}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-slate-800 text-sm truncate">{r.name}</div>
+                <div className="text-[11px] text-slate-400 truncate">{r.position || '—'}{r.sport_name ? ` · ${r.sport_name}` : ''}</div>
+              </div>
+              <div className="flex items-center gap-2.5 text-[11px] font-semibold text-slate-500">
+                <span className="flex items-center gap-0.5" title="Descargas"><Download className="w-3.5 h-3.5" />{r.downloads}</span>
+                <span className="flex items-center gap-0.5" title="Compartidos"><Share2 className="w-3.5 h-3.5" />{r.shares}</span>
+                <span className="flex items-center gap-0.5" title="Vistas"><Eye className="w-3.5 h-3.5" />{r.views}</span>
+              </div>
+              <div className="w-9 text-right font-black text-orange-500">{r.total}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RankingTab({ dash, prospects, compare, setCompare, onOpen }) {
   if (!dash) return <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /></div>;
   const toggle = (id) => setCompare(c => c.includes(id) ? c.filter(x => x !== id) : c.length < 3 ? [...c, id] : c);
@@ -500,6 +543,8 @@ function RankingTab({ dash, prospects, compare, setCompare, onOpen }) {
       )}
 
       {cmpItems.length >= 2 && <Comparison items={cmpItems} />}
+
+      <SharedTalentsBoard onOpenId={(id) => onOpen(prospects.find(x => x.id === id))} />
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
@@ -611,6 +656,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
   const [shareId, setShareId] = useState(p.share_enabled ? p.share_id : null);
   const [sharing, setSharing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [cardLinkCopied, setCardLinkCopied] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [detailTab, setDetailTab] = useState('resumen');
   const shareUrl = shareId ? `${window.location.origin}/scouting/p/${shareId}` : null;
@@ -712,9 +758,25 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
       a.href = url; a.download = `${(p.name || 'prospecto').replace(/\s+/g, '_')}-${format}.png`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 5000);
+      track('download');
       toast.success(format === 'story' ? 'Tarjeta Story descargada' : 'Tarjeta Post descargada');
     } catch { toast.error(tt('No se pudo generar la tarjeta')); }
     setCardLoading('');
+  };
+  const track = (action) => {
+    api(`/prospects/${p.id}/track`, { method: 'POST', body: { action } })
+      .then(() => onChanged?.(p.id)).catch(() => {});
+  };
+  const cardLink = (fmt) => shareId
+    ? `${API_URL}/api/recruiting/public/${shareId}/card-page?format=${fmt}&b=${encodeURIComponent(API_URL)}&fo=${encodeURIComponent(window.location.origin)}`
+    : null;
+  const copyCardLink = () => {
+    const link = cardLink(previewFmt);
+    if (!link) return;
+    navigator.clipboard?.writeText(link);
+    setCardLinkCopied(true); track('share');
+    toast.success(tt('Enlace de la tarjeta copiado'));
+    setTimeout(() => setCardLinkCopied(false), 1800);
   };
   const cardFile = async (format) => {
     const res = await fetch(`${API_URL}/api/recruiting/prospects/${p.id}/social-card?format=${format}&${cardParams()}`, { headers: { Authorization: `Bearer ${token()}` } });
@@ -729,11 +791,13 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
       const text = `${p.name || 'Prospecto'} · Scouting Report — LordTraining`;
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: text, text });
+        track('share');
       } else {
         const url = URL.createObjectURL(file);
         const a = document.createElement('a'); a.href = url; a.download = file.name;
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 5000);
+        track('download');
         toast.info(tt('Tu equipo no permite compartir directo. Descargamos la imagen para que la subas.'), { duration: 4000 });
       }
     } catch (e) {
@@ -742,14 +806,18 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
     setCardLoading('');
   };
   const shareWhatsApp = () => {
-    const text = shareUrl
-      ? `${p.name || 'Prospecto'} · Scouting Report — LordTraining ${shareUrl}`
+    const link = cardLink(previewFmt) || shareUrl;
+    const text = link
+      ? `${p.name || 'Prospecto'} · Scouting Report — LordTraining ${link}`
       : `${p.name || 'Prospecto'} · Scouting Report — LordTraining`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+    track('share');
   };
   const shareFacebook = () => {
-    if (!shareUrl) { toast.info(tt('Activa el enlace público para compartir el perfil en Facebook.')); return; }
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener');
+    const link = cardLink(previewFmt) || shareUrl;
+    if (!link) { toast.info(tt('Activa el enlace público para compartir en Facebook.')); return; }
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`, '_blank', 'noopener');
+    track('share');
   };
   const shareInstagram = async () => {
     await socialCard(previewFmt);
@@ -1015,6 +1083,37 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
                         <Button onClick={shareInstagram} disabled={!!cardLoading} variant="outline" className="border-pink-200 text-pink-500 hover:bg-pink-50 px-3" title="Instagram" data-testid="share-instagram-btn"><Instagram className="w-4 h-4" /></Button>
                       </div>
                       <p className="text-[11px] text-slate-400 mt-1.5">En el móvil, "Compartir" abre WhatsApp, Instagram, TikTok y más con la imagen adjunta.</p>
+                    </div>
+
+                    {/* Enlace directo a la tarjeta (con vista previa en redes / Open Graph) */}
+                    <div className="mt-3 pt-3 border-t border-slate-100" data-testid="card-link-wrap">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5"><Link2 className="w-3.5 h-3.5" />Enlace de la tarjeta · {previewFmt === 'story' ? 'Story' : 'Post'}</span>
+                      <div className="flex gap-2 mt-1.5">
+                        <Input readOnly value={cardLink(previewFmt) || ''} onFocus={(e) => e.target.select()}
+                          className="bg-slate-50 text-slate-700 text-[12px]" data-testid="card-link-input" />
+                        <Button onClick={copyCardLink} className="bg-slate-900 text-white shrink-0" data-testid="card-link-copy-btn">
+                          {cardLinkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        </Button>
+                        <a href={cardLink(previewFmt) || '#'} target="_blank" rel="noreferrer">
+                          <Button variant="outline" className="border-slate-300 px-3" data-testid="card-link-open-btn"><Globe className="w-4 h-4" /></Button>
+                        </a>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1.5">Al pegarlo en WhatsApp o Facebook mostrará la vista previa de la tarjeta.</p>
+                    </div>
+
+                    {/* Contadores de compartición */}
+                    <div className="mt-3 grid grid-cols-3 gap-2" data-testid="share-stats">
+                      {[
+                        { k: 'downloads', l: 'Descargas', Icon: Download, c: '#0f172a' },
+                        { k: 'shares', l: 'Compartidos', Icon: Share2, c: '#16a34a' },
+                        { k: 'views', l: 'Vistas', Icon: Eye, c: '#2563eb' },
+                      ].map(({ k, l, Icon, c }) => (
+                        <div key={k} className="rounded-lg border border-slate-200 bg-white px-2 py-2 text-center" data-testid={`share-stat-${k}`}>
+                          <Icon className="w-4 h-4 mx-auto mb-0.5" style={{ color: c }} />
+                          <div className="text-lg font-black text-slate-800 leading-none" data-testid={`share-stat-${k}-value`}>{(p.share_stats && p.share_stats[k]) || 0}</div>
+                          <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide mt-0.5">{tt(l)}</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>

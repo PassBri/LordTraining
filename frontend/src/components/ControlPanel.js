@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import AthleteRanking from './AthleteRanking';
+import { SharedTalentsBoard } from './ScoutingModule';
 import { 
   Users, Calendar, Target, Activity, Dumbbell, TrendingUp, 
   BarChart3, Heart, Zap, ArrowUpRight, ArrowDownRight,
@@ -1580,6 +1581,10 @@ const ControlPanel = ({
 
         {/* Row 3.6: Ranking / comparativa de atletas */}
         <AthleteRanking globalContext={globalContext} onOpenAthlete={onOpenAthlete} />
+
+        {/* Row 3.7: Talentos más compartidos (Scouting) */}
+        <SharedTalentsBoard limit={5} onOpenId={() => onNavigate && onNavigate('datos', 'scouting')} />
+
 
         {/* Row 4: Zonas de Entrenamiento + Mini Calendario */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

@@ -6,7 +6,8 @@ pipeline Kanban, recomendación con IA (GPT-5.5 / Claude Sonnet 4.6), ranking,
 ficha PDF estilo NCAA, integración con Gestión de Equipos (al reclutar → atleta).
 """
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Header, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Header, Query, Response, Request
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone
@@ -314,6 +315,8 @@ class ProspectOut(ProspectIn):
     converted_athlete_id: Optional[str] = None
     share_id: Optional[str] = None
     share_enabled: Optional[bool] = False
+    share_stats: Optional[Dict[str, int]] = None
+    shared_at: Optional[str] = None
     created_at: str
     updated_at: Optional[str] = None
 
@@ -790,6 +793,168 @@ async def public_pdf(share_id: str, origin: str = Query(None), theme: str = Quer
     fname = f"scouting_{(p.get('name') or 'prospecto').replace(' ', '_').lower()}.pdf"
     return Response(content=pdf, media_type="application/pdf",
                     headers={"Content-Disposition": f'inline; filename=\"{fname}\"'})
+
+
+# ───────────────────────── MÉTRICAS DE COMPARTIR (contadores + ranking) ─────────────────────────
+class TrackIn(BaseModel):
+    action: str  # download | share
+
+_TRACK_KEYS = {"download": "downloads", "share": "shares", "view": "views"}
+
+
+async def _bump_stat(match: dict, action: str):
+    key = _TRACK_KEYS.get(action)
+    if not key:
+        return None
+    res = await _prospects.update_one(match, {"$inc": {f"share_stats.{key}": 1}})
+    if not res.matched_count:
+        return None
+    doc = await _prospects.find_one({**match, }, {"_id": 0, "share_stats": 1})
+    return (doc or {}).get("share_stats", {})
+
+
+@router.post("/prospects/{pid}/track")
+async def track_prospect_share(pid: str, body: TrackIn, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    if body.action not in ("download", "share"):
+        raise HTTPException(400, "Acción inválida")
+    stats = await _bump_stat({"id": pid, "coach_id": uid}, body.action)
+    if stats is None:
+        raise HTTPException(404, "Prospecto no encontrado")
+    return {"share_stats": stats}
+
+
+@router.get("/share-ranking")
+async def share_ranking(limit: int = Query(5, ge=1, le=20), user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    items = await _prospects.find(
+        {"coach_id": uid, "share_stats": {"$exists": True}},
+        {"_id": 0, "id": 1, "name": 1, "photo_path": 1, "position": 1,
+         "sport_name": 1, "sport": 1, "overall_score": 1, "share_id": 1,
+         "share_enabled": 1, "share_stats": 1},
+    ).to_list(2000)
+    rows = []
+    for p in items:
+        st = p.get("share_stats") or {}
+        d, s, v = int(st.get("downloads", 0)), int(st.get("shares", 0)), int(st.get("views", 0))
+        total = d + s
+        if total <= 0 and v <= 0:
+            continue
+        rows.append({
+            "id": p["id"], "name": p.get("name"), "position": p.get("position"),
+            "sport_name": p.get("sport_name") or p.get("sport"),
+            "overall_score": p.get("overall_score"),
+            "has_photo": bool(p.get("photo_path")),
+            "share_id": p.get("share_id") if p.get("share_enabled") else None,
+            "downloads": d, "shares": s, "views": v, "total": total,
+        })
+    rows.sort(key=lambda r: (-(r["total"]), -r["views"]))
+    return {"items": rows[:limit], "count": len(rows)}
+
+
+async def _public_branding(coach_id: str):
+    settings = await _get_settings(coach_id)
+    return {
+        "entity_name": settings.get("entity_name", ""),
+        "slogan": settings.get("slogan", ""),
+        "accent_color": settings.get("accent_color", "#D4AF37"),
+    }, settings.get("logo_path")
+
+
+@router.get("/public/{share_id}/card")
+async def public_card(share_id: str, format: str = Query("post")):
+    p = await _get_shared(share_id)
+    branding, logo_path = await _public_branding(p["coach_id"])
+    logo = await _photo_bytes(logo_path) if logo_path else None
+    fmt = "story" if format == "story" else "post"
+    try:
+        img = _build_social_card(p, photo=await _photo_bytes(p.get("photo_path")),
+                                 fmt=fmt, branding=branding, logo=logo)
+    except Exception as e:
+        raise HTTPException(500, f"Error generando tarjeta: {e}")
+    return Response(content=img, media_type="image/png",
+                    headers={"Cache-Control": "public, max-age=3600"})
+
+
+def _abs_url(request: Request, path: str, base_override: str = None) -> str:
+    if base_override:
+        return base_override.rstrip("/") + path
+    xf_host = request.headers.get("x-forwarded-host")
+    xf_proto = request.headers.get("x-forwarded-proto")
+    if xf_host:
+        proto = (xf_proto or "https").split(",")[0].strip()
+        return f"{proto}://{xf_host.split(',')[0].strip()}{path}"
+    base = str(request.base_url).rstrip("/")
+    if base.startswith("http://") and "localhost" not in base and "127.0.0.1" not in base:
+        base = "https://" + base[len("http://"):]
+    return base + path
+
+
+_BOT_UA = ("facebookexternalhit", "facebot", "twitterbot", "whatsapp", "telegrambot",
+           "linkedinbot", "slackbot", "discordbot", "pinterest", "googlebot", "bingbot",
+           "embedly", "vkshare", "redditbot", "bot", "crawler", "spider", "preview")
+
+
+@router.get("/public/{share_id}/card-page", response_class=HTMLResponse)
+async def public_card_page(share_id: str, request: Request,
+                           format: str = Query("post"), fo: str = Query(None),
+                           b: str = Query(None)):
+    p = await _get_shared(share_id)
+    fmt = "story" if format == "story" else "post"
+    ua = (request.headers.get("user-agent") or "").lower()
+    is_bot = any(x in ua for x in _BOT_UA)
+    if not is_bot:
+        await _prospects.update_one({"share_id": share_id}, {"$inc": {"share_stats.views": 1}})
+    img_url = _abs_url(request, f"/api/recruiting/public/{share_id}/card?format={fmt}", b)
+    page_url = _abs_url(request, f"/api/recruiting/public/{share_id}/card-page?format={fmt}", b)
+    profile_url = f"{fo.rstrip('/')}/scouting/p/{share_id}" if fo else None
+    name = (p.get("name") or "Prospecto")
+    meta = " · ".join([x for x in [p.get("position"), p.get("sport_name") or p.get("sport"),
+                                   p.get("current_club")] if x])
+    score = p.get("overall_score")
+    desc = f"Scouting Report — {meta}" if meta else "Scouting Report — LordTraining"
+    if score is not None:
+        desc = f"Score {score} · " + desc
+    og_w, og_h = ("1080", "1350") if fmt == "post" else ("1080", "1920")
+    cta = (f'<a class="btn" href="{profile_url}" target="_blank" rel="noreferrer">Ver ficha completa</a>'
+           if profile_url else "")
+    import html as _html
+    e_name, e_desc = _html.escape(name), _html.escape(desc)
+    html_doc = f"""<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>{e_name} · Scouting Report — LordTraining</title>
+<meta name="description" content="{e_desc}"/>
+<meta property="og:type" content="article"/>
+<meta property="og:site_name" content="LordTraining"/>
+<meta property="og:title" content="{e_name} · Scouting Report"/>
+<meta property="og:description" content="{e_desc}"/>
+<meta property="og:image" content="{img_url}"/>
+<meta property="og:image:width" content="{og_w}"/>
+<meta property="og:image:height" content="{og_h}"/>
+<meta property="og:url" content="{page_url}"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="{e_name} · Scouting Report"/>
+<meta name="twitter:description" content="{e_desc}"/>
+<meta name="twitter:image" content="{img_url}"/>
+<style>
+  :root{{color-scheme:dark}}
+  *{{box-sizing:border-box}}
+  body{{margin:0;background:#0A0F1E;color:#e5e7eb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 16px}}
+  .brand{{font-weight:800;letter-spacing:.06em;font-size:14px;margin-bottom:18px}}
+  .brand span{{color:#D4AF37}}
+  img.card{{max-width:min(440px,92vw);width:100%;height:auto;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6);display:block}}
+  .btn{{display:inline-block;margin-top:22px;background:#D4AF37;color:#0A0F1E;font-weight:700;text-decoration:none;padding:13px 26px;border-radius:999px;font-size:15px}}
+  .foot{{margin-top:16px;color:#64748b;font-size:12px}}
+</style></head>
+<body>
+  <div class="brand">LORD<span>TRAINING</span> · SCOUTING</div>
+  <img class="card" src="{img_url}" alt="{e_name} — Scouting Report"/>
+  {cta}
+  <div class="foot">lordtraining.com</div>
+</body></html>"""
+    return HTMLResponse(content=html_doc, headers={"Cache-Control": "public, max-age=600"})
 
 
 # ───────────────────────── ESTADÍSTICAS MULTI-DEPORTE ─────────────────────────
