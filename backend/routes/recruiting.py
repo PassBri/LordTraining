@@ -1004,7 +1004,8 @@ async def dashboard(user=Depends(get_current_user_dep())):
 
 
 # ───────────────────────── CONFIGURACIÓN DE ALERTAS ─────────────────────────
-DEFAULT_SETTINGS = {"eval_days": 14, "expiry_days": 30}
+DEFAULT_SETTINGS = {"eval_days": 14, "expiry_days": 30,
+                    "entity_name": "", "slogan": "", "logo_path": None}
 
 
 async def _get_settings(uid):
@@ -1015,6 +1016,9 @@ async def _get_settings(uid):
 class SettingsIn(BaseModel):
     eval_days: int = Field(default=14, ge=1, le=365)
     expiry_days: int = Field(default=30, ge=1, le=365)
+    entity_name: str = ""
+    slogan: str = ""
+    logo_path: Optional[str] = None
 
 
 @router.get("/settings")
@@ -1026,9 +1030,48 @@ async def get_settings(user=Depends(get_current_user_dep())):
 async def update_settings(payload: SettingsIn, user=Depends(get_current_user_dep())):
     uid = _uid(user)
     doc = {"coach_id": uid, "eval_days": payload.eval_days, "expiry_days": payload.expiry_days,
+           "entity_name": (payload.entity_name or "").strip()[:60],
+           "slogan": (payload.slogan or "").strip()[:80],
+           "logo_path": payload.logo_path,
            "updated_at": datetime.now(timezone.utc).isoformat()}
     await _settings.update_one({"coach_id": uid}, {"$set": doc}, upsert=True)
     return await _get_settings(uid)
+
+
+@router.post("/upload-logo")
+async def upload_logo(file: UploadFile = File(...), user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    ext = (file.filename or "logo.png").split(".")[-1].lower()
+    if ext not in MIME_TYPES:
+        raise HTTPException(400, "Formato no soportado (usa jpg, png, webp)")
+    data = await file.read()
+    if len(data) > 5 * 1024 * 1024:
+        raise HTTPException(400, "Logo demasiado grande (máx 5MB)")
+    # Logo: contener dentro de 400x400 preservando aspecto y transparencia.
+    try:
+        from PIL import Image, ImageOps
+        import io as _io
+        img = ImageOps.exif_transpose(Image.open(_io.BytesIO(data))).convert("RGBA")
+        img.thumbnail((400, 400), Image.LANCZOS)
+        canvas = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        canvas.paste(img, (0, 0), img)
+        buf = _io.BytesIO()
+        canvas.save(buf, format="PNG")
+        data = buf.getvalue()
+        ext = "png"
+    except Exception:
+        pass
+    path = f"{APP_NAME}/scouting/{uid}/logo_{uuid.uuid4().hex}.{ext}"
+    try:
+        result = _put_object(path, data, MIME_TYPES[ext])
+    except Exception as e:
+        raise HTTPException(500, f"Error subiendo logo: {e}")
+    await _files.insert_one({
+        "id": uuid.uuid4().hex, "coach_id": uid, "storage_path": result["path"],
+        "content_type": MIME_TYPES[ext], "size": result.get("size", len(data)),
+        "is_deleted": False, "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"path": result["path"]}
 
 
 # ───────────────────────── ALERTAS Y SEGUIMIENTO ─────────────────────────
@@ -1317,7 +1360,26 @@ def _card_level(score):
     return ("#64748B", "EN DESARROLLO")
 
 
-def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post") -> bytes:
+def _top_metrics(ev: dict, limit: int = 3):
+    """Devuelve las mejores métricas [(label, valor 0-100)] de la evaluación."""
+    scores = (ev or {}).get("scores") or {}
+    custom = (ev or {}).get("custom_labels") or {}
+    flat = []
+    for block, crits in scores.items():
+        if isinstance(crits, dict):
+            for k, v in crits.items():
+                try:
+                    val = int(round(float(v)))
+                except (TypeError, ValueError):
+                    continue
+                label = custom.get(k) or str(k).replace("_", " ").replace("-", " ").strip().capitalize()
+                flat.append((label, max(0, min(100, val))))
+    flat.sort(key=lambda x: -x[1])
+    return flat[:limit]
+
+
+def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
+                       branding: Optional[dict] = None, logo: Optional[bytes] = None) -> bytes:
     from PIL import Image, ImageDraw, ImageFont, ImageOps
     import io as _io
 
@@ -1334,7 +1396,7 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post") -> by
 
     base = Image.new("RGB", (W, H), obsidian)
     draw = ImageDraw.Draw(base)
-    photo_h = int(H * 0.60)
+    photo_h = int(H * 0.48)
 
     # Foto (o placeholder)
     if photo:
@@ -1391,27 +1453,73 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post") -> by
     draw.text((cx - sw / 2, cy + 22), "SCORE", font=fs, fill=(148, 163, 184))
 
     # Bloque inferior
-    ty = photo_h + 44
-    draw.text((60, ty), (p.get("name") or "")[:22], font=font(74, True), fill=(255, 255, 255))
-    ty += 98
+    ty = photo_h + 40
+    draw.text((60, ty), (p.get("name") or "")[:22], font=font(70, True), fill=(255, 255, 255))
+    ty += 88
     meta = " · ".join([x for x in [p.get("position"), p.get("sport_name") or p.get("sport")] if x])
     if meta:
-        draw.text((60, ty), meta[:40], font=font(38, False), fill=gold)
-        ty += 60
+        draw.text((60, ty), meta[:40], font=font(34, False), fill=gold)
+        ty += 52
     club = p.get("current_club")
     if club:
-        draw.text((60, ty), str(club)[:40], font=font(31, False), fill=(148, 163, 184))
-        ty += 52
+        draw.text((60, ty), str(club)[:40], font=font(30, False), fill=(148, 163, 184))
+        ty += 46
 
     # Pill de nivel
     plabel = level_label
-    pf = font(28, True)
+    pf = font(27, True)
     lw = draw.textlength(plabel, font=pf)
-    draw.rounded_rectangle([60, ty + 12, 60 + lw + 56, ty + 12 + 58], radius=29, fill=col)
-    draw.text((60 + 28, ty + 26), plabel, font=pf, fill=(10, 15, 30))
+    draw.rounded_rectangle([60, ty + 10, 60 + lw + 52, ty + 10 + 54], radius=27, fill=col)
+    draw.text((60 + 26, ty + 23), plabel, font=pf, fill=(10, 15, 30))
+    ty += 90
 
-    # Footer
-    draw.text((60, H - 62), "lordtraining.app", font=font(26, False), fill=(100, 116, 139))
+    # Top 3 métricas como mini-barras
+    metrics = _top_metrics(ev, 3)
+    if metrics:
+        draw.text((60, ty), "MEJORES MÉTRICAS", font=font(22, True), fill=(148, 163, 184))
+        ty += 42
+        bar_w = W - 120
+        lf = font(29, True)
+        vf = font(29, True)
+        for label, val in metrics:
+            draw.text((60, ty), label[:26], font=lf, fill=(230, 235, 245))
+            vtxt = str(val)
+            vw = draw.textlength(vtxt, font=vf)
+            draw.text((60 + bar_w - vw, ty), vtxt, font=vf, fill=col)
+            track_y = ty + 38
+            draw.rounded_rectangle([60, track_y, 60 + bar_w, track_y + 13], radius=6, fill=(30, 40, 60))
+            fill_w = max(13, int(bar_w * val / 100.0))
+            draw.rounded_rectangle([60, track_y, 60 + fill_w, track_y + 13], radius=6, fill=col)
+            ty += 66
+
+    # Footer con marca personalizada (logo + entidad + lema) o marca por defecto
+    b = branding or {}
+    entity = (b.get("entity_name") or "").strip()
+    slogan = (b.get("slogan") or "").strip()
+    fy = H - 118
+    draw.line([(60, fy - 16), (W - 60, fy - 16)], fill=(30, 40, 60), width=2)
+    text_x = 60
+    if logo:
+        try:
+            lg = Image.open(_io.BytesIO(logo)).convert("RGBA")
+            lg.thumbnail((88, 88), Image.LANCZOS)
+            ly = fy + (88 - lg.size[1]) // 2
+            base.paste(lg, (60, ly), lg)
+            text_x = 60 + 104
+        except Exception:
+            pass
+    if entity or slogan:
+        if entity:
+            draw.text((text_x, fy + 8), entity[:34], font=font(32, True), fill=(255, 255, 255))
+        if slogan:
+            draw.text((text_x, fy + 50), slogan[:46], font=font(25, False), fill=(148, 163, 184))
+    else:
+        draw.text((text_x, fy + 24), "LordTraining", font=font(32, True), fill=(255, 255, 255))
+    # Sello LordTraining a la derecha
+    stamp = "lordtraining.com"
+    sff = font(24, False)
+    sww = draw.textlength(stamp, font=sff)
+    draw.text((W - 60 - sww, fy + 34), stamp, font=sff, fill=(100, 116, 139))
 
     out = _io.BytesIO()
     base.save(out, format="PNG")
@@ -1425,8 +1533,10 @@ async def social_card(pid: str, format: str = Query("post"), user=Depends(get_cu
     if not p:
         raise HTTPException(404, "Prospecto no encontrado")
     photo = await _photo_bytes(p.get("photo_path"))
+    settings = await _get_settings(uid)
+    logo = await _photo_bytes(settings.get("logo_path"))
     fmt = "story" if format == "story" else "post"
-    img = _build_social_card(p, photo, fmt)
+    img = _build_social_card(p, photo, fmt, branding=settings, logo=logo)
     fname = f"{(p.get('name') or 'prospecto').replace(' ', '_')}-{fmt}.png"
     return Response(content=img, media_type="image/png",
                     headers={"Content-Disposition": f'attachment; filename="{fname}"'})

@@ -655,6 +655,33 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
   };
   const copyLink = () => { navigator.clipboard?.writeText(shareUrl); setCopied(true); toast.success(tt('Enlace copiado')); setTimeout(() => setCopied(false), 1800); };
   const [cardLoading, setCardLoading] = useState('');
+  const [branding, setBranding] = useState({ entity_name: '', slogan: '', logo_path: null });
+  const [brandSaving, setBrandSaving] = useState(false);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const logoRef = useRef(null);
+  useEffect(() => {
+    if (!shareOpen) return;
+    api('/settings').then(s => setBranding({ entity_name: s.entity_name || '', slogan: s.slogan || '', logo_path: s.logo_path || null })).catch(() => {});
+  }, [shareOpen]);
+  const uploadLogo = async (file) => {
+    if (!file) return;
+    setLogoUploading(true);
+    try {
+      const fd = new FormData(); fd.append('file', file);
+      const r = await api('/upload-logo', { method: 'POST', body: fd, raw: true });
+      setBranding(b => ({ ...b, logo_path: r.path }));
+      toast.success(tt('Logo subido'));
+    } catch { toast.error(tt('No se pudo subir el logo')); }
+    setLogoUploading(false);
+  };
+  const saveBranding = async () => {
+    setBrandSaving(true);
+    try {
+      await api('/settings', { method: 'PUT', body: { eval_days: 14, expiry_days: 30, ...branding } });
+      toast.success(tt('Marca guardada'));
+    } catch { toast.error(tt('Error al guardar')); }
+    setBrandSaving(false);
+  };
   const socialCard = async (format) => {
     setCardLoading(format);
     try {
@@ -853,6 +880,28 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
                   <div className="pt-3 mt-1 border-t border-slate-150">
                     <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5"><Instagram className="w-3.5 h-3.5" />Tarjeta para redes</p>
                     <p className="text-[12px] text-slate-500 mb-2.5">Descarga una imagen lista para publicar en Instagram, Facebook o TikTok.</p>
+
+                    {/* Editor de marca de la entidad */}
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 mb-3 space-y-2" data-testid="branding-editor">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Tu marca (opcional)</p>
+                      <div className="flex items-center gap-3">
+                        <button type="button" onClick={() => logoRef.current?.click()} disabled={logoUploading}
+                          className="w-14 h-14 rounded-lg border-2 border-dashed border-slate-300 bg-white flex items-center justify-center overflow-hidden shrink-0 hover:border-slate-400" data-testid="branding-logo-btn">
+                          {logoUploading ? <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+                            : branding.logo_path ? <img src={photoUrl(branding.logo_path)} alt="logo" className="w-full h-full object-contain" />
+                            : <Camera className="w-5 h-5 text-slate-400" />}
+                        </button>
+                        <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={(e) => uploadLogo(e.target.files?.[0])} data-testid="branding-logo-input" />
+                        <div className="flex-1 space-y-2">
+                          <Input value={branding.entity_name} onChange={e => setBranding(b => ({ ...b, entity_name: e.target.value }))} placeholder={tt('Nombre de la entidad / club')} className="bg-white h-8 text-[13px]" data-testid="branding-entity-input" maxLength={60} />
+                          <Input value={branding.slogan} onChange={e => setBranding(b => ({ ...b, slogan: e.target.value }))} placeholder={tt('Tu lema (ej. Formando campeones)')} className="bg-white h-8 text-[13px]" data-testid="branding-slogan-input" maxLength={80} />
+                        </div>
+                      </div>
+                      <Button size="sm" onClick={saveBranding} disabled={brandSaving} variant="outline" className="w-full border-slate-300 h-8 text-[12px]" data-testid="branding-save-btn">
+                        {brandSaving ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Check className="w-3.5 h-3.5 mr-1" />}Guardar marca
+                      </Button>
+                    </div>
+
                     <div className="flex gap-2">
                       <Button onClick={() => socialCard('post')} disabled={!!cardLoading} className="flex-1 bg-gradient-to-br from-[#0A0F1E] to-[#1a2340] text-[#D4AF37] hover:opacity-90" data-testid="social-card-post-btn">
                         {cardLoading === 'post' ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Instagram className="w-4 h-4 mr-1" />}Post (1:1.25)
