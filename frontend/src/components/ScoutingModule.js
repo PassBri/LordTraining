@@ -654,6 +654,22 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
     }
   };
   const copyLink = () => { navigator.clipboard?.writeText(shareUrl); setCopied(true); toast.success(tt('Enlace copiado')); setTimeout(() => setCopied(false), 1800); };
+  const [cardLoading, setCardLoading] = useState('');
+  const socialCard = async (format) => {
+    setCardLoading(format);
+    try {
+      const res = await fetch(`${API_URL}/api/recruiting/prospects/${p.id}/social-card?format=${format}`, { headers: { Authorization: `Bearer ${token()}` } });
+      if (!res.ok) throw new Error();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `${(p.name || 'prospecto').replace(/\s+/g, '_')}-${format}.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast.success(format === 'story' ? 'Tarjeta Story descargada' : 'Tarjeta Post descargada');
+    } catch { toast.error(tt('No se pudo generar la tarjeta')); }
+    setCardLoading('');
+  };
   const disableShare = async () => {
     try { await api(`/prospects/${p.id}/share`, { method: 'DELETE' }); setShareId(null); setShareOpen(false); onChanged(p.id); toast.success(tt('Enlace desactivado')); }
     catch { toast.error(tt('Error')); }
@@ -831,6 +847,20 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
                       <Button variant="outline" className="w-full border-slate-300" data-testid="share-open-btn"><Globe className="w-4 h-4 mr-1" />Abrir ficha</Button>
                     </a>
                     <Button variant="outline" onClick={disableShare} className="border-red-200 text-red-500 hover:bg-red-50" data-testid="share-disable-btn">{tt('Desactivar enlace')}</Button>
+                  </div>
+
+                  {/* Tarjeta para redes sociales */}
+                  <div className="pt-3 mt-1 border-t border-slate-150">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5"><Instagram className="w-3.5 h-3.5" />Tarjeta para redes</p>
+                    <p className="text-[12px] text-slate-500 mb-2.5">Descarga una imagen lista para publicar en Instagram, Facebook o TikTok.</p>
+                    <div className="flex gap-2">
+                      <Button onClick={() => socialCard('post')} disabled={!!cardLoading} className="flex-1 bg-gradient-to-br from-[#0A0F1E] to-[#1a2340] text-[#D4AF37] hover:opacity-90" data-testid="social-card-post-btn">
+                        {cardLoading === 'post' ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Instagram className="w-4 h-4 mr-1" />}Post (1:1.25)
+                      </Button>
+                      <Button onClick={() => socialCard('story')} disabled={!!cardLoading} className="flex-1 bg-gradient-to-br from-[#0A0F1E] to-[#1a2340] text-[#D4AF37] hover:opacity-90" data-testid="social-card-story-btn">
+                        {cardLoading === 'story' ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Share2 className="w-4 h-4 mr-1" />}Story (9:16)
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ) : (

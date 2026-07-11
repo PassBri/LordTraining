@@ -1219,10 +1219,23 @@ async def upload_photo(file: UploadFile = File(...), user=Depends(get_current_us
     ext = (file.filename or "img.png").split(".")[-1].lower()
     if ext not in MIME_TYPES:
         raise HTTPException(400, "Formato no soportado (usa jpg, png, webp)")
-    path = f"{APP_NAME}/scouting/{uid}/{uuid.uuid4().hex}.{ext}"
     data = await file.read()
     if len(data) > 8 * 1024 * 1024:
         raise HTTPException(400, "Imagen demasiado grande (máx 8MB)")
+    # Optimizar: recorte cuadrado centrado + resize + compresión (miniatura pareja).
+    try:
+        from PIL import Image, ImageOps
+        import io as _io
+        img = Image.open(_io.BytesIO(data))
+        img = ImageOps.exif_transpose(img)
+        img = ImageOps.fit(img.convert("RGB"), (800, 800), Image.LANCZOS, centering=(0.5, 0.4))
+        buf = _io.BytesIO()
+        img.save(buf, format="JPEG", quality=85, optimize=True)
+        data = buf.getvalue()
+        ext = "jpg"
+    except Exception:
+        pass  # si falla la optimización, sube el original
+    path = f"{APP_NAME}/scouting/{uid}/{uuid.uuid4().hex}.{ext}"
     try:
         result = _put_object(path, data, MIME_TYPES[ext])
     except Exception as e:
@@ -1281,6 +1294,143 @@ async def _photo_bytes(photo_path: Optional[str]) -> Optional[bytes]:
         return content
     except Exception:
         return None
+
+
+# ───────────────────────── TARJETA REDES SOCIALES ─────────────────────────
+_FONT_BOLD = "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
+_FONT_REG = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
+
+
+def _hex2rgb(h):
+    h = h.lstrip("#")
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def _card_level(score):
+    if score is None:
+        return ("#64748B", "Sin evaluar")
+    for mn, col, label in [(90, "#22D3EE", "DIAMANTE"), (75, "#D4AF37", "ORO"),
+                           (60, "#94A3B8", "PLATA"), (40, "#B45309", "BRONCE"),
+                           (-1, "#64748B", "EN DESARROLLO")]:
+        if score >= mn:
+            return (col, label)
+    return ("#64748B", "EN DESARROLLO")
+
+
+def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post") -> bytes:
+    from PIL import Image, ImageDraw, ImageFont, ImageOps
+    import io as _io
+
+    W = 1080
+    H = 1350 if fmt == "post" else 1920
+    obsidian = (10, 15, 30)
+    gold = (212, 175, 55)
+
+    def font(size, bold=True):
+        try:
+            return ImageFont.truetype(_FONT_BOLD if bold else _FONT_REG, size)
+        except Exception:
+            return ImageFont.load_default()
+
+    base = Image.new("RGB", (W, H), obsidian)
+    draw = ImageDraw.Draw(base)
+    photo_h = int(H * 0.60)
+
+    # Foto (o placeholder)
+    if photo:
+        try:
+            ph = ImageOps.exif_transpose(Image.open(_io.BytesIO(photo))).convert("RGB")
+            ph = ImageOps.fit(ph, (W, photo_h), Image.LANCZOS, centering=(0.5, 0.32))
+            base.paste(ph, (0, 0))
+        except Exception:
+            photo = None
+    if not photo:
+        for y in range(photo_h):
+            t = y / photo_h
+            c = (int(15 + 20 * t), int(20 + 25 * t), int(40 + 30 * t))
+            draw.line([(0, y), (W, y)], fill=c)
+        initial = (p.get("name") or "?")[:1].upper()
+        f = font(320, True)
+        tw = draw.textlength(initial, font=f)
+        draw.text(((W - tw) / 2, photo_h / 2 - 200), initial, font=f, fill=(40, 50, 70))
+
+    # Degradado inferior para legibilidad
+    grad = Image.new("L", (1, photo_h), 0)
+    for y in range(photo_h):
+        t = max(0.0, (y - photo_h * 0.45) / (photo_h * 0.55))
+        grad.putpixel((0, y), int(255 * min(1.0, t)))
+    alpha = grad.resize((W, photo_h))
+    overlay = Image.new("RGB", (W, photo_h), obsidian)
+    crop = base.crop((0, 0, W, photo_h))
+    base.paste(Image.composite(overlay, crop, alpha), (0, 0))
+    draw = ImageDraw.Draw(base)
+
+    # Barra dorada bajo la foto
+    draw.rectangle([0, photo_h - 6, W, photo_h], fill=gold)
+
+    # Wordmark
+    fw = font(46, True)
+    draw.text((60, 52), "LORD", font=fw, fill=(255, 255, 255))
+    wl = draw.textlength("LORD", font=fw)
+    draw.text((60 + wl, 52), "TRAINING", font=fw, fill=gold)
+    draw.text((62, 108), "SCOUTING REPORT", font=font(24, True), fill=gold)
+
+    # Círculo de score
+    ev = p.get("evaluation") or {}
+    score = ev.get("overall")
+    col_hex, level_label = _card_level(score)
+    col = _hex2rgb(col_hex)
+    cx, cy, r = W - 150, 135, 88
+    draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(8, 12, 24), outline=col, width=9)
+    stxt = str(score) if score is not None else "—"
+    f = font(70, True)
+    tw = draw.textlength(stxt, font=f)
+    draw.text((cx - tw / 2, cy - 58), stxt, font=f, fill=(255, 255, 255))
+    fs = font(22, True)
+    sw = draw.textlength("SCORE", font=fs)
+    draw.text((cx - sw / 2, cy + 22), "SCORE", font=fs, fill=(148, 163, 184))
+
+    # Bloque inferior
+    ty = photo_h + 44
+    draw.text((60, ty), (p.get("name") or "")[:22], font=font(74, True), fill=(255, 255, 255))
+    ty += 98
+    meta = " · ".join([x for x in [p.get("position"), p.get("sport_name") or p.get("sport")] if x])
+    if meta:
+        draw.text((60, ty), meta[:40], font=font(38, False), fill=gold)
+        ty += 60
+    club = p.get("current_club")
+    if club:
+        draw.text((60, ty), str(club)[:40], font=font(31, False), fill=(148, 163, 184))
+        ty += 52
+
+    # Pill de nivel
+    plabel = level_label
+    pf = font(28, True)
+    lw = draw.textlength(plabel, font=pf)
+    draw.rounded_rectangle([60, ty + 12, 60 + lw + 56, ty + 12 + 58], radius=29, fill=col)
+    draw.text((60 + 28, ty + 26), plabel, font=pf, fill=(10, 15, 30))
+
+    # Footer
+    draw.text((60, H - 62), "lordtraining.app", font=font(26, False), fill=(100, 116, 139))
+
+    out = _io.BytesIO()
+    base.save(out, format="PNG")
+    return out.getvalue()
+
+
+@router.get("/prospects/{pid}/social-card")
+async def social_card(pid: str, format: str = Query("post"), user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    p = await _prospects.find_one({"id": pid, "coach_id": uid}, {"_id": 0})
+    if not p:
+        raise HTTPException(404, "Prospecto no encontrado")
+    photo = await _photo_bytes(p.get("photo_path"))
+    fmt = "story" if format == "story" else "post"
+    img = _build_social_card(p, photo, fmt)
+    fname = f"{(p.get('name') or 'prospecto').replace(' ', '_')}-{fmt}.png"
+    return Response(content=img, media_type="image/png",
+                    headers={"Content-Disposition": f'attachment; filename="{fname}"'})
+
 
 
 async def _season_summary_for(prospect_id, coach_id, sport):
