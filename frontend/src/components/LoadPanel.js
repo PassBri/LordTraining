@@ -29,7 +29,15 @@ export default function LoadPanel({ activePlan }) {
   const [level, setLevel] = useState('meso');
   const [metric, setMetric] = useState('carga');
   const [riskOnly, setRiskOnly] = useState(false);
+  const [focusName, setFocusName] = useState(null);
   const toggleSeries = (key) => setHidden((h) => ({ ...h, [key]: !h[key] }));
+  const distRef = React.useRef(null);
+  const jumpToGroup = (name) => {
+    setRiskOnly(true);
+    setFocusName(name);
+    setTimeout(() => distRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    setTimeout(() => setFocusName(null), 2600);
+  };
   // Extraer microciclos directamente del activePlan (estructura plan→macro→meso→micro→sesiones).
   // Calcular carga total (UA = vol*int/100), RPE prom, ACWR por semana de manera autónoma.
   // Fallback inteligente: usa detailed_data.fases si existe, si no usa los campos directos
@@ -240,16 +248,18 @@ export default function LoadPanel({ activePlan }) {
     const groups = {};
     data.forEach((d) => {
       const k = keyOf(d);
-      if (!groups[k]) groups[k] = { name: k, sum: 0, count: 0, weeks: 0, acwrSum: 0, acwrN: 0 };
+      if (!groups[k]) groups[k] = { name: k, sum: 0, count: 0, weeks: 0, acwrSum: 0, acwrN: 0, wkFirst: d.week, wkLast: d.week };
       groups[k].sum += (d[metric] || 0);
       groups[k].count += 1;
       groups[k].weeks += 1;
+      groups[k].wkLast = d.week;
       if (d.acwr > 0) { groups[k].acwrSum += d.acwr; groups[k].acwrN += 1; }
     });
     const arr = Object.values(groups).map((g) => {
       const acwrAvg = g.acwrN ? +(g.acwrSum / g.acwrN).toFixed(2) : 0;
       return {
         name: g.name, weeks: g.weeks, acwr: acwrAvg, zone: acwrZone(acwrAvg),
+        wkRange: g.wkFirst === g.wkLast ? g.wkFirst : `${g.wkFirst}–${g.wkLast}`,
         value: m.agg === 'avg' ? +(g.sum / Math.max(g.count, 1)).toFixed(metric === 'acwr' ? 2 : 0) : Math.round(g.sum),
       };
     });
@@ -411,8 +421,42 @@ export default function LoadPanel({ activePlan }) {
         </DialogContent>
       </Dialog>
 
+      {/* Resumen de tramos críticos (ACWR > 1.3) con acceso directo */}
+      {(() => {
+        const crit = breakdown.arr.filter((g) => g.acwr > 1.3).sort((a, b) => b.acwr - a.acwr);
+        if (!crit.length) return null;
+        const over = crit.filter((g) => g.acwr > 1.5).length;
+        const caut = crit.length - over;
+        const levelLabel = (LEVELS.find((l) => l.id === level)?.label || '').toLowerCase();
+        const parts = [];
+        if (over) parts.push(`${over} en Sobrecarga`);
+        if (caut) parts.push(`${caut} en Precaución`);
+        return (
+          <div className="rounded-xl border-2 border-red-200 bg-red-50 p-3.5" data-testid="dist-risk-summary">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="w-4 h-4 text-red-600" />
+              <h4 className="text-[13px] font-bold text-red-700">
+                {crit.length} {crit.length === 1 ? levelLabel.replace(/s$/, '') : levelLabel} en riesgo · {parts.join(' · ')}
+              </h4>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {crit.map((g, i) => (
+                <button key={g.name + i} onClick={() => jumpToGroup(g.name)} data-testid={`risk-chip-${i}`}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border text-[11px] font-bold hover:shadow-sm transition-all hover:-translate-y-0.5"
+                  style={{ borderColor: g.zone.color, color: g.zone.color }}
+                  title={`Ir a ${g.name} (${g.wkRange})`}>
+                  <span className="w-2 h-2 rounded-full" style={{ background: g.zone.color }} />
+                  {g.name} · ACWR {g.acwr}
+                  <span className="text-slate-400 font-medium">({g.wkRange})</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Distribución de carga por nivel */}
-      <Card>
+      <Card ref={distRef}>
         <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-indigo-600" />
@@ -450,7 +494,7 @@ export default function LoadPanel({ activePlan }) {
             {breakdown.arr.filter((g) => !riskOnly || g.acwr > 1.3).map((g, i) => {
               const pct = Math.round((g.value / breakdown.max) * 100);
               return (
-                <div key={g.name + i} className="flex items-center gap-3" data-testid={`dist-row-${i}`}>
+                <div key={g.name + i} className={`flex items-center gap-3 rounded-lg transition-all ${focusName === g.name ? 'ring-2 ring-red-400 ring-offset-2 bg-red-50/60 px-2 -mx-2' : ''}`} data-testid={`dist-row-${i}`}>
                   <div className="w-36 text-[12px] font-bold text-slate-700 truncate" title={g.name}>{g.name}</div>
                   <div className="flex-1 h-9 bg-slate-100 rounded-lg overflow-hidden relative">
                     <div className="h-full rounded-lg transition-all duration-500 flex items-center justify-end pr-3 text-[12px] text-white font-bold"
