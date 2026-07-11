@@ -1527,19 +1527,45 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
 
 
 @router.get("/prospects/{pid}/social-card")
-async def social_card(pid: str, format: str = Query("post"), user=Depends(get_current_user_dep())):
-    uid = _uid(user)
+async def social_card(pid: str, format: str = Query("post"),
+                      entity: Optional[str] = Query(None), slogan: Optional[str] = Query(None),
+                      logo_path: Optional[str] = Query(None),
+                      authorization: str = Header(None), auth: str = Query(None)):
+    # Auth: header o query (?auth=token) para poder usarse en <img src> (preview en vivo).
+    tok = None
+    if authorization and authorization.startswith("Bearer "):
+        tok = authorization.split(" ", 1)[1]
+    elif auth:
+        tok = auth
+    if not tok:
+        raise HTTPException(401, "No autorizado")
+    import jwt as _jwt
+    from core.auth import JWT_SECRET, JWT_ALGORITHM
+    try:
+        payload = _jwt.decode(tok, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        if payload.get("type", "access") == "refresh":
+            raise HTTPException(401, "Token inválido")
+        uid = payload["user_id"]
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(401, "Token inválido")
+
     p = await _prospects.find_one({"id": pid, "coach_id": uid}, {"_id": 0})
     if not p:
         raise HTTPException(404, "Prospecto no encontrado")
-    photo = await _photo_bytes(p.get("photo_path"))
     settings = await _get_settings(uid)
-    logo = await _photo_bytes(settings.get("logo_path"))
+    branding = {
+        "entity_name": entity if entity is not None else settings.get("entity_name", ""),
+        "slogan": slogan if slogan is not None else settings.get("slogan", ""),
+    }
+    lp = logo_path if logo_path is not None else settings.get("logo_path")
+    logo = await _photo_bytes(lp) if lp else None
     fmt = "story" if format == "story" else "post"
-    img = _build_social_card(p, photo, fmt, branding=settings, logo=logo)
+    img = _build_social_card(p, photo=await _photo_bytes(p.get("photo_path")), fmt=fmt, branding=branding, logo=logo)
     fname = f"{(p.get('name') or 'prospecto').replace(' ', '_')}-{fmt}.png"
     return Response(content=img, media_type="image/png",
-                    headers={"Content-Disposition": f'attachment; filename="{fname}"'})
+                    headers={"Content-Disposition": f'inline; filename="{fname}"'})
 
 
 

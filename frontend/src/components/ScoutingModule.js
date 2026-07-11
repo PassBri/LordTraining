@@ -658,11 +658,29 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
   const [branding, setBranding] = useState({ entity_name: '', slogan: '', logo_path: null });
   const [brandSaving, setBrandSaving] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
+  const [previewFmt, setPreviewFmt] = useState('post');
+  const [previewUrl, setPreviewUrl] = useState('');
   const logoRef = useRef(null);
+  const cardParams = () => {
+    const q = new URLSearchParams();
+    q.set('entity', branding.entity_name || '');
+    q.set('slogan', branding.slogan || '');
+    if (branding.logo_path) q.set('logo_path', branding.logo_path);
+    return q.toString();
+  };
   useEffect(() => {
     if (!shareOpen) return;
     api('/settings').then(s => setBranding({ entity_name: s.entity_name || '', slogan: s.slogan || '', logo_path: s.logo_path || null })).catch(() => {});
   }, [shareOpen]);
+  // Vista previa en vivo (debounce)
+  useEffect(() => {
+    if (!shareOpen) { setPreviewUrl(''); return; }
+    const t = setTimeout(() => {
+      const url = `${API_URL}/api/recruiting/prospects/${p.id}/social-card?format=${previewFmt}&auth=${encodeURIComponent(token())}&${cardParams()}&_t=${Date.now()}`;
+      setPreviewUrl(url);
+    }, 450);
+    return () => clearTimeout(t);
+  }, [shareOpen, previewFmt, branding.entity_name, branding.slogan, branding.logo_path]);
   const uploadLogo = async (file) => {
     if (!file) return;
     setLogoUploading(true);
@@ -685,7 +703,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
   const socialCard = async (format) => {
     setCardLoading(format);
     try {
-      const res = await fetch(`${API_URL}/api/recruiting/prospects/${p.id}/social-card?format=${format}`, { headers: { Authorization: `Bearer ${token()}` } });
+      const res = await fetch(`${API_URL}/api/recruiting/prospects/${p.id}/social-card?format=${format}&${cardParams()}`, { headers: { Authorization: `Bearer ${token()}` } });
       if (!res.ok) throw new Error();
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -900,6 +918,27 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
                       <Button size="sm" onClick={saveBranding} disabled={brandSaving} variant="outline" className="w-full border-slate-300 h-8 text-[12px]" data-testid="branding-save-btn">
                         {brandSaving ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Check className="w-3.5 h-3.5 mr-1" />}Guardar marca
                       </Button>
+                    </div>
+
+                    {/* Vista previa en vivo */}
+                    <div className="mb-3" data-testid="card-preview-wrap">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Vista previa</span>
+                        <div className="flex rounded-lg overflow-hidden border border-slate-200">
+                          <button onClick={() => setPreviewFmt('post')} data-testid="preview-fmt-post"
+                            className={`px-2.5 py-1 text-[11px] font-semibold ${previewFmt === 'post' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500'}`}>Post</button>
+                          <button onClick={() => setPreviewFmt('story')} data-testid="preview-fmt-story"
+                            className={`px-2.5 py-1 text-[11px] font-semibold ${previewFmt === 'story' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500'}`}>Story</button>
+                        </div>
+                      </div>
+                      <div className="flex justify-center rounded-xl bg-slate-100 p-3">
+                        {previewUrl ? (
+                          <img src={previewUrl} alt="preview" data-testid="card-preview-img"
+                            className={`rounded-lg shadow-md ${previewFmt === 'story' ? 'h-64' : 'h-56'} w-auto object-contain`} />
+                        ) : (
+                          <div className="h-56 flex items-center justify-center text-slate-400"><Loader2 className="w-6 h-6 animate-spin" /></div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex gap-2">
