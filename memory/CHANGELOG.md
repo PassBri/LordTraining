@@ -1,5 +1,12 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-11 — Tarjeta de Redes (Scouting): recorte facial + layout adaptativo + compartir nativo
+- **Recorte facial inteligente (`recruiting.py`)**: nuevo `_detect_face_box()` (OpenCV haarcascade en `/app/backend/assets/haarcascade_frontalface_default.xml`) + `_smart_photo_fit()`. Encuadra el rostro al ~42% desde arriba para NO cortar la cabeza; fallback a encuadre superior seguro si no detecta rostro. Se instaló `opencv-python-headless` (en requirements.txt).
+- **Layout adaptativo (`_build_social_card`)**: espaciado y fuentes del bloque inferior se escalan dinámicamente (`gs` según espacio disponible) para llenar el formato **Story (9:16)** sin dejar hueco y sin desbordar en **Post (4:5)**. Foto más alta en Story (0.52·H). Título "SCOUTING REPORT" reforzado.
+- **Compartir directo nativo (`ScoutingModule.js`)**: nueva sección `native-share-wrap` en el diálogo de compartir con Web Share API (`navigator.share` con imagen adjunta → WhatsApp/IG/TikTok en móvil, con fallback a descarga en desktop), y botones directos de **WhatsApp** (wa.me + enlace público), **Facebook** (sharer), **Instagram** (descarga + aviso). Los botones de descarga ahora usan icono Download.
+- **Verificado (testing agent, iteración 117)**: 11/11 backend + 10/10 frontend PASS, sin issues. `POST/GET social-card` OK en post/story, con/sin foto y con/sin evaluación; toggle Post/Story actualiza el preview.
+
+
 ## 2026-07-10 — Fix login (título + pizarra) + Badge de nivel en portal atleta y PDF
 - **Login (`AuthPage.js`)**: (1) el título con efecto máquina-de-escribir que se cortaba/desaparecía → ahora **estático** (`t('auth.visual.phrase1')`, sin cursor ni nowrap). (2) La pizarra de preview tenía fondo **marrón** (`#1c160b`, resultado de mapear el verde) → corregido a **grafito chalkboard `#171d24`** con líneas de tiza. Verificado por screenshot.
 - **Badge de nivel (medallas) en PDF de evaluación (`evaluations_export.py`)**: nuevo `_level_badge_html(score)` (umbrales 90/75/60/40 = Diamante/Oro/Plata/Bronce/En desarrollo, gradiente metálico inline) inyectado en la tarjeta "Promedio Global Normalizado" cuando hay medidas.
