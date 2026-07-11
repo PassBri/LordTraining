@@ -17,7 +17,7 @@ import {
   Target, Plus, Users, Trello, ClipboardCheck, Trophy, X, Trash2, Edit2, Sparkles,
   FileDown, UserPlus, Camera, Video, Star, ChevronRight, MapPin, Loader2, Award,
   TrendingUp, AlertTriangle, GitCompare, Phone, Mail, Instagram, Share2, Copy, Globe, Check,
-  BellRing, Contact, Map as MapIcon, Crown, CalendarClock
+  BellRing, Contact, Map as MapIcon, Crown, CalendarClock, MessageCircle, Facebook, Download
 } from 'lucide-react';
 
 // i18n: auto-traducción slug-based (scouting.lbl.*)
@@ -716,6 +716,45 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
     } catch { toast.error(tt('No se pudo generar la tarjeta')); }
     setCardLoading('');
   };
+  const cardFile = async (format) => {
+    const res = await fetch(`${API_URL}/api/recruiting/prospects/${p.id}/social-card?format=${format}&${cardParams()}`, { headers: { Authorization: `Bearer ${token()}` } });
+    if (!res.ok) throw new Error();
+    const blob = await res.blob();
+    return new File([blob], `${(p.name || 'prospecto').replace(/\s+/g, '_')}-${format}.png`, { type: 'image/png' });
+  };
+  const shareNative = async () => {
+    setCardLoading('share');
+    try {
+      const file = await cardFile(previewFmt);
+      const text = `${p.name || 'Prospecto'} · Scouting Report — LordTraining`;
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: text, text });
+      } else {
+        const url = URL.createObjectURL(file);
+        const a = document.createElement('a'); a.href = url; a.download = file.name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        toast.info(tt('Tu equipo no permite compartir directo. Descargamos la imagen para que la subas.'), { duration: 4000 });
+      }
+    } catch (e) {
+      if (e?.name !== 'AbortError') toast.error(tt('No se pudo compartir la tarjeta'));
+    }
+    setCardLoading('');
+  };
+  const shareWhatsApp = () => {
+    const text = shareUrl
+      ? `${p.name || 'Prospecto'} · Scouting Report — LordTraining ${shareUrl}`
+      : `${p.name || 'Prospecto'} · Scouting Report — LordTraining`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+  };
+  const shareFacebook = () => {
+    if (!shareUrl) { toast.info(tt('Activa el enlace público para compartir el perfil en Facebook.')); return; }
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener');
+  };
+  const shareInstagram = async () => {
+    await socialCard(previewFmt);
+    toast.info(tt('Imagen descargada. Ábrela en Instagram para publicarla.'), { duration: 4000 });
+  };
   const disableShare = async () => {
     try { await api(`/prospects/${p.id}/share`, { method: 'DELETE' }); setShareId(null); setShareOpen(false); onChanged(p.id); toast.success(tt('Enlace desactivado')); }
     catch { toast.error(tt('Error')); }
@@ -955,11 +994,27 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
 
                     <div className="flex gap-2">
                       <Button onClick={() => socialCard('post')} disabled={!!cardLoading} className="flex-1 bg-gradient-to-br from-[#0A0F1E] to-[#1a2340] text-[#D4AF37] hover:opacity-90" data-testid="social-card-post-btn">
-                        {cardLoading === 'post' ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Instagram className="w-4 h-4 mr-1" />}Post (1:1.25)
+                        {cardLoading === 'post' ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}Post (1:1.25)
                       </Button>
                       <Button onClick={() => socialCard('story')} disabled={!!cardLoading} className="flex-1 bg-gradient-to-br from-[#0A0F1E] to-[#1a2340] text-[#D4AF37] hover:opacity-90" data-testid="social-card-story-btn">
-                        {cardLoading === 'story' ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Share2 className="w-4 h-4 mr-1" />}Story (9:16)
+                        {cardLoading === 'story' ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}Story (9:16)
                       </Button>
+                    </div>
+
+                    {/* Compartir directo (nativo + redes) */}
+                    <div className="mt-3 pt-3 border-t border-slate-100" data-testid="native-share-wrap">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        Compartir directo · {previewFmt === 'story' ? 'Story' : 'Post'}
+                      </span>
+                      <div className="flex gap-2 mt-1.5">
+                        <Button onClick={shareNative} disabled={!!cardLoading} className="flex-1 bg-slate-900 text-white hover:bg-slate-800" data-testid="share-native-btn">
+                          {cardLoading === 'share' ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Share2 className="w-4 h-4 mr-1" />}Compartir
+                        </Button>
+                        <Button onClick={shareWhatsApp} variant="outline" className="border-green-200 text-green-600 hover:bg-green-50 px-3" title="WhatsApp" data-testid="share-whatsapp-btn"><MessageCircle className="w-4 h-4" /></Button>
+                        <Button onClick={shareFacebook} variant="outline" className="border-blue-200 text-blue-600 hover:bg-blue-50 px-3" title="Facebook" data-testid="share-facebook-btn"><Facebook className="w-4 h-4" /></Button>
+                        <Button onClick={shareInstagram} disabled={!!cardLoading} variant="outline" className="border-pink-200 text-pink-500 hover:bg-pink-50 px-3" title="Instagram" data-testid="share-instagram-btn"><Instagram className="w-4 h-4" /></Button>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1.5">En el móvil, "Compartir" abre WhatsApp, Instagram, TikTok y más con la imagen adjunta.</p>
                     </div>
                   </div>
                 </div>

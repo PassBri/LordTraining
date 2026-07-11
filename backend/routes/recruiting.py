@@ -1352,11 +1352,74 @@ async def _photo_bytes(photo_path: Optional[str]) -> Optional[bytes]:
 # ───────────────────────── TARJETA REDES SOCIALES ─────────────────────────
 _FONT_BOLD = "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
 _FONT_REG = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
+_FONT_COND = "/usr/share/fonts/truetype/liberation/LiberationSansNarrow-Bold.ttf"
+_HAAR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets",
+                          "haarcascade_frontalface_default.xml")
+_FACE_CASCADE = None
 
 
 def _hex2rgb(h):
     h = h.lstrip("#")
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def _detect_face_box(pil_img):
+    """Devuelve (cx, cy) del rostro (unión de rostros) en coords de la imagen, o None."""
+    global _FACE_CASCADE
+    try:
+        import cv2
+        import numpy as np
+        if _FACE_CASCADE is None:
+            _FACE_CASCADE = cv2.CascadeClassifier(_HAAR_PATH)
+        if _FACE_CASCADE.empty():
+            return None
+        sw, sh = pil_img.size
+        scale = 1.0
+        max_side = 900
+        work = pil_img
+        if max(sw, sh) > max_side:
+            scale = max_side / max(sw, sh)
+            work = pil_img.resize((int(sw * scale), int(sh * scale)))
+        gray = cv2.cvtColor(np.array(work.convert("RGB")), cv2.COLOR_RGB2GRAY)
+        gray = cv2.equalizeHist(gray)
+        faces = _FACE_CASCADE.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5,
+                                               minSize=(40, 40))
+        if len(faces) == 0:
+            return None
+        x0 = min(f[0] for f in faces)
+        y0 = min(f[1] for f in faces)
+        x1 = max(f[0] + f[2] for f in faces)
+        y1 = max(f[1] + f[3] for f in faces)
+        cx = (x0 + x1) / 2 / scale
+        cy = (y0 + y1) / 2 / scale
+        return (cx, cy)
+    except Exception:
+        return None
+
+
+def _smart_photo_fit(pil_img, tw, th, face_frac=0.42):
+    """Recorta la foto al tamaño destino centrando el rostro (o encuadre superior seguro)."""
+    from PIL import Image, ImageOps
+    img = ImageOps.exif_transpose(pil_img).convert("RGB")
+    sw, sh = img.size
+    target_ratio = tw / th
+    if sw / sh > target_ratio:
+        cw, ch = int(round(sh * target_ratio)), sh
+    else:
+        cw, ch = sw, int(round(sw / target_ratio))
+    face = _detect_face_box(img)
+    if face:
+        fcx, fcy = face
+        center_x = fcx
+        # el rostro queda a ~face_frac de la parte superior del recorte
+        center_y = fcy + (0.5 - face_frac) * ch
+    else:
+        center_x = sw / 2
+        center_y = ch / 2 + sh * 0.06  # encuadre superior seguro: no corta la cabeza
+    left = int(max(0, min(center_x - cw / 2, sw - cw)))
+    top = int(max(0, min(center_y - ch / 2, sh - ch)))
+    crop = img.crop((left, top, left + cw, top + ch))
+    return crop.resize((tw, th), Image.LANCZOS)
 
 
 def _card_level(score):
@@ -1394,7 +1457,8 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
     import io as _io
 
     W = 1080
-    H = 1350 if fmt == "post" else 1920
+    is_story = fmt != "post"
+    H = 1920 if is_story else 1350
     obsidian = (10, 15, 30)
     _b = branding or {}
     try:
@@ -1410,13 +1474,12 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
 
     base = Image.new("RGB", (W, H), obsidian)
     draw = ImageDraw.Draw(base)
-    photo_h = int(H * 0.48)
+    photo_h = int(H * (0.52 if is_story else 0.48))
 
-    # Foto (o placeholder)
+    # Foto (o placeholder) — recorte con detección facial para no cortar la cabeza
     if photo:
         try:
-            ph = ImageOps.exif_transpose(Image.open(_io.BytesIO(photo))).convert("RGB")
-            ph = ImageOps.fit(ph, (W, photo_h), Image.LANCZOS, centering=(0.5, 0.32))
+            ph = _smart_photo_fit(Image.open(_io.BytesIO(photo)), W, photo_h)
             base.paste(ph, (0, 0))
         except Exception:
             photo = None
@@ -1466,45 +1529,62 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
     sw = draw.textlength("SCORE", font=fs)
     draw.text((cx - sw / 2, cy + 22), "SCORE", font=fs, fill=(148, 163, 184))
 
-    # Bloque inferior
-    ty = photo_h + 40
-    draw.text((60, ty), (p.get("name") or "")[:22], font=font(70, True), fill=(255, 255, 255))
-    ty += 88
+    # Bloque inferior — espaciado dinámico para llenar sin desbordar
     meta = " · ".join([x for x in [p.get("position"), p.get("sport_name") or p.get("sport")] if x])
-    if meta:
-        draw.text((60, ty), meta[:40], font=font(34, False), fill=gold)
-        ty += 52
     club = p.get("current_club")
+    metrics = _top_metrics(ev, 3)
+    fz = 1.08 if is_story else 1.0
+
+    g_start, g_name, g_meta, g_club, g_pill, g_header, g_row, g_tail = 48, 94, 56, 50, 98, 48, 72, 58
+    needed = g_start + g_name
+    if meta:
+        needed += g_meta
     if club:
-        draw.text((60, ty), str(club)[:40], font=font(30, False), fill=(148, 163, 184))
-        ty += 46
+        needed += g_club
+    needed += g_pill
+    if metrics:
+        needed += g_header + g_row * len(metrics) + g_tail
+    footer_top = H - 134
+    available = footer_top - photo_h
+    gs = max(0.80, min(1.55, available / max(1, needed)))
+
+    ty = photo_h + int(g_start * gs)
+    draw.text((60, ty), (p.get("name") or "")[:22], font=font(int(72 * fz), True), fill=(255, 255, 255))
+    ty += int(g_name * gs)
+    if meta:
+        draw.text((60, ty), meta[:40], font=font(int(36 * fz), False), fill=gold)
+        ty += int(g_meta * gs)
+    if club:
+        draw.text((60, ty), str(club)[:40], font=font(int(31 * fz), False), fill=(148, 163, 184))
+        ty += int(g_club * gs)
 
     # Pill de nivel
     plabel = level_label
-    pf = font(27, True)
+    pf = font(int(28 * fz), True)
     lw = draw.textlength(plabel, font=pf)
-    draw.rounded_rectangle([60, ty + 10, 60 + lw + 52, ty + 10 + 54], radius=27, fill=col)
-    draw.text((60 + 26, ty + 23), plabel, font=pf, fill=(10, 15, 30))
-    ty += 90
+    ph_pill = int(58 * fz)
+    draw.rounded_rectangle([60, ty, 60 + lw + 54, ty + ph_pill], radius=ph_pill // 2, fill=col)
+    draw.text((60 + 27, ty + (ph_pill - int(28 * fz)) // 2 - 2), plabel, font=pf, fill=(10, 15, 30))
+    ty += int(g_pill * gs)
 
     # Top 3 métricas como mini-barras
-    metrics = _top_metrics(ev, 3)
     if metrics:
-        draw.text((60, ty), "MEJORES MÉTRICAS", font=font(22, True), fill=(148, 163, 184))
-        ty += 42
+        draw.text((60, ty), "MEJORES MÉTRICAS", font=font(int(23 * fz), True), fill=(148, 163, 184))
+        ty += int(g_header * gs)
         bar_w = W - 120
-        lf = font(29, True)
-        vf = font(29, True)
+        bar_h = int(14 * fz)
+        lf = font(int(31 * fz), True)
+        vf = font(int(31 * fz), True)
         for label, val in metrics:
             draw.text((60, ty), label[:26], font=lf, fill=(230, 235, 245))
             vtxt = str(val)
             vw = draw.textlength(vtxt, font=vf)
             draw.text((60 + bar_w - vw, ty), vtxt, font=vf, fill=gold)
-            track_y = ty + 38
-            draw.rounded_rectangle([60, track_y, 60 + bar_w, track_y + 13], radius=6, fill=(30, 40, 60))
-            fill_w = max(13, int(bar_w * val / 100.0))
-            draw.rounded_rectangle([60, track_y, 60 + fill_w, track_y + 13], radius=6, fill=gold)
-            ty += 66
+            track_y = ty + int(42 * fz)
+            draw.rounded_rectangle([60, track_y, 60 + bar_w, track_y + bar_h], radius=bar_h // 2, fill=(30, 40, 60))
+            fill_w = max(bar_h, int(bar_w * val / 100.0))
+            draw.rounded_rectangle([60, track_y, 60 + fill_w, track_y + bar_h], radius=bar_h // 2, fill=gold)
+            ty += int(g_row * gs)
 
     # Footer con marca personalizada (logo + entidad + lema) o marca por defecto
     b = branding or {}

@@ -1,0 +1,49 @@
+{
+  "summary": "Validated backend social-card endpoint (Pillow PNG generator) + frontend share dialog with new 'Compartir directo' section. All 11 backend tests PASS and all 10 frontend testids present + interactive. Toggle Post/Story updates preview src correctly. WhatsApp/Facebook/Instagram/Native share buttons render, are clickable, and do not crash the app; Instagram + Native fallback toasts fire with the expected Spanish text.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_social_card.py",
+    "/app/test_reports/pytest/test_social_card.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "recruiting.py L1623-1663 social-card endpoint: token accepted via Authorization header OR ?auth= query param — validated 401 without token, 401 with invalid token, 200 with either channel; JWT `type=refresh` correctly rejected. Good pattern for <img src> preview.",
+    "_build_social_card handles both photo/no-photo (placeholder) and eval/no-eval cases without 500 (verified via 4 combinations).",
+    "Aspect ratios validated with Pillow: post≈4:5 (delta<0.02) and story≈9:16 (delta<0.02).",
+    "ScoutingModule.js: previewUrl regenerates when previewFmt toggles Post↔Story — verified src changes from format=post to format=story and back.",
+    "shareFacebook shows a toast only when shareUrl is falsy; in the tested prospect the public share link is active, so clicking Facebook opens the sharer popup (no toast). This is expected behavior.",
+    "shareNative correctly falls back to download+toast when navigator.canShare/share is unavailable (as in headless Chromium).",
+    "Suggestion (non-blocking): the 'Link de Scouting público' Dialog wraps both public-link and card-preview + native-share section. Consider surfacing the Compartir button separately when there is no public link yet — currently clicking 'Compartir' auto-generates/loads the public link which is fine but changes state."
+  ],
+  "updated_files": ["/app/backend/tests/test_social_card.py"],
+  "success_rate": {"backend": "100% (11/11 pytest cases)", "frontend": "100% on requested testids and interactions"},
+  "test_credentials": "SuperAdmin juegolaureado@gmail.com / LordTraining2026! (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "Ephemeral: TEST_SocialCard_NoPhoto + TEST_SocialCard_WithPhoto prospects created and deleted by pytest module fixtures (module scope with teardown). Used existing prospect 'TEST_E2E_Prospect' for UI test (not modified).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Frontend: Login as SuperAdmin, click sidebar 'Scouting' → click any prospect card → click data-testid='detail-share-btn'. Dialog 'Link de Scouting público' opens with sections: (a) public link + Abrir ficha/Desactivar; (b) TARJETA PARA REDES with brand form + Vista Previa (Post/Story toggles, live img preview via data-testid='card-preview-img', src carries ?auth=<jwt>&format=post|story); (c) Post(1:1.25) / Story(9:16) download buttons; (d) 'COMPARTIR DIRECTO - POST|STORY' with data-testid='native-share-wrap' containing share-native-btn, share-whatsapp-btn, share-facebook-btn, share-instagram-btn. Toggle preview-fmt-story updates preview src to format=story. Backend: pytest /app/backend/tests/test_social_card.py -v runs 11 cases in ~4s covering auth, formats, no-photo/photo, no-eval/eval, unknown pid 404 and aspect ratios.",
+  "verified_flows": {
+    "backend_auth_bearer": "PASS — 200 with Authorization header, image/png",
+    "backend_auth_query_param": "PASS — 200 with ?auth=<jwt>, image/png",
+    "backend_auth_missing": "PASS — 401",
+    "backend_auth_invalid_token": "PASS — 401",
+    "backend_format_post_no_photo_no_eval": "PASS — valid PNG, >1KB",
+    "backend_format_story_no_photo_no_eval": "PASS — valid PNG, >1KB",
+    "backend_format_post_with_photo_and_eval": "PASS — valid PNG (facial-detection path)",
+    "backend_format_story_with_photo_and_eval": "PASS — valid PNG (facial-detection path)",
+    "backend_default_format_is_post": "PASS — no format param defaults to post",
+    "backend_unknown_prospect_404": "PASS",
+    "backend_post_aspect_4_5": "PASS — ratio ≈ 0.8",
+    "backend_story_aspect_9_16": "PASS — ratio ≈ 0.5625",
+    "frontend_share_dialog_opens": "PASS — detail-share-btn opens dialog",
+    "frontend_all_testids_visible": "PASS — 10/10 (card-preview-img, preview-fmt-post/story, social-card-post/story-btn, native-share-wrap, share-native-btn, share-whatsapp-btn, share-facebook-btn, share-instagram-btn all count=1 visible=True)",
+    "frontend_toggle_post_story": "PASS — img src switches from format=post to format=story and back",
+    "frontend_whatsapp_click": "PASS — no crash, wa.me window.open invoked (headless popup blocked but click handler runs cleanly)",
+    "frontend_facebook_click": "PASS — no crash (public link exists so sharer opens instead of toast)",
+    "frontend_instagram_click": "PASS — toast 'Imagen descargada. Ábrela en Instagram para publicarla.'",
+    "frontend_native_share_fallback": "PASS — toast 'Tu equipo no permite compartir directo. Descargamos la imagen para que la subas.' (correct fallback when navigator.share unavailable in headless)"
+  },
+  "console_errors_observed": [],
+  "rca of the issue": "N/A — no issues found. Social card generator + share dialog + native/social-share buttons all work as specified."
+}
