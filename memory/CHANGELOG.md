@@ -1,5 +1,14 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-11 — Scouting: enlace de tarjeta con Open Graph + contadores + leaderboard "Talentos más compartidos"
+- **Enlace público de la tarjeta con vista previa (OG)** (`recruiting.py`): `GET /public/{share_id}/card` (PNG sin auth) y `GET /public/{share_id}/card-page` (HTML con meta Open Graph/Twitter → al pegar en WhatsApp/Facebook muestra la tarjeta). `_abs_url` honra `?b=` (base pública) para el patrón de ingress k8s. Filtro de bots (`_BOT_UA`) evita contar vistas de crawlers.
+- **Contadores separados por prospecto**: `share_stats {downloads, shares, views}` en el doc; `POST /prospects/{pid}/track {action}` incrementa vía `$inc`. `ProspectOut` ahora expone `share_stats`.
+- **Ranking `GET /share-ranking`**: top talentos por total (downloads+shares) con desglose y `views`.
+- **Frontend (`ScoutingModule.js`)**: en el diálogo de compartir → sección "Enlace de la tarjeta" (copiar/abrir) + grid de contadores (descargas/compartidos/vistas). Los botones de descarga y compartir (WhatsApp/Facebook/nativo/copiar enlace) registran `track`. WhatsApp/Facebook ahora comparten el enlace de la tarjeta (con OG). Nuevo componente exportado `SharedTalentsBoard`.
+- **Leaderboard "Talentos más compartidos"** en dos lugares: pestaña **Ranking** del módulo Scouting y **widget en el Panel de Control** (`ControlPanel.js`, tras el ranking de atletas).
+- **Verificado (testing agent, iteración 118)**: 16/16 backend + 100% frontend PASS. Sin issues bloqueantes. Notas menores no bloqueantes: el widget no auto-refresca hasta re-montar; `share-ranking` incluye filas con solo vistas.
+
+
 ## 2026-07-11 — Tarjeta de Redes (Scouting): recorte facial + layout adaptativo + compartir nativo
 - **Recorte facial inteligente (`recruiting.py`)**: nuevo `_detect_face_box()` (OpenCV haarcascade en `/app/backend/assets/haarcascade_frontalface_default.xml`) + `_smart_photo_fit()`. Encuadra el rostro al ~42% desde arriba para NO cortar la cabeza; fallback a encuadre superior seguro si no detecta rostro. Se instaló `opencv-python-headless` (en requirements.txt).
 - **Layout adaptativo (`_build_social_card`)**: espaciado y fuentes del bloque inferior se escalan dinámicamente (`gs` según espacio disponible) para llenar el formato **Story (9:16)** sin dejar hueco y sin desbordar en **Post (4:5)**. Foto más alta en Story (0.52·H). Título "SCOUTING REPORT" reforzado.
