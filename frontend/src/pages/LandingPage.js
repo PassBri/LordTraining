@@ -1447,17 +1447,20 @@ const LandingPage = () => {
           </div>
         </Reveal>
 
-        {/* 4 Segment cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12" data-testid="audiences-grid">
+        {/* Carrusel de audiencias */}
+        <div className="relative mb-12">
+          <button onClick={() => {const el=document.getElementById('aud-carousel'); if(el) el.scrollBy({left:-el.clientWidth*0.8,behavior:'smooth'});}} aria-label="Anterior" data-testid="aud-carousel-prev" className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-zinc-900 border border-zinc-700 text-white items-center justify-center hover:bg-[#D4AF37] hover:text-[#09090b] transition-colors shadow-lg"><ChevronLeft className="w-5 h-5"/></button>
+          <button onClick={() => {const el=document.getElementById('aud-carousel'); if(el) el.scrollBy({left:el.clientWidth*0.8,behavior:'smooth'});}} aria-label="Siguiente" data-testid="aud-carousel-next" className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-zinc-900 border border-zinc-700 text-white items-center justify-center hover:bg-[#D4AF37] hover:text-[#09090b] transition-colors shadow-lg"><ChevronRight className="w-5 h-5"/></button>
+          <div id="aud-carousel" data-testid="audiences-grid" className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-1 px-1" style={{scrollbarWidth:'none'}}>
           {[
             { key:'coaches', icon: UserCheck, color:'#D4AF37', bg:'bg-[#D4AF37]/10', border:'border-[#D4AF37]/20', iconBg:'bg-[#D4AF37]', iconText:'text-zinc-900' },
             { key:'clubs', icon: Building2, color:'#8FCFE6', bg:'bg-[#8FCFE6]/10', border:'border-[#8FCFE6]/20', iconBg:'bg-[#8FCFE6]', iconText:'text-white' },
             { key:'schools', icon: GraduationCap, color:'#C3C9D4', bg:'bg-[#C3C9D4]/10', border:'border-[#C3C9D4]/20', iconBg:'bg-[#C3C9D4]', iconText:'text-white' },
             { key:'federations', icon: Globe, color:'#C6864E', bg:'bg-[#C6864E]/10', border:'border-[#C6864E]/20', iconBg:'bg-[#C6864E]', iconText:'text-white' },
-          ].map((seg, idx) => {
+          ].map((seg) => {
             const Icon = seg.icon;
             return (
-              <Reveal key={seg.key} delay={idx * 0.12} direction="up">
+              <div key={seg.key} className="shrink-0 snap-start w-[290px] md:w-[330px]">
                 <div className={`bg-zinc-900 border border-zinc-800 rounded-2xl p-7 h-full group hover:border-opacity-60 transition-all duration-300`} style={{'--seg-color': seg.color}} data-testid={`audience-${seg.key}`}>
                   {/* Header */}
                   <div className="flex items-start gap-4 mb-5">
@@ -1494,9 +1497,10 @@ const LandingPage = () => {
                     </Button>
                   </Link>
                 </div>
-              </Reveal>
+              </div>
             );
           })}
+          </div>
         </div>
 
         {/* Trust badge */}
@@ -1512,7 +1516,7 @@ const LandingPage = () => {
     </section>
 
     {/* HOW IT WORKS — 6-phase timeline */}
-    <section id="how-it-works" className="py-24 px-6 bg-zinc-900 relative overflow-hidden">
+    <section id="how-it-works" className="py-16 px-6 bg-zinc-900 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(212,175,55,0.03)_0%,transparent_50%)]" />
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-6">
@@ -1521,11 +1525,11 @@ const LandingPage = () => {
           <p className="text-[15px] text-zinc-400 max-w-[600px] mx-auto leading-[1.7]">{t('landing.howItWorks.subtitle')}</p>
         </Reveal>
 
-        {/* Timeline */}
-        <div className="relative mt-16">
-          {/* Vertical line - desktop only */}
-          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#D4AF37]/40 via-zinc-700/40 to-zinc-700/10 -translate-x-1/2" />
-
+        {/* Carrusel de fases */}
+        <div className="relative mt-10">
+          <button onClick={() => {const el=document.getElementById('how-carousel'); if(el) el.scrollBy({left:-el.clientWidth*0.8,behavior:'smooth'});}} aria-label="Anterior" data-testid="how-carousel-prev" className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-zinc-900 border border-zinc-700 text-white items-center justify-center hover:bg-[#D4AF37] hover:text-[#09090b] transition-colors shadow-lg"><ChevronLeft className="w-5 h-5"/></button>
+          <button onClick={() => {const el=document.getElementById('how-carousel'); if(el) el.scrollBy({left:el.clientWidth*0.8,behavior:'smooth'});}} aria-label="Siguiente" data-testid="how-carousel-next" className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-zinc-900 border border-zinc-700 text-white items-center justify-center hover:bg-[#D4AF37] hover:text-[#09090b] transition-colors shadow-lg"><ChevronRight className="w-5 h-5"/></button>
+          <div id="how-carousel" data-testid="how-carousel" className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-1 px-1" style={{scrollbarWidth:'none'}}>
           {[
             { n:'01', icon: Target, color:'#D4AF37', key:'step1' },
             { n:'02', icon: Calendar, color:'#8FCFE6', key:'step2' },
@@ -1533,46 +1537,27 @@ const LandingPage = () => {
             { n:'04', icon: Users, color:'#D4AF37', key:'step4' },
             { n:'05', icon: Activity, color:'#C3C9D4', key:'step5' },
             { n:'06', icon: BarChart3, color:'#C6864E', key:'step6' },
-          ].map((step, idx) => {
+          ].map((step) => {
             const Icon = step.icon;
-            const isLeft = idx % 2 === 0;
             return (
-              <Reveal key={step.n} delay={idx * 0.1} direction={isLeft ? 'left' : 'right'}>
-                <div className={`relative flex items-center mb-8 last:mb-0 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'} flex-col md:gap-0 gap-4`} data-testid={`step-${step.n}`}>
-                  {/* Content card */}
-                  <div className={`w-full md:w-[calc(50%-40px)] ${isLeft ? 'md:pr-0' : 'md:pl-0'}`}>
-                    <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 group hover:border-zinc-700 transition-all duration-300 relative overflow-hidden">
-                      {/* Step number watermark */}
-                      <span className="absolute -top-4 -right-2 text-[110px] font-black leading-none text-zinc-800/40 select-none pointer-events-none" style={{fontFamily:BC}}>{step.n}</span>
-                      {/* Tag */}
-                      <span className="inline-block px-2.5 py-1 rounded-md text-[9px] font-bold tracking-[0.12em] mb-4" style={{background:`${step.color}15`, color:step.color, fontFamily:BC}}>
-                        {t(`landing.howItWorks.${step.key}_tag`)}
-                      </span>
-                      <h3 className="text-[18px] font-bold text-white mb-2 leading-tight relative z-10" style={{fontFamily:INT}}>
-                        {t(`landing.howItWorks.${step.key}_title`)}
-                      </h3>
-                      <p className="text-[14px] text-zinc-400 leading-[1.7] relative z-10">
-                        {t(`landing.howItWorks.${step.key}_desc`)}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Center node — desktop */}
-                  <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 w-[48px] h-[48px] rounded-full items-center justify-center z-10 border-[3px] group-hover:scale-110 transition-transform" style={{background:'#0f172a', borderColor: step.color}}>
-                    <Icon className="w-5 h-5" style={{color: step.color}} />
-                  </div>
-
-                  {/* Mobile icon — shown only on mobile */}
-                  <div className="md:hidden w-11 h-11 rounded-full flex items-center justify-center border-2 order-first" style={{background:`${step.color}15`, borderColor: step.color}}>
-                    <Icon className="w-5 h-5" style={{color: step.color}} />
-                  </div>
-
-                  {/* Empty space other side */}
-                  <div className="hidden md:block w-[calc(50%-40px)]" />
+              <div key={step.n} data-testid={`step-${step.n}`} className="shrink-0 snap-start w-[270px] md:w-[300px] bg-zinc-950 border border-zinc-800 rounded-2xl p-6 group hover:border-zinc-700 transition-all duration-300 relative overflow-hidden">
+                <span className="absolute -top-4 -right-2 text-[110px] font-black leading-none text-zinc-800/40 select-none pointer-events-none" style={{fontFamily:BC}}>{step.n}</span>
+                <div className="w-11 h-11 rounded-full flex items-center justify-center border-2 mb-4 relative z-10" style={{background:`${step.color}15`, borderColor: step.color}}>
+                  <Icon className="w-5 h-5" style={{color: step.color}} />
                 </div>
-              </Reveal>
+                <span className="inline-block px-2.5 py-1 rounded-md text-[9px] font-bold tracking-[0.12em] mb-3 relative z-10" style={{background:`${step.color}15`, color:step.color, fontFamily:BC}}>
+                  {t(`landing.howItWorks.${step.key}_tag`)}
+                </span>
+                <h3 className="text-[18px] font-bold text-white mb-2 leading-tight relative z-10" style={{fontFamily:INT}}>
+                  {t(`landing.howItWorks.${step.key}_title`)}
+                </h3>
+                <p className="text-[14px] text-zinc-400 leading-[1.7] relative z-10">
+                  {t(`landing.howItWorks.${step.key}_desc`)}
+                </p>
+              </div>
             );
           })}
+          </div>
         </div>
       </div>
     </section>
