@@ -478,11 +478,14 @@ function ShowcaseManager({ prospects, onOpen }) {
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [leads, setLeads] = useState(null);
+  const [metrics, setMetrics] = useState(null);
 
   const loadLeads = () => api('/showcase/leads').then(setLeads).catch(() => setLeads({ items: [], unread: 0 }));
+  const loadMetrics = () => api('/showcase/metrics').then(setMetrics).catch(() => setMetrics(null));
   useEffect(() => {
     api('/showcase-settings').then(s => { setCfg(s); setTitle(s.showcase_title || ''); }).catch(() => setCfg({ showcase_enabled: false }));
     loadLeads();
+    loadMetrics();
   }, []);
 
   const shared = (prospects || []).filter(p => p.share_enabled);
@@ -502,8 +505,8 @@ function ShowcaseManager({ prospects, onOpen }) {
     catch { toast.error(tt('Error')); }
   };
   const copyLink = () => { if (!shareUrl) return; navigator.clipboard?.writeText(shareUrl); setCopied(true); toast.success(tt('Enlace copiado')); setTimeout(() => setCopied(false), 1800); };
-  const markRead = async (id) => { try { await api(`/showcase/leads/${id}/read`, { method: 'POST' }); loadLeads(); } catch {} };
-  const delLead = async (id) => { try { await api(`/showcase/leads/${id}`, { method: 'DELETE' }); loadLeads(); toast.success(tt('Mensaje eliminado')); } catch {} };
+  const markRead = async (id) => { try { await api(`/showcase/leads/${id}/read`, { method: 'POST' }); loadLeads(); loadMetrics(); } catch {} };
+  const delLead = async (id) => { try { await api(`/showcase/leads/${id}`, { method: 'DELETE' }); loadLeads(); loadMetrics(); toast.success(tt('Mensaje eliminado')); } catch {} };
   const setProspect = async (pid, patch) => {
     try {
       const r = await api(`/showcase/prospect/${pid}`, { method: 'POST', body: patch });
@@ -558,6 +561,50 @@ function ShowcaseManager({ prospects, onOpen }) {
           </div>
         )}
       </div>
+
+      {/* Métricas de la vitrina */}
+      {cfg.showcase_enabled && metrics && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" data-testid="showcase-metrics">
+          {[
+            { k: 'views', l: 'Visitas', Icon: Eye, c: '#2563eb' },
+            { k: 'total_leads', l: 'Contactos', Icon: Mail, c: '#16a34a' },
+            { k: 'unread', l: 'Sin leer', Icon: BellRing, c: '#f59e0b' },
+          ].map(({ k, l, Icon, c }) => (
+            <div key={k} className="rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center gap-3" data-testid={`metric-${k}`}>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: c + '18' }}><Icon className="w-5 h-5" style={{ color: c }} /></div>
+              <div>
+                <div className="text-2xl font-black text-slate-800 leading-none" data-testid={`metric-${k}-value`}>{metrics[k] || 0}</div>
+                <div className="text-[11px] text-slate-400 font-semibold uppercase tracking-wide mt-0.5">{tt(l)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Contactos por atleta */}
+      {cfg.showcase_enabled && metrics?.per_athlete?.length > 0 && (
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden" data-testid="metrics-per-athlete">
+          <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-emerald-500" /><span className="font-black text-slate-800">{tt('Contactos por atleta')}</span>
+            <span className="text-[11px] text-slate-400 ml-auto">{tt('Quién genera más interés de reclutadores.')}</span>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {metrics.per_athlete.slice(0, 8).map((a, i) => {
+              const max = metrics.per_athlete[0].leads || 1;
+              return (
+                <div key={a.prospect_id || i} className="flex items-center gap-3 px-4 py-2.5" data-testid={`per-athlete-${a.prospect_id || 'general'}`}>
+                  <span className="text-slate-400 font-black text-sm w-5">{i + 1}</span>
+                  <span className="flex-1 min-w-0 font-bold text-slate-700 text-sm truncate">{a.name}</span>
+                  <div className="w-28 h-2 rounded-full bg-slate-100 overflow-hidden hidden sm:block">
+                    <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.round(a.leads / max * 100)}%` }} />
+                  </div>
+                  <span className="text-emerald-600 font-black text-sm w-8 text-right">{a.leads}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Selección de talentos */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">

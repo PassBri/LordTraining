@@ -37,6 +37,7 @@ _contacts = _db["recruiting_contacts"]
 _settings = _db["recruiting_settings"]
 _share_events = _db["recruiting_share_events"]
 _leads = _db["recruiting_leads"]
+_users = _db["users"]
 
 
 def get_current_user_dep():
@@ -1636,7 +1637,52 @@ async def public_showcase_contact(showcase_id: str, body: ShowcaseLeadIn):
         "read": False, "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await _leads.insert_one(lead)
+    # Notificación por email al coach (no bloqueante)
+    try:
+        import asyncio
+        coach = await _users.find_one({"id": coach_id}, {"_id": 0, "email": 1, "name": 1})
+        if coach and coach.get("email"):
+            from services.email_service import send_showcase_lead_notification
+            asyncio.create_task(send_showcase_lead_notification(
+                coach_email=coach["email"], coach_name=coach.get("name", ""),
+                from_name=lead["from_name"], from_email=lead["email"],
+                organization=lead["organization"], message=lead["message"],
+                prospect_name=prospect_name or "", showcase_title=s.get("showcase_title") or "",
+            ))
+    except Exception:
+        pass
     return {"ok": True}
+
+
+@router.post("/public/showcase/{showcase_id}/visit")
+async def public_showcase_visit(showcase_id: str):
+    await _settings.update_one(
+        {"showcase_id": showcase_id, "showcase_enabled": True},
+        {"$inc": {"showcase_views": 1}})
+    return {"ok": True}
+
+
+@router.get("/showcase/metrics")
+async def showcase_metrics(user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    s = await _get_settings(uid)
+    leads = await _leads.find(
+        {"coach_id": uid}, {"_id": 0, "prospect_id": 1, "prospect_name": 1, "read": 1}).to_list(2000)
+    per = {}
+    for l in leads:
+        pid = l.get("prospect_id") or "_general"
+        if pid not in per:
+            per[pid] = {"prospect_id": None if pid == "_general" else pid,
+                        "name": l.get("prospect_name") or "General", "leads": 0}
+        per[pid]["leads"] += 1
+    per_list = sorted(per.values(), key=lambda x: -x["leads"])
+    return {
+        "views": int(s.get("showcase_views", 0) or 0),
+        "total_leads": len(leads),
+        "unread": sum(1 for l in leads if not l.get("read")),
+        "per_athlete": per_list,
+        "enabled": bool(s.get("showcase_enabled")),
+    }
 
 
 @router.get("/showcase/leads")

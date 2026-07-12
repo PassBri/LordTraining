@@ -19,6 +19,8 @@ export default function PublicShowcase() {
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then(d => { setData(d); setState('ok'); document.title = d.title || 'Cantera · Top Talentos'; })
       .catch(() => setState('error'));
+    // Registrar visita (no bloqueante)
+    fetch(`${API_URL}/api/recruiting/public/showcase/${showcaseId}/visit`, { method: 'POST' }).catch(() => {});
   }, [showcaseId]);
 
   if (state === 'loading') return <Center><Loader2 className="w-8 h-8 animate-spin" style={{ color: '#D4AF37' }} /></Center>;

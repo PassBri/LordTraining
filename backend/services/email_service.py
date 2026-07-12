@@ -191,3 +191,56 @@ async def send_password_reset(
         role_label="Entrenador",
     )
     return await send_email(coach_email, subject, html)
+
+
+
+def _esc(s) -> str:
+    import html as _h
+    return _h.escape(str(s or ""))
+
+
+async def send_showcase_lead_notification(
+    *,
+    coach_email: str,
+    coach_name: str = "",
+    from_name: str,
+    from_email: str,
+    organization: str = "",
+    message: str,
+    prospect_name: str = "",
+    showcase_title: str = "",
+) -> dict:
+    """Notifica al coach que llegó un contacto nuevo desde su vitrina pública."""
+    subject = f"Nuevo contacto desde tu vitrina — {from_name}"
+    if prospect_name:
+        subject = f"Interés en {prospect_name} — {from_name}"
+    org_row = (f'<tr><td style="padding:4px 0;color:#64748b;font-size:13px;width:120px">Organización</td>'
+               f'<td style="padding:4px 0;color:#0f172a;font-size:14px;font-weight:600">{_esc(organization)}</td></tr>'
+               if organization else "")
+    prospect_row = (f'<tr><td style="padding:4px 0;color:#64748b;font-size:13px">Interesado en</td>'
+                    f'<td style="padding:4px 0;color:#0f172a;font-size:14px;font-weight:700">{_esc(prospect_name)}</td></tr>'
+                    if prospect_name else "")
+    html = f"""<!DOCTYPE html><html><body style="margin:0;background:#f1f5f9;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:24px 0"><tr><td align="center">
+    <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
+      <tr><td style="background:#0A0F1E;padding:22px 28px">
+        <span style="color:#ffffff;font-weight:800;letter-spacing:.5px;font-size:18px">LORD<span style="color:#D4AF37">TRAINING</span></span>
+        <div style="color:#94a3b8;font-size:12px;margin-top:4px;text-transform:uppercase;letter-spacing:1px">Nuevo contacto · {_esc(showcase_title or 'Vitrina Cantera')}</div>
+      </td></tr>
+      <tr><td style="padding:28px">
+        <h1 style="margin:0 0 6px;font-size:20px;color:#0f172a">Tienes un nuevo interesado 🎯</h1>
+        <p style="margin:0 0 20px;color:#475569;font-size:14px">Un reclutador escribió desde tu vitrina pública.</p>
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px">
+          <tr><td style="padding:4px 0;color:#64748b;font-size:13px;width:120px">Nombre</td><td style="padding:4px 0;color:#0f172a;font-size:14px;font-weight:700">{_esc(from_name)}</td></tr>
+          <tr><td style="padding:4px 0;color:#64748b;font-size:13px">Email</td><td style="padding:4px 0"><a href="mailto:{_esc(from_email)}" style="color:#2563eb;font-size:14px;font-weight:600">{_esc(from_email)}</a></td></tr>
+          {org_row}{prospect_row}
+        </table>
+        <div style="margin:18px 0 6px;color:#64748b;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Mensaje</div>
+        <div style="background:#ffffff;border-left:3px solid #D4AF37;padding:12px 16px;color:#334155;font-size:14px;line-height:1.6;white-space:pre-wrap">{_esc(message)}</div>
+        <a href="mailto:{_esc(from_email)}?subject=Re:%20tu%20interes%20en%20{_esc(prospect_name or 'un talento')}" style="display:inline-block;margin-top:22px;background:#D4AF37;color:#0A0F1E;font-weight:800;text-decoration:none;padding:12px 26px;border-radius:999px;font-size:14px">Responder ahora</a>
+      </td></tr>
+      <tr><td style="padding:16px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;color:#94a3b8;font-size:12px">Recibiste este correo porque tu Vitrina Cantera está activa en LordTraining.</td></tr>
+    </table>
+  </td></tr></table>
+</body></html>"""
+    return await send_email(coach_email, subject, html)
