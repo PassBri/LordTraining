@@ -36,6 +36,7 @@ _sport_templates = _db["sport_templates"]
 _contacts = _db["recruiting_contacts"]
 _settings = _db["recruiting_settings"]
 _share_events = _db["recruiting_share_events"]
+_leads = _db["recruiting_leads"]
 
 
 def get_current_user_dep():
@@ -1473,6 +1474,185 @@ async def public_showcase_logo(showcase_id: str):
     except Exception as e:
         raise HTTPException(500, f"Error obteniendo logo: {e}")
     return Response(content=content, media_type=ctype, headers={"Cache-Control": "public, max-age=86400"})
+
+
+def _build_showcase_cover(s: dict, logo: Optional[bytes]) -> bytes:
+    from PIL import Image, ImageDraw, ImageFont
+    import io as _io
+    W, H = 1200, 630
+    obsidian = (10, 15, 30)
+    try:
+        gold = _hex2rgb(_valid_hex(s.get("accent_color"), "#D4AF37"))
+    except Exception:
+        gold = (212, 175, 55)
+
+    def font(size, bold=True):
+        try:
+            return ImageFont.truetype(_FONT_BOLD if bold else _FONT_REG, size)
+        except Exception:
+            return ImageFont.load_default()
+
+    base = Image.new("RGB", (W, H), obsidian)
+    d = ImageDraw.Draw(base)
+    # Fondo con degradado radial sutil
+    for y in range(H):
+        t = y / H
+        c = (int(10 + 12 * (1 - t)), int(15 + 20 * (1 - t)), int(30 + 34 * (1 - t)))
+        d.line([(0, y), (W, y)], fill=c)
+    # Barras de acento
+    d.rectangle([0, 0, W, 10], fill=gold)
+    d.rectangle([0, H - 10, W, H], fill=gold)
+
+    x = 80
+    # Logo
+    if logo:
+        try:
+            lg = Image.open(_io.BytesIO(logo)).convert("RGBA")
+            lg.thumbnail((150, 150), Image.LANCZOS)
+            base.paste(lg, (80, 70), lg)
+            x = 80
+        except Exception:
+            logo = None
+
+    entity = (s.get("entity_name") or "").strip()
+    title = (s.get("showcase_title") or "").strip() or (f"Cantera {entity}" if entity else "Cantera · Top Talentos")
+
+    d.text((80, 250), "TOP TALENTOS", font=font(40, True), fill=gold)
+    # Título (recorta si muy largo)
+    tf = font(76, True)
+    tt_txt = title if d.textlength(title, font=tf) < W - 160 else title[:26] + "…"
+    d.text((80, 300), tt_txt, font=tf, fill=(255, 255, 255))
+    if entity:
+        d.text((80, 400), entity[:40], font=font(34, False), fill=(148, 163, 184))
+    slogan = (s.get("slogan") or "").strip()
+    if slogan:
+        d.text((80, 448), slogan[:56], font=font(28, False), fill=gold)
+
+    # Wordmark inferior
+    wf = font(30, True)
+    d.text((80, H - 78), "LORD", font=wf, fill=(255, 255, 255))
+    wl = d.textlength("LORD", font=wf)
+    d.text((80 + wl, H - 78), "TRAINING", font=wf, fill=gold)
+    stamp = "lordtraining.com"
+    sf = font(26, False)
+    d.text((W - 80 - d.textlength(stamp, font=sf), H - 76), stamp, font=sf, fill=(100, 116, 139))
+
+    out = _io.BytesIO()
+    base.save(out, format="PNG")
+    return out.getvalue()
+
+
+@router.get("/public/showcase/{showcase_id}/cover")
+async def public_showcase_cover(showcase_id: str):
+    s = await _get_showcase(showcase_id)
+    logo = await _photo_bytes(s.get("logo_path")) if s.get("logo_path") else None
+    try:
+        img = _build_showcase_cover(s, logo)
+    except Exception as e:
+        raise HTTPException(500, f"Error generando portada: {e}")
+    return Response(content=img, media_type="image/png",
+                    headers={"Cache-Control": "public, max-age=1800"})
+
+
+@router.get("/public/showcase/{showcase_id}/share", response_class=HTMLResponse)
+async def public_showcase_share(showcase_id: str, request: Request, b: str = Query(None)):
+    s = await _get_showcase(showcase_id)
+    entity = (s.get("entity_name") or "").strip()
+    title = (s.get("showcase_title") or "").strip() or (f"Cantera {entity}" if entity else "Cantera · Top Talentos")
+    cover = _abs_url(request, f"/api/recruiting/public/showcase/{showcase_id}/cover", b)
+    page_url = _abs_url(request, f"/api/recruiting/public/showcase/{showcase_id}/share", b)
+    view_url = f"/cantera/{showcase_id}"
+    desc = (s.get("slogan") or "").strip() or "Descubre el mejor talento de la academia — videos y caracterización completa."
+    import html as _html
+    e_title, e_desc = _html.escape(title), _html.escape(desc)
+    html_doc = f"""<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>{e_title} — LordTraining</title>
+<meta name="description" content="{e_desc}"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="LordTraining"/>
+<meta property="og:title" content="{e_title}"/>
+<meta property="og:description" content="{e_desc}"/>
+<meta property="og:image" content="{cover}"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:url" content="{page_url}"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="{e_title}"/>
+<meta name="twitter:description" content="{e_desc}"/>
+<meta name="twitter:image" content="{cover}"/>
+<meta http-equiv="refresh" content="0; url={view_url}"/>
+<script>window.location.replace("{view_url}");</script>
+</head><body style="background:#0A0F1E;color:#e5e7eb;font-family:sans-serif;text-align:center;padding:40px">
+<p>Abriendo la vitrina… <a href="{view_url}" style="color:#D4AF37">Toca aquí si no redirige</a>.</p>
+</body></html>"""
+    return HTMLResponse(content=html_doc, headers={"Cache-Control": "public, max-age=600"})
+
+
+# ───────────────────────── LEADS / CONTACTOS DE LA VITRINA ─────────────────────────
+class ShowcaseLeadIn(BaseModel):
+    from_name: str = Field(..., min_length=2, max_length=120)
+    email: str = Field(..., min_length=5, max_length=160)
+    organization: Optional[str] = Field(default="", max_length=160)
+    message: str = Field(..., min_length=5, max_length=1500)
+    prospect_share_id: Optional[str] = None
+    company: Optional[str] = None  # honeypot anti-spam
+
+
+@router.post("/public/showcase/{showcase_id}/contact")
+async def public_showcase_contact(showcase_id: str, body: ShowcaseLeadIn):
+    s = await _get_showcase(showcase_id)
+    if body.company:  # honeypot: bots rellenan este campo oculto
+        return {"ok": True}
+    if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", (body.email or "").strip()):
+        raise HTTPException(400, "Email inválido")
+    coach_id = s["coach_id"]
+    prospect_id = prospect_name = None
+    if body.prospect_share_id:
+        pr = await _prospects.find_one(
+            {"share_id": body.prospect_share_id, "coach_id": coach_id, "share_enabled": True},
+            {"_id": 0, "id": 1, "name": 1})
+        if pr:
+            prospect_id, prospect_name = pr["id"], pr.get("name")
+    lead = {
+        "id": uuid.uuid4().hex, "coach_id": coach_id, "showcase_id": showcase_id,
+        "prospect_id": prospect_id, "prospect_name": prospect_name,
+        "from_name": body.from_name.strip()[:120], "email": body.email.strip()[:160],
+        "organization": (body.organization or "").strip()[:160],
+        "message": body.message.strip()[:1500],
+        "read": False, "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await _leads.insert_one(lead)
+    return {"ok": True}
+
+
+@router.get("/showcase/leads")
+async def list_showcase_leads(user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    items = await _leads.find({"coach_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    unread = sum(1 for x in items if not x.get("read"))
+    return {"items": items, "count": len(items), "unread": unread}
+
+
+@router.post("/showcase/leads/{lead_id}/read")
+async def mark_lead_read(lead_id: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    res = await _leads.update_one({"id": lead_id, "coach_id": uid}, {"$set": {"read": True}})
+    if not res.matched_count:
+        raise HTTPException(404, "No encontrado")
+    return {"ok": True}
+
+
+@router.delete("/showcase/leads/{lead_id}")
+async def delete_lead(lead_id: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    res = await _leads.delete_one({"id": lead_id, "coach_id": uid})
+    if not res.deleted_count:
+        raise HTTPException(404, "No encontrado")
+    return {"ok": True}
+
 
 
 

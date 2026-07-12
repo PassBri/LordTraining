@@ -477,13 +477,17 @@ function ShowcaseManager({ prospects, onOpen }) {
   const [title, setTitle] = useState('');
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [leads, setLeads] = useState(null);
 
+  const loadLeads = () => api('/showcase/leads').then(setLeads).catch(() => setLeads({ items: [], unread: 0 }));
   useEffect(() => {
     api('/showcase-settings').then(s => { setCfg(s); setTitle(s.showcase_title || ''); }).catch(() => setCfg({ showcase_enabled: false }));
+    loadLeads();
   }, []);
 
   const shared = (prospects || []).filter(p => p.share_enabled);
-  const publicUrl = cfg?.showcase_id ? `${window.location.origin}/cantera/${cfg.showcase_id}` : null;
+  const viewUrl = cfg?.showcase_id ? `${window.location.origin}/cantera/${cfg.showcase_id}` : null;
+  const shareUrl = cfg?.showcase_id ? `${window.location.origin}/api/recruiting/public/showcase/${cfg.showcase_id}/share?b=${encodeURIComponent(window.location.origin)}` : null;
   const hidden = new Set(cfg?.showcase_hidden || []);
   const pinned = new Set(cfg?.showcase_pinned || []);
 
@@ -497,7 +501,9 @@ function ShowcaseManager({ prospects, onOpen }) {
     try { const s = await api('/showcase-settings', { method: 'POST', body: { title } }); setCfg(s); toast.success(tt('Título guardado')); }
     catch { toast.error(tt('Error')); }
   };
-  const copyLink = () => { if (!publicUrl) return; navigator.clipboard?.writeText(publicUrl); setCopied(true); toast.success(tt('Enlace copiado')); setTimeout(() => setCopied(false), 1800); };
+  const copyLink = () => { if (!shareUrl) return; navigator.clipboard?.writeText(shareUrl); setCopied(true); toast.success(tt('Enlace copiado')); setTimeout(() => setCopied(false), 1800); };
+  const markRead = async (id) => { try { await api(`/showcase/leads/${id}/read`, { method: 'POST' }); loadLeads(); } catch {} };
+  const delLead = async (id) => { try { await api(`/showcase/leads/${id}`, { method: 'DELETE' }); loadLeads(); toast.success(tt('Mensaje eliminado')); } catch {} };
   const setProspect = async (pid, patch) => {
     try {
       const r = await api(`/showcase/prospect/${pid}`, { method: 'POST', body: patch });
@@ -543,11 +549,11 @@ function ShowcaseManager({ prospects, onOpen }) {
             <div>
               <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{tt('Enlace público')}</label>
               <div className="flex gap-2 mt-1">
-                <Input readOnly value={publicUrl || ''} onFocus={e => e.target.select()} className="bg-slate-50 text-slate-700 text-[13px]" data-testid="showcase-link-input" />
+                <Input readOnly value={shareUrl || ''} onFocus={e => e.target.select()} className="bg-slate-50 text-slate-700 text-[13px]" data-testid="showcase-link-input" />
                 <Button onClick={copyLink} className="bg-slate-900 text-white shrink-0" data-testid="showcase-link-copy-btn">{copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}</Button>
-                <a href={publicUrl || '#'} target="_blank" rel="noreferrer"><Button variant="outline" className="border-slate-300 px-3" data-testid="showcase-link-open-btn"><Globe className="w-4 h-4" /></Button></a>
+                <a href={viewUrl || '#'} target="_blank" rel="noreferrer"><Button variant="outline" className="border-slate-300 px-3" data-testid="showcase-link-open-btn"><Globe className="w-4 h-4" /></Button></a>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1.5">{visibleCount} {tt('talento(s) visibles en tu vitrina')} · {tt('personaliza tu marca (logo, lema, color) en el diálogo de Compartir de cualquier prospecto.')}</p>
+              <p className="text-[11px] text-slate-400 mt-1.5">{visibleCount} {tt('talento(s) visibles')} · {tt('al pegar el enlace en WhatsApp/redes se muestra una portada con tu marca. Personaliza logo, lema y color en el diálogo de Compartir de un prospecto.')}</p>
             </div>
           </div>
         )}
@@ -585,6 +591,47 @@ function ShowcaseManager({ prospects, onOpen }) {
                   </div>
                 );
               })}
+          </div>
+        )}
+      </div>
+
+      {/* Mensajes recibidos (leads) */}
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden" data-testid="showcase-leads">
+        <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+          <Mail className="w-4 h-4 text-blue-500" /><span className="font-black text-slate-800">{tt('Mensajes recibidos')}</span>
+          {leads?.unread > 0 && <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-600" data-testid="showcase-leads-unread">{leads.unread} {tt('nuevos')}</span>}
+          <span className="text-[11px] text-slate-400 ml-auto">{tt('Contactos de agencias/universidades desde tu vitrina.')}</span>
+        </div>
+        {!leads ? (
+          <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-slate-400" /></div>
+        ) : leads.items.length === 0 ? (
+          <div className="p-8 text-center text-slate-400 text-sm" data-testid="showcase-leads-empty">{tt('Aún no hay mensajes. Comparte tu vitrina para empezar a recibir contactos.')}</div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {leads.items.map(l => (
+              <div key={l.id} className={`px-4 py-3 ${l.read ? '' : 'bg-blue-50/40'}`} data-testid={`lead-${l.id}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-slate-800 text-sm">{l.from_name}</span>
+                      {!l.read && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+                      {l.organization && <span className="text-[11px] text-slate-500 bg-slate-100 rounded-full px-2 py-0.5">{l.organization}</span>}
+                    </div>
+                    <a href={`mailto:${l.email}`} className="text-[12px] text-blue-600 hover:underline">{l.email}</a>
+                    {l.prospect_name && <div className="text-[11px] text-slate-400 mt-0.5">{tt('Interesado en')}: <b className="text-slate-600">{l.prospect_name}</b></div>}
+                    <p className="text-[13px] text-slate-700 mt-1.5 whitespace-pre-wrap">{l.message}</p>
+                    <div className="text-[11px] text-slate-400 mt-1">{new Date(l.created_at).toLocaleString()}</div>
+                  </div>
+                  <div className="flex flex-col gap-1.5 shrink-0">
+                    <a href={`mailto:${l.email}?subject=${encodeURIComponent('Re: tu interés en ' + (l.prospect_name || 'un talento'))}`}>
+                      <Button size="sm" className="bg-slate-900 text-white h-8 px-3 w-full" data-testid={`lead-reply-${l.id}`}>{tt('Responder')}</Button>
+                    </a>
+                    {!l.read && <Button size="sm" variant="outline" className="border-slate-300 h-8 px-3 text-[12px]" onClick={() => markRead(l.id)} data-testid={`lead-read-${l.id}`}>{tt('Leído')}</Button>}
+                    <Button size="sm" variant="outline" className="border-red-200 text-red-500 h-8 px-3" onClick={() => delLead(l.id)} data-testid={`lead-del-${l.id}`}><X className="w-4 h-4" /></Button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

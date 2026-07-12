@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Target, Loader2, Trophy, Video, Award, ArrowRight, X, Star, MapPin } from 'lucide-react';
+import { Target, Loader2, Trophy, Video, Award, ArrowRight, X, Star, MapPin, Send, Building2, Mail, CheckCircle2 } from 'lucide-react';
 import { VideoGallery } from '../components/VideoEmbed';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com') === -1 ? process.env.REACT_APP_BACKEND_URL : (typeof window !== 'undefined' ? window.location.origin : process.env.REACT_APP_BACKEND_URL));
@@ -76,7 +76,7 @@ export default function PublicShowcase() {
         </div>
       </div>
 
-      {selected && <AthleteModal a={selected} accent={accent} onClose={() => setSelected(null)} />}
+      {selected && <AthleteModal a={selected} accent={accent} showcaseId={showcaseId} onClose={() => setSelected(null)} />}
     </div>
   );
 }
@@ -119,13 +119,32 @@ function AthleteCard({ a, rank, accent, onOpen }) {
   );
 }
 
-function AthleteModal({ a, accent, onClose }) {
+function AthleteModal({ a, accent, showcaseId, onClose }) {
+  const [form, setForm] = useState({ from_name: '', organization: '', email: '', message: '' });
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, [onClose]);
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!form.from_name.trim() || !form.email.trim() || form.message.trim().length < 5) return;
+    setSending(true);
+    try {
+      const res = await fetch(`${API_URL}/api/recruiting/public/showcase/${showcaseId}/contact`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, prospect_share_id: a.share_id }),
+      });
+      if (!res.ok) throw new Error();
+      setSent(true);
+    } catch { alert('No se pudo enviar el mensaje. Verifica tu email e intenta de nuevo.'); }
+    setSending(false);
+  };
+  const inputCls = 'w-full bg-white/5 border border-white/15 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/40';
   return (
     <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" style={{ background: 'rgba(5,10,20,.8)', backdropFilter: 'blur(6px)' }} onClick={onClose} data-testid="showcase-modal">
       <div className="w-full max-w-2xl bg-[#0b1220] border border-white/10 rounded-none sm:rounded-2xl overflow-hidden my-0 sm:my-8" onClick={e => e.stopPropagation()}>
@@ -190,6 +209,42 @@ function AthleteModal({ a, accent, onClose }) {
               <VideoGallery videos={a.videos} dark />
             </div>
           )}
+
+          {/* Contacto directo por este atleta */}
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4" data-testid="showcase-contact">
+            {sent ? (
+              <div className="text-center py-3" data-testid="showcase-contact-sent">
+                <CheckCircle2 className="w-9 h-9 mx-auto mb-2" style={{ color: accent }} />
+                <p className="text-white font-bold">¡Mensaje enviado!</p>
+                <p className="text-white/50 text-[13px] mt-0.5">El responsable se pondrá en contacto contigo.</p>
+              </div>
+            ) : !showForm ? (
+              <button onClick={() => setShowForm(true)} data-testid="showcase-contact-open-btn"
+                className="w-full flex items-center justify-center gap-2 text-white font-bold py-2.5 rounded-lg border border-white/15 hover:bg-white/5 transition">
+                <Mail className="w-4 h-4" style={{ color: accent }} />Contactar por {a.name?.split(' ')[0] || 'este atleta'}
+              </button>
+            ) : (
+              <form onSubmit={submit} className="space-y-2.5" data-testid="showcase-contact-form">
+                <div className="text-white/70 text-[12px] font-semibold uppercase tracking-wider">Interesado en este talento</div>
+                <input className={inputCls} placeholder="Tu nombre *" value={form.from_name} maxLength={120}
+                  onChange={e => setForm(f => ({ ...f, from_name: e.target.value }))} data-testid="contact-name-input" />
+                <div className="relative">
+                  <Building2 className="w-4 h-4 absolute left-3 top-3 text-white/30" />
+                  <input className={inputCls + ' pl-9'} placeholder="Club / Universidad / Agencia" value={form.organization} maxLength={160}
+                    onChange={e => setForm(f => ({ ...f, organization: e.target.value }))} data-testid="contact-org-input" />
+                </div>
+                <input type="email" className={inputCls} placeholder="Tu email *" value={form.email} maxLength={160}
+                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))} data-testid="contact-email-input" />
+                <textarea className={inputCls + ' resize-none'} rows={3} placeholder="Tu mensaje *" value={form.message} maxLength={1500}
+                  onChange={e => setForm(f => ({ ...f, message: e.target.value }))} data-testid="contact-message-input" />
+                <button type="submit" disabled={sending} data-testid="contact-submit-btn"
+                  className="w-full flex items-center justify-center gap-2 font-black py-2.5 rounded-lg text-slate-900 transition hover:opacity-90 disabled:opacity-60"
+                  style={{ background: accent }}>
+                  {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}Enviar mensaje
+                </button>
+              </form>
+            )}
+          </div>
 
           {a.share_id && (
             <a href={`/scouting/p/${a.share_id}`} target="_blank" rel="noreferrer"

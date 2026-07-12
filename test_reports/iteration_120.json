@@ -1,0 +1,24 @@
+{
+  "summary": "Testing e2e de OG cover + formulario de contacto + bandeja de leads (Vitrina 'Cantera'). Backend: 19/19 pytest OK en test_showcase_leads.py cubriendo (1) /cover PNG 1200x630 sin auth + 404 si no existe, (2) /share HTML con og:image apuntando a /cover, og:title, twitter:card=summary_large_image y meta-refresh/JS redirect a /cantera/{id} + soporte de ?b= + 404 en showcase inexistente, (3) /contact honeypot 'company' ignora sin persistir, email inválido→400, message<5 y from_name<2→422, creación de lead con prospect_name resuelto vía prospect_share_id, 404 si showcase no existe, (4) /showcase/leads GET (shape items/count/unread, requiere auth), POST /leads/{id}/read persiste read=true y 404 si no existe, DELETE /leads/{id} elimina y 404 si no existe. Frontend público (/cantera/966aba7292db, sin login): modal se abre al clickear tarjeta, showcase-contact-open-btn revela showcase-contact-form con los 4 inputs (name/org/email/message) + contact-submit-btn; envío exitoso muestra showcase-contact-sent ('¡Mensaje enviado!'). Frontend coach (Scouting → Vitrina): showcase-link-input muestra URL /api/recruiting/public/showcase/{id}/share?b=... (OG-enabled), showcase-link-open-btn (parent <a>) apunta a /cantera/{id}, showcase-leads renderiza mensajes recibidos, showcase-leads-unread muestra '2 nuevos', botones lead-reply-{id} (mailto:), lead-read-{id} y lead-del-{id} presentes, prospect_name 'Test Prospect' resuelto y desplegado como 'Interesado en'. Flujo E2E completo (enviar desde vitrina → aparece en bandeja coach) validado.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_showcase_leads.py",
+    "/app/test_reports/pytest/showcase_leads_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "recruiting.py > 2600 líneas — se recomienda dividir en submódulos (showcase, share, leads, alerts). Ya reportado en iteración 119, aún pendiente.",
+    "En public_showcase_contact (recruiting.py L1605): el honeypot se evalúa ANTES que la validación de email/pydantic, así que un bot que rellena 'company' pero envía email inválido o mensaje corto obtendría igualmente {ok:true} — comportamiento deseado (evitar dar señales de validación al bot). OK. Sin embargo, pydantic min_length=5/2 se valida ANTES en FastAPI, por lo que un bot con message<5 recibe 422 aunque tenga honeypot. Menor: si se quiere silencio total, poner honeypot check como validador @root_validator o desactivar min_length y validar manualmente.",
+    "En _abs_url + query b=: el b= es controlado por el frontend (localhost/preview OK), pero al aceptar cualquier URL en b= sin validar dominio permitido, un atacante podría generar un enlace /share?b=https://evil.com y engañar a Facebook/Twitter para pre-cargar og:image desde evil.com/api/... — bajo riesgo (solo se sirven meta tags) pero conviene validar b contra whitelist de dominios de la app en producción.",
+    "public_showcase_share redirige inmediatamente (meta+JS) a /cantera/{id}, lo cual funciona para bots que solo leen meta OG, pero un humano ve un breve flash antes del redirect. Considerar server-side redirect 302 sólo si el UA no es un scraper conocido (opcional, low priority).",
+    "PublicShowcase.js L6: fallback 'itrain.com' aún presente (heredado de iteración 119); no bloquea preview pero conviene alinear a lordtraining.com."
+  ],
+  "updated_files": ["/app/backend/tests/test_showcase_leads.py"],
+  "success_rate": {"backend": "100% (19/19)", "frontend": "100%"},
+  "test_credentials": "SuperAdmin juegolaureado@gmail.com / LordTraining2026! · showcase_id de prueba: 966aba7292db · prospect_share_id: 256932331237492c82acfed6acd9e9dd",
+  "seed_data_creation": "Se crearon leads temporales durante pytest y un lead E2E desde el navegador; TODOS eliminados al final del test excepto el lead preexistente 'Scout Universidad X' (parte del setup previo). Estado final: 1 lead / 1 unread.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Feature OG cover + formulario contacto + bandeja leads 100% funcional en backend y frontend. Tests de regresión en /app/backend/tests/test_showcase_leads.py (19 tests). Anterior test_showcase.py (16 tests) sigue vigente para showcase base. Endpoints públicos: /api/recruiting/public/showcase/{id}/cover, /share, /contact (POST). Endpoints coach (auth): /api/recruiting/showcase/leads (GET), /leads/{id}/read (POST), /leads/{id} (DELETE)."
+}
