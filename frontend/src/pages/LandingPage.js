@@ -12,7 +12,7 @@ import {
   ArrowRight, Activity, FileText, Dumbbell,
   Heart, Ruler, Eye, Sparkles, Layers, LineChart,
   ChevronRight, ChevronLeft, Zap, Shield, GraduationCap, Globe, UserCheck, Building2,
-  PlayCircle, X as XIcon, Video, Volume2, VolumeX
+  PlayCircle, X as XIcon, Video
 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 
@@ -453,9 +453,7 @@ const _ytId = (url) => {
 
 const ScoutingMedia = ({ alt }) => {
   const [media, setMedia] = useState(undefined); // undefined = cargando
-  const [muted, setMuted] = useState(true);
-  const videoRef = useRef(null);
-  const iframeRef = useRef(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -466,55 +464,62 @@ const ScoutingMedia = ({ alt }) => {
     return () => { alive = false; };
   }, []);
 
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && setOpen(false);
+    if (open) { window.addEventListener('keydown', onKey); document.body.style.overflow = 'hidden'; }
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+  }, [open]);
+
   const url = media?.video_url;
   const poster = media?.poster_url || SCOUT_IMG;
   const ytId = _ytId(url);
   const isVideoFile = url && !ytId && /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(url);
+  const hasVideo = ytId || isVideoFile;
 
-  const toggleSound = () => {
-    const next = !muted;
-    setMuted(next);
-    if (videoRef.current) { videoRef.current.muted = next; if (!next) videoRef.current.play?.().catch(() => {}); }
-    if (iframeRef.current?.contentWindow) {
-      const cmd = next ? 'mute' : 'unMute';
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: cmd, args: [] }), '*');
-      if (!next) iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'setVolume', args: [100] }), '*');
-    }
-  };
-
-  const wrap = 'relative w-full h-[300px] md:h-[360px] overflow-hidden bg-zinc-950';
-
-  if (media === undefined || (!ytId && !isVideoFile)) {
-    // Cargando o sin video → poster/imagen de respaldo
+  // Sin video → solo imagen (mismo tamaño)
+  if (media === undefined || !hasVideo) {
     return <img src={poster} alt={alt} className="w-full h-[300px] md:h-[360px] object-cover" loading="lazy" />;
   }
 
   return (
-    <div className={wrap} data-testid="scouting-media">
-      {/* Poster de marca visible al instante mientras carga el video */}
-      <img src={poster} alt={alt} className="absolute inset-0 w-full h-full object-cover z-0" />
-      {ytId ? (
-        <iframe
-          ref={iframeRef}
-          title="Scouting video"
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
-          style={{ width: '100%', height: '100%', transform: 'translate(-50%,-50%) scale(1.5)' }}
-          src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&playsinline=1&showinfo=0&iv_load_policy=3&enablejsapi=1`}
-          allow="autoplay; encrypted-media"
-          frameBorder="0"
-        />
-      ) : (
-        <video ref={videoRef} className="relative z-10 w-full h-full object-cover" src={url} autoPlay muted loop playsInline preload="metadata" poster={poster} />
-      )}
+    <>
+      {/* Miniatura estilo tutoriales (solo cambia el tamaño) */}
       <button
-        onClick={toggleSound}
-        className="absolute bottom-4 right-4 z-20 w-10 h-10 rounded-full bg-zinc-900/80 backdrop-blur-md border border-zinc-600/60 flex items-center justify-center text-white hover:bg-zinc-800 transition-colors"
-        aria-label={muted ? 'Activar sonido' : 'Silenciar'}
-        data-testid="scouting-media-sound-btn"
+        onClick={() => setOpen(true)}
+        className="group relative block w-full h-[300px] md:h-[360px] overflow-hidden bg-zinc-800"
+        data-testid="scouting-media"
+        aria-label="Reproducir video de scouting"
       >
-        {muted ? <VolumeX className="w-4.5 h-4.5" /> : <Volume2 className="w-4.5 h-4.5 text-[#D4AF37]" />}
+        <img src={poster} alt={alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        <div className="absolute inset-0 bg-black/25 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+          <PlayCircle className="w-16 h-16 md:w-20 md:h-20 text-white/90 group-hover:text-[#D4AF37] group-hover:scale-110 transition-all drop-shadow-lg" strokeWidth={1.5} />
+        </div>
       </button>
-    </div>
+
+      {/* Lightbox */}
+      {open && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4"
+          onClick={() => setOpen(false)} data-testid="scouting-video-modal">
+          <div className="relative w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setOpen(false)} data-testid="scouting-video-modal-close"
+              className="absolute -top-11 right-0 text-white/70 hover:text-white flex items-center gap-1 text-sm">
+              <XIcon className="w-5 h-5" /> Cerrar
+            </button>
+            <div className="rounded-2xl overflow-hidden border border-zinc-700 bg-black shadow-2xl aspect-video">
+              {ytId ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+                  title="Scouting video" className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen />
+              ) : (
+                <video src={url} className="w-full h-full" controls autoPlay playsInline poster={poster} />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
