@@ -2176,6 +2176,24 @@ def _detect_face_box(pil_img):
         return None
 
 
+def _photo_contain_fill(pil_img, tw, th):
+    """Muestra la foto COMPLETA (contain) sobre un fondo desenfocado de la misma
+    imagen (cover). Nunca corta el rostro ni el cuerpo."""
+    from PIL import Image, ImageOps, ImageFilter, ImageEnhance
+    img = ImageOps.exif_transpose(pil_img).convert("RGB")
+    # Fondo: cover + desenfoque + oscurecido
+    bg = ImageOps.fit(img, (tw, th), method=Image.LANCZOS, centering=(0.5, 0.4))
+    bg = bg.filter(ImageFilter.GaussianBlur(45))
+    bg = ImageEnhance.Brightness(bg).enhance(0.5)
+    # Primer plano: contain (imagen completa)
+    fg = img.copy()
+    fg.thumbnail((tw, th), Image.LANCZOS)
+    ox = (tw - fg.width) // 2
+    oy = (th - fg.height) // 2
+    bg.paste(fg, (ox, oy))
+    return bg
+
+
 def _smart_photo_fit(pil_img, tw, th, face_frac=0.42):
     """Recorta la foto al tamaño destino centrando el rostro (o encuadre superior seguro)."""
     from PIL import Image, ImageOps
@@ -2258,10 +2276,10 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
     draw = ImageDraw.Draw(base)
     photo_h = int(H * (0.52 if is_story else 0.48))
 
-    # Foto (o placeholder) — recorte con detección facial para no cortar la cabeza
+    # Foto (o placeholder) — se muestra COMPLETA (contain) con fondo desenfocado
     if photo:
         try:
-            ph = _smart_photo_fit(Image.open(_io.BytesIO(photo)), W, photo_h)
+            ph = _photo_contain_fill(Image.open(_io.BytesIO(photo)), W, photo_h)
             base.paste(ph, (0, 0))
         except Exception:
             photo = None
