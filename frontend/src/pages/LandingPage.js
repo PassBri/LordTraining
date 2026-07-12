@@ -548,7 +548,7 @@ const ScoutingSection = ({ t }) => {
   ];
 
   return (
-    <section id="scouting" className="py-20 px-6 bg-zinc-950 relative overflow-hidden" data-testid="scouting-section">
+    <section id="scouting" className="py-14 px-6 bg-zinc-950 relative overflow-hidden" data-testid="scouting-section">
       {/* ambient glow */}
       <div className="absolute top-1/3 -left-32 w-96 h-96 rounded-full bg-[#D4AF37]/[0.04] blur-3xl pointer-events-none" />
       <div className="max-w-[1120px] mx-auto relative z-10">
@@ -616,18 +616,20 @@ const ScoutingSection = ({ t }) => {
         <Reveal direction="up" className="mb-4 text-center">
           <h3 className="text-[20px] md:text-[24px] font-bold text-white" style={{fontFamily:INT}}>{t('landing.scouting.tools_title')}</h3>
         </Reveal>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-14" data-testid="scouting-tools">
+        <div className="relative mb-12" data-testid="scouting-tools">
+          <button onClick={() => {const el=document.getElementById('tools-carousel'); if(el) el.scrollBy({left:-el.clientWidth*0.8,behavior:'smooth'});}} aria-label="Anterior" data-testid="tools-carousel-prev" className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-zinc-900 border border-zinc-700 text-white items-center justify-center hover:bg-[#D4AF37] hover:text-[#09090b] transition-colors shadow-lg"><ChevronLeft className="w-5 h-5"/></button>
+          <button onClick={() => {const el=document.getElementById('tools-carousel'); if(el) el.scrollBy({left:el.clientWidth*0.8,behavior:'smooth'});}} aria-label="Siguiente" data-testid="tools-carousel-next" className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-zinc-900 border border-zinc-700 text-white items-center justify-center hover:bg-[#D4AF37] hover:text-[#09090b] transition-colors shadow-lg"><ChevronRight className="w-5 h-5"/></button>
+          <div id="tools-carousel" className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-1 px-1" style={{scrollbarWidth:'none'}}>
           {tools.map((tool, i) => (
-            <Reveal key={tool.title} direction="up" delay={i * 0.06}>
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 h-full group hover:border-[#D4AF37]/50 transition-all duration-300 hover:-translate-y-1" data-testid={`scouting-tool-${i}`}>
+              <div key={tool.title} className="shrink-0 snap-start w-[260px] md:w-[290px] bg-zinc-900 border border-zinc-800 rounded-2xl p-6 group hover:border-[#D4AF37]/50 transition-all duration-300 hover:-translate-y-1" data-testid={`scouting-tool-${i}`}>
                 <div className="w-12 h-12 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/20 flex items-center justify-center mb-4 group-hover:bg-[#D4AF37]/20 transition-colors">
                   <tool.icon className="w-6 h-6 text-[#D4AF37]" />
                 </div>
                 <h4 className="text-[16px] font-bold text-white mb-1.5" style={{fontFamily:INT}}>{tool.title}</h4>
                 <p className="text-[13px] text-zinc-400 leading-[1.6]">{tool.desc}</p>
               </div>
-            </Reveal>
           ))}
+          </div>
         </div>
 
         {/* CTA */}
@@ -685,7 +687,7 @@ const VideoTutorialsSection = ({ t }) => {
   if (!videos.length) return null;
 
   return (
-    <section id="tutoriales" className="py-20 px-6 bg-zinc-950 relative overflow-hidden" data-testid="video-tutorials-section">
+    <section id="tutoriales" className="py-14 px-6 bg-zinc-950 relative overflow-hidden" data-testid="video-tutorials-section">
       <div className="absolute top-1/4 -right-32 w-96 h-96 rounded-full bg-[#D4AF37]/[0.04] blur-3xl pointer-events-none" />
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-8">
@@ -1139,70 +1141,43 @@ const LandingPage = () => {
               </div>
             </a>
           ))}
+          {[
+            {name:'Futsal'},{name:'Minitejo'},{name:'Padel'},
+            {name:'Bochas'},{name:'Badminton'},{name:'Squash'},
+            {name:'Golf'},{name:'Tiro con Arco'},{name:'Dardos'},
+            {name:'Boliche'},{name:'Bolo Criollo'},{name:'Handball'},
+            {name:'Beisbol'},{name:'Escalada'},{name:'Atletismo'},
+            {name:'Ciclismo'},{name:'Natacion'},{name:'Boxeo'},
+            {name:'Karate'},{name:'Taekwondo'},{name:'MMA'},{name:'Judo'}
+          ].map((sp, i) => (
+            <a key={`extra-${i}`} href="/tactical-board.html" onClick={handleBoardClick} className="group relative shrink-0 snap-start w-[180px] sm:w-[200px] md:w-[220px] rounded-2xl overflow-hidden border border-zinc-800 hover:border-[#D4AF37]/60 transition-all hover:scale-[1.04]" data-testid={`extra-sport-${sp.name.toLowerCase().replace(/\s+/g,'-')}`}>
+              <div className="aspect-[3/4] relative flex flex-col items-center justify-center p-3" style={{background:'linear-gradient(160deg, rgba(212,175,55,0.10) 0%, #18181b 55%, #09090b 100%)'}}>
+                <div className="absolute inset-0" style={{backgroundImage:'radial-gradient(circle at 50% 30%, rgba(255,255,255,0.06) 0%, transparent 55%)'}}/>
+                <div className="absolute top-0 left-0 right-0 h-[2px]" style={{background:'#D4AF37', opacity:0.6}}/>
+                <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/40 backdrop-blur border border-[#D4AF37]/25"><span className="text-[7.5px] font-black tracking-[0.1em] text-[#D4AF37]" style={{fontFamily:BC}}>3D</span></div>
+                <div className="relative z-10 text-center">
+                  <div className="w-14 h-14 mx-auto mb-2 rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center backdrop-blur-sm"><span className="text-[20px] font-black text-white" style={{fontFamily:BC}}>{sp.name[0]}</span></div>
+                  <div className="text-[12px] font-black uppercase tracking-[0.05em] text-white leading-tight" style={{fontFamily:BC}}>{sp.name}</div>
+                </div>
+              </div>
+            </a>
+          ))}
           </div>
         </div>
-        <div className="text-center mt-10">
-          <button onClick={() => {const el = document.getElementById('more-sports-carousel'); el.style.display = el.style.display === 'block' ? 'none' : 'block'; if (el.style.display === 'block') el.scrollIntoView({behavior:'smooth', block:'center'});}} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-700 hover:border-[#D4AF37]/60 transition-all font-bold text-[13px]" style={{fontFamily:BC}} data-testid="more-sports-btn">
-            <span className="w-6 h-6 rounded-full bg-[#D4AF37] text-zinc-900 flex items-center justify-center text-[14px] font-black">+</span>
-            {t('landing.multisport.see_more')}
-          </button>
-          <div id="more-sports-carousel" style={{display:'none'}} className="mt-6">
-            <div className="relative overflow-x-auto pb-4 snap-x snap-mandatory" style={{scrollbarWidth:'thin'}} data-testid="more-sports-scroll">
-              <div className="flex gap-3 px-4" style={{width:'max-content'}}>
-                {[
-                  {name:'Futsal', c:'#C3C9D4'},{name:'Minitejo', c:'#a57856'},{name:'Padel', c:'#C3C9D4'},
-                  {name:'Bochas', c:'#C3C9D4'},{name:'Badminton', c:'#D4AF37'},{name:'Squash', c:'#8FCFE6'},
-                  {name:'Golf', c:'#C3C9D4'},{name:'Tiro con Arco', c:'#C6864E'},{name:'Dardos', c:'#C3C9D4'},
-                  {name:'Boliche', c:'#C6864E'},{name:'Bolo Criollo', c:'#78350f'},{name:'Handball', c:'#8FCFE6'},
-                  {name:'Beisbol', c:'#C6864E'},{name:'Escalada', c:'#8FCFE6'},{name:'Atletismo', c:'#C6864E'},
-                  {name:'Ciclismo', c:'#D4AF37'},{name:'Natacion', c:'#8FCFE6'},{name:'Boxeo', c:'#C6864E'},
-                  {name:'Karate', c:'#78716c'},{name:'Taekwondo', c:'#C6864E'},{name:'MMA', c:'#1f2937'},{name:'Judo', c:'#450a0a'}
-                ].map((sp, i) => (
-                  <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="group relative flex-shrink-0 w-[150px] snap-start rounded-xl overflow-hidden border border-zinc-800 hover:border-[#D4AF37]/60 hover:scale-[1.05] transition-all" data-testid={`extra-sport-${sp.name.toLowerCase().replace(/\s+/g,'-')}`}>
-                    <div className="aspect-[3/4] relative flex flex-col items-center justify-center p-3" style={{background:'linear-gradient(160deg, rgba(212,175,55,0.10) 0%, #18181b 55%, #09090b 100%)'}}>
-                      <div className="absolute inset-0" style={{backgroundImage:'radial-gradient(circle at 50% 30%, rgba(255,255,255,0.06) 0%, transparent 55%)'}}/>
-                      <div className="absolute top-0 left-0 right-0 h-[2px]" style={{background:'#D4AF37', opacity:0.6}}/>
-                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/40 backdrop-blur border border-[#D4AF37]/25">
-                        <span className="text-[7.5px] font-black tracking-[0.1em] text-[#D4AF37]" style={{fontFamily:BC}}>3D</span>
-                      </div>
-                      <div className="relative z-10 text-center">
-                        <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
-                          <span className="text-[18px] font-black text-white" style={{fontFamily:BC}}>{sp.name[0]}</span>
-                        </div>
-                        <div className="text-[11px] font-black uppercase tracking-[0.05em] text-white leading-tight" style={{fontFamily:BC}}>{sp.name}</div>
-                      </div>
-                      <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1">
-                        <span className="w-1 h-1 rounded-full bg-[#D4AF37]/80"/>
-                        <span className="w-1 h-1 rounded-full bg-[#D4AF37]/60"/>
-                        <span className="w-1 h-1 rounded-full bg-[#D4AF37]/40"/>
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-            <div className="text-center mt-5 text-[12px] text-zinc-500">
-              <span className="inline-flex items-center gap-2">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                {t('landing.multisport.swipe_hint')}
-              </span>
-            </div>
-          </div>
-          <div className="mt-6">
-            <a href="/tactical-board.html" onClick={handleBoardClick}>
-              <Button className="bg-[#FFFFFF] text-[#09090b] hover:bg-[#E4E4E7] h-11 px-7 text-[13px] font-bold rounded-xl" style={{fontFamily:BC}} data-testid="explore-all-sports-btn">
-                {t('landing.multisport.explore_board')} <ArrowRight className="w-4 h-4 ml-2"/>
-              </Button>
-            </a>
-          </div>
+        <div className="text-center mt-8">
+          <a href="/tactical-board.html" onClick={handleBoardClick}>
+            <Button className="bg-[#FFFFFF] text-[#09090b] hover:bg-[#E4E4E7] h-11 px-7 text-[13px] font-bold rounded-xl" style={{fontFamily:BC}} data-testid="explore-all-sports-btn">
+              {t('landing.multisport.explore_board')} <ArrowRight className="w-4 h-4 ml-2"/>
+            </Button>
+          </a>
         </div>
       </div>
     </section>
 
     {/* FEATURES — Dark cards */}
-    <section id="features" className="py-20 px-6 bg-zinc-950 relative overflow-hidden">
+    <section id="features" className="py-14 px-6 bg-zinc-950 relative overflow-hidden">
       <div className="max-w-[1120px] mx-auto relative z-10">
-        <Reveal direction="up" className="text-center mb-14">
+        <Reveal direction="up" className="text-center mb-8">
           <SectionTag>{t('landing.features.tag')}</SectionTag>
           <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15]" style={{fontFamily:INT}}>{t('landing.features.title')}</h2>
         </Reveal>
@@ -1210,7 +1185,7 @@ const LandingPage = () => {
         <div className="grid grid-cols-12 gap-3">
           {/* Main — Plan Gráfico */}
           <Reveal delay={0.1} direction="up" className="col-span-12 md:col-span-8">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-7 relative overflow-hidden h-full" data-testid="feature-periodization">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 relative overflow-hidden h-full" data-testid="feature-periodization">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 mb-3">
@@ -1229,7 +1204,7 @@ const LandingPage = () => {
             </div>
             {/* Realistic bar chart with data */}
             <div className="bg-zinc-800/40 rounded-xl p-4 border border-zinc-700/20">
-              <div className="flex items-end gap-[3px] h-44">
+              <div className="flex items-end gap-[3px] h-32">
                 {[
                   [78,35,55],[85,40,50],[90,45,48],[62,50,58],[75,48,52],[82,55,50],[88,60,45],[68,65,62],
                   [76,58,55],[84,68,48],[92,72,42],[65,75,65],[70,70,58],[82,78,52],[88,82,48],[60,85,70],
@@ -1263,7 +1238,7 @@ const LandingPage = () => {
 
           {/* Atletas */}
           <Reveal delay={0.25} direction="up" className="col-span-12 md:col-span-4">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-7 flex flex-col justify-between h-full" data-testid="feature-team">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between h-full" data-testid="feature-team">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 bg-[#8FCFE6] rounded-lg flex items-center justify-center"><Users className="w-4 h-4 text-white" /></div>
@@ -1298,7 +1273,7 @@ const LandingPage = () => {
 
           {/* IA */}
           <Reveal delay={0.15} direction="up" className="col-span-12 md:col-span-6">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-7 flex flex-col justify-between min-h-[220px] h-full" data-testid="feature-ai">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between min-h-[220px] h-full" data-testid="feature-ai">
             <div>
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m8_title')}</h3>
               <p className="text-[14px] text-zinc-400 leading-[1.6] max-w-sm">{t('landing.features.m8_desc')}</p>
@@ -1319,7 +1294,7 @@ const LandingPage = () => {
 
           {/* Analysis */}
           <Reveal delay={0.3} direction="up" className="col-span-12 md:col-span-6">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-7 flex flex-col justify-between min-h-[220px] h-full" data-testid="feature-analysis">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between min-h-[220px] h-full" data-testid="feature-analysis">
             <div>
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m7_title')}</h3>
               <p className="text-[14px] text-zinc-400 leading-[1.6]">{t('landing.features.m7_desc')}</p>
@@ -1461,7 +1436,7 @@ const LandingPage = () => {
             const Icon = seg.icon;
             return (
               <div key={seg.key} className="shrink-0 snap-start w-[290px] md:w-[330px]">
-                <div className={`bg-zinc-900 border border-zinc-800 rounded-2xl p-7 h-full group hover:border-opacity-60 transition-all duration-300`} style={{'--seg-color': seg.color}} data-testid={`audience-${seg.key}`}>
+                <div className={`bg-zinc-900 border border-zinc-800 rounded-2xl p-5 h-full group hover:border-opacity-60 transition-all duration-300`} style={{'--seg-color': seg.color}} data-testid={`audience-${seg.key}`}>
                   {/* Header */}
                   <div className="flex items-start gap-4 mb-5">
                     <div className={`w-11 h-11 ${seg.iconBg} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
