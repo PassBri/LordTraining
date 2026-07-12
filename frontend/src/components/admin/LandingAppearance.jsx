@@ -115,29 +115,29 @@ const SocialLinksEditor = () => {
 };
 
 const ScoutingVideoEditor = () => {
-  const [url, setUrl] = useState(null);
+  const [media, setMedia] = useState(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetch(`${BACKEND}/api/landing/scouting-media`)
       .then(r => r.json())
-      .then(d => setUrl(d?.video_url || ''))
-      .catch(() => setUrl(''));
+      .then(d => setMedia({ video_url: d?.video_url || '', poster_url: d?.poster_url || '' }))
+      .catch(() => setMedia({ video_url: '', poster_url: '' }));
   }, []);
 
-  const save = async (value) => {
+  const save = async (payload) => {
     if (saving) return;
     setSaving(true);
     try {
-      const res = await putWithAuth(`${BACKEND}/api/landing/scouting-media`, { video_url: value });
+      const res = await putWithAuth(`${BACKEND}/api/landing/scouting-media`, payload);
       if (res.status === 401) { toast.error('Tu sesión expiró. Vuelve a iniciar sesión.'); return; }
       if (res.status === 403) { toast.error('Solo el Super Admin puede editar el video.'); return; }
       if (!res.ok) throw new Error('Error');
       const d = await res.json();
-      setUrl(d.video_url || '');
-      toast.success(value ? 'Video de scouting guardado' : 'Video eliminado. Se mostrará la imagen por defecto.');
+      setMedia({ video_url: d.video_url || '', poster_url: d.poster_url || '' });
+      toast.success(payload.video_url ? 'Video de scouting guardado' : 'Video eliminado. Se mostrará la imagen por defecto.');
     } catch (e) {
-      toast.error('No se pudo guardar el video. Inténtalo de nuevo.');
+      toast.error('No se pudo guardar. Inténtalo de nuevo.');
     } finally {
       setSaving(false);
     }
@@ -152,37 +152,50 @@ const ScoutingVideoEditor = () => {
           <p className="text-sm text-slate-500">Pega un enlace de <span className="font-semibold">YouTube</span> o un <span className="font-semibold">MP4 directo</span>. Se reproducirá en silencio y en bucle en la sección "Scouting e Identificación de Talento", con un botón para activar el sonido. Deja vacío para usar la imagen por defecto.</p>
         </div>
       </div>
-      {url === null ? (
+      {media === null ? (
         <div className="flex items-center gap-2 text-slate-400 text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Cargando…</div>
       ) : (
         <>
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">URL del video</label>
           <input
             type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            value={media.video_url}
+            onChange={(e) => setMedia(m => ({ ...m, video_url: e.target.value }))}
             placeholder="https://www.youtube.com/watch?v=... o https://.../video.mp4"
             className="w-full h-10 px-3 rounded-lg border border-slate-300 text-sm text-slate-800 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] outline-none"
             data-testid="scouting-video-input"
           />
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5 mt-4">URL de la miniatura / poster (opcional)</label>
+          <p className="text-[12px] text-slate-400 mb-1.5">Imagen de marca que se muestra al instante mientras carga el video. Recomendado 16:9 (ej. 1280×720).</p>
+          <input
+            type="url"
+            value={media.poster_url}
+            onChange={(e) => setMedia(m => ({ ...m, poster_url: e.target.value }))}
+            placeholder="https://.../poster.jpg"
+            className="w-full h-10 px-3 rounded-lg border border-slate-300 text-sm text-slate-800 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] outline-none"
+            data-testid="scouting-poster-input"
+          />
+          {media.poster_url ? (
+            <img src={media.poster_url} alt="Vista previa del poster" className="mt-3 w-full max-w-xs rounded-lg border border-slate-200 aspect-video object-cover" data-testid="scouting-poster-preview" />
+          ) : null}
           <div className="flex items-center gap-3 mt-4">
             <button
-              onClick={() => save((url || '').trim())}
+              onClick={() => save({ video_url: (media.video_url || '').trim(), poster_url: (media.poster_url || '').trim() })}
               disabled={saving}
               className="inline-flex items-center gap-2 h-11 px-6 rounded-full bg-[#1565C0] text-white font-bold text-sm hover:bg-[#0d4a91] transition-colors disabled:opacity-60"
               data-testid="scouting-video-save-btn"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Guardar video
+              Guardar
             </button>
-            {url ? (
+            {media.video_url ? (
               <button
-                onClick={() => { setUrl(''); save(''); }}
+                onClick={() => save({ video_url: '', poster_url: (media.poster_url || '').trim() })}
                 disabled={saving}
                 className="inline-flex items-center gap-2 h-11 px-4 rounded-full border border-slate-300 text-slate-600 font-semibold text-sm hover:bg-slate-100 transition-colors disabled:opacity-60"
                 data-testid="scouting-video-clear-btn"
               >
-                <Trash2 className="w-4 h-4" /> Quitar
+                <Trash2 className="w-4 h-4" /> Quitar video
               </button>
             ) : null}
           </div>

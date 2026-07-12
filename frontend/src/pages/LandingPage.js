@@ -452,7 +452,7 @@ const _ytId = (url) => {
 };
 
 const ScoutingMedia = ({ alt }) => {
-  const [url, setUrl] = useState(undefined); // undefined = cargando, '' = sin video
+  const [media, setMedia] = useState(undefined); // undefined = cargando
   const [muted, setMuted] = useState(true);
   const videoRef = useRef(null);
   const iframeRef = useRef(null);
@@ -461,11 +461,13 @@ const ScoutingMedia = ({ alt }) => {
     let alive = true;
     fetch(`${process.env.REACT_APP_BACKEND_URL}/api/landing/scouting-media`)
       .then(r => r.json())
-      .then(d => { if (alive) setUrl(d?.video_url || ''); })
-      .catch(() => { if (alive) setUrl(''); });
+      .then(d => { if (alive) setMedia({ video_url: d?.video_url || '', poster_url: d?.poster_url || '' }); })
+      .catch(() => { if (alive) setMedia({ video_url: '', poster_url: '' }); });
     return () => { alive = false; };
   }, []);
 
+  const url = media?.video_url;
+  const poster = media?.poster_url || SCOUT_IMG;
   const ytId = _ytId(url);
   const isVideoFile = url && !ytId && /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(url);
 
@@ -482,25 +484,27 @@ const ScoutingMedia = ({ alt }) => {
 
   const wrap = 'relative w-full h-[300px] md:h-[360px] overflow-hidden bg-zinc-950';
 
-  if (url === undefined || (!ytId && !isVideoFile)) {
-    // Cargando o sin video → imagen de respaldo
-    return <img src={SCOUT_IMG} alt={alt} className="w-full h-[300px] md:h-[360px] object-cover" loading="lazy" />;
+  if (media === undefined || (!ytId && !isVideoFile)) {
+    // Cargando o sin video → poster/imagen de respaldo
+    return <img src={poster} alt={alt} className="w-full h-[300px] md:h-[360px] object-cover" loading="lazy" />;
   }
 
   return (
     <div className={wrap} data-testid="scouting-media">
+      {/* Poster de marca visible al instante mientras carga el video */}
+      <img src={poster} alt={alt} className="absolute inset-0 w-full h-full object-cover z-0" />
       {ytId ? (
         <iframe
           ref={iframeRef}
           title="Scouting video"
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
           style={{ width: '100%', height: '100%', transform: 'translate(-50%,-50%) scale(1.5)' }}
           src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&playsinline=1&showinfo=0&iv_load_policy=3&enablejsapi=1`}
           allow="autoplay; encrypted-media"
           frameBorder="0"
         />
       ) : (
-        <video ref={videoRef} className="w-full h-full object-cover" src={url} autoPlay muted loop playsInline preload="metadata" poster={SCOUT_IMG} />
+        <video ref={videoRef} className="relative z-10 w-full h-full object-cover" src={url} autoPlay muted loop playsInline preload="metadata" poster={poster} />
       )}
       <button
         onClick={toggleSound}

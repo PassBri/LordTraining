@@ -39,6 +39,7 @@ class SocialLinksPayload(BaseModel):
 
 class ScoutingMediaPayload(BaseModel):
     video_url: str = ""
+    poster_url: str = ""
 
 
 async def _require_super(request: Request, credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -103,19 +104,23 @@ async def set_social_links(payload: SocialLinksPayload, request: Request, user=D
 
 @router.get("/scouting-media")
 async def get_scouting_media(db=Depends(get_db)):
-    """Público — el landing consulta el video de la sección de Scouting."""
+    """Público — el landing consulta el video y poster de la sección de Scouting."""
     doc = await db.landing_settings.find_one({"key": _SCOUTING_MEDIA_KEY}, {"_id": 0})
-    return {"video_url": (doc or {}).get("video_url", "")}
+    return {"video_url": (doc or {}).get("video_url", ""), "poster_url": (doc or {}).get("poster_url", "")}
 
 
 @router.put("/scouting-media")
 async def set_scouting_media(payload: ScoutingMediaPayload, request: Request, user=Depends(_require_super)):
-    url = (payload.video_url or "").strip()
-    if url and not url.startswith(("http://", "https://")):
-        url = "https://" + url
+    def clean(u: str) -> str:
+        u = (u or "").strip()
+        if u and not u.startswith(("http://", "https://")):
+            u = "https://" + u
+        return u
+    url = clean(payload.video_url)
+    poster = clean(payload.poster_url)
     await request.app.state.db.landing_settings.update_one(
         {"key": _SCOUTING_MEDIA_KEY},
-        {"$set": {"video_url": url, "updated_by": user["id"], "updated_at": datetime.now(timezone.utc).isoformat()}},
+        {"$set": {"video_url": url, "poster_url": poster, "updated_by": user["id"], "updated_at": datetime.now(timezone.utc).isoformat()}},
         upsert=True,
     )
-    return {"video_url": url}
+    return {"video_url": url, "poster_url": poster}
