@@ -1,5 +1,13 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-12 — Vitrina "Cantera": vista previa Open Graph + formulario de contacto (leads)
+- **Portada Open Graph** (`recruiting.py`): `_build_showcase_cover` (Pillow, 1200x630) con logo, "TOP TALENTOS", título, entidad, lema y marca. Endpoints `GET /public/showcase/{id}/cover` (PNG) y `GET /public/showcase/{id}/share` (HTML con meta OG/Twitter + redirect a `/cantera/{id}`). El enlace que copia el coach ahora es el `/share` (muestra portada al pegarlo en WhatsApp/redes); el botón "abrir" lleva a `/cantera/{id}`.
+- **Formulario de contacto por atleta** en la vitrina pública (`PublicShowcase.js`): agencias/universidades escriben directo (nombre, organización, email, mensaje) → `POST /public/showcase/{id}/contact`. Anti-spam con honeypot + validación de email.
+- **Bandeja de mensajes (leads)** en la pestaña Vitrina (`ShowcaseManager`): lista con no leídos, Responder (mailto), marcar leído y eliminar. Endpoints `GET /showcase/leads`, `POST /leads/{id}/read`, `DELETE /leads/{id}`. Colección `recruiting_leads`.
+- **Seguridad**: `_abs_url` valida el parámetro `b=` contra el host de la petición (evita que `og:image` apunte a dominios externos). Aplica también a la card-page de prospectos.
+- **Verificado (testing agent, iteración 120)**: 19/19 backend + 100% frontend PASS, flujo E2E (enviar desde vitrina → aparece en bandeja del coach) OK. Sin issues bloqueantes.
+
+
 ## 2026-07-11 — Vitrina pública "Cantera" (Top Talentos de la academia)
 - **Página pública compartible SIN cuenta** (`/cantera/{showcase_id}`, `PublicShowcase.js`): vitrina de marca con logo/lema/color del coach, tarjetas de talento (medalla de ranking, Score, nivel, club, nº de videos) y **modal por atleta** con caracterización completa: mejores métricas, fortalezas de la IA, logros, **videos públicos** (VideoGallery) y botón "Ver ficha completa".
 - **Selección híbrida**: automático por Score de evaluación (solo prospectos con enlace público activo), con opción de **ocultar** y **fijar** talentos.

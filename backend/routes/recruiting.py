@@ -958,17 +958,28 @@ async def qr_code(data: str = Query(..., max_length=1500), color: str = Query("#
 
 
 def _abs_url(request: Request, path: str, base_override: str = None) -> str:
-    if base_override:
-        return base_override.rstrip("/") + path
+    # Host propio de la petición (a través del ingress)
     xf_host = request.headers.get("x-forwarded-host")
     xf_proto = request.headers.get("x-forwarded-proto")
     if xf_host:
         proto = (xf_proto or "https").split(",")[0].strip()
-        return f"{proto}://{xf_host.split(',')[0].strip()}{path}"
-    base = str(request.base_url).rstrip("/")
-    if base.startswith("http://") and "localhost" not in base and "127.0.0.1" not in base:
-        base = "https://" + base[len("http://"):]
-    return base + path
+        req_host = xf_host.split(",")[0].strip()
+        self_base = f"{proto}://{req_host}"
+    else:
+        self_base = str(request.base_url).rstrip("/")
+        if self_base.startswith("http://") and "localhost" not in self_base and "127.0.0.1" not in self_base:
+            self_base = "https://" + self_base[len("http://"):]
+        req_host = self_base.split("://", 1)[-1]
+    # Solo se honra base_override si su host coincide con el de la petición (anti-abuso og:image)
+    if base_override:
+        try:
+            from urllib.parse import urlparse
+            ov_host = urlparse(base_override).netloc
+            if ov_host and ov_host == req_host:
+                return base_override.rstrip("/") + path
+        except Exception:
+            pass
+    return self_base + path
 
 
 _BOT_UA = ("facebookexternalhit", "facebot", "twitterbot", "whatsapp", "telegrambot",
