@@ -2270,6 +2270,24 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
     # Barra dorada bajo la foto
     draw.rectangle([0, photo_h - 6, W, photo_h], fill=gold)
 
+    # ── Realce premium: brillo radial tras el score + destello diagonal ──
+    try:
+        from PIL import ImageFilter
+        gx, gy = W - 150, 135
+        glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        gd = ImageDraw.Draw(glow)
+        gd.ellipse([gx - 150, gy - 150, gx + 150, gy + 150], fill=(gold[0], gold[1], gold[2], 130))
+        glow = glow.filter(ImageFilter.GaussianBlur(70))
+        sd = ImageDraw.Draw(glow)
+        sd.polygon([(int(W * 0.22), 0), (int(W * 0.36), 0), (int(W * 0.10), photo_h), (int(-0.05 * W), photo_h)], fill=(255, 255, 255, 16))
+        sd.polygon([(int(W * 0.40), 0), (int(W * 0.47), 0), (int(W * 0.20), photo_h), (int(0.11 * W), photo_h)], fill=(gold[0], gold[1], gold[2], 20))
+        base = Image.alpha_composite(base.convert("RGBA"), glow).convert("RGB")
+        draw = ImageDraw.Draw(base)
+        # Barra dorada re-dibujada encima del compuesto
+        draw.rectangle([0, photo_h - 6, W, photo_h], fill=gold)
+    except Exception:
+        pass
+
     # Wordmark
     fw = font(46, True)
     draw.text((60, 52), "LORD", font=fw, fill=(255, 255, 255))

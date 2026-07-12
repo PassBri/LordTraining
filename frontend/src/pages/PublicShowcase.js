@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Target, Loader2, Trophy, Video, Award, ArrowRight, X, Star, MapPin, Send, Building2, Mail, CheckCircle2 } from 'lucide-react';
+import { Target, Loader2, Trophy, Video, Award, ArrowRight, X, Star, MapPin, Send, Building2, Mail, CheckCircle2, Download, Share2 } from 'lucide-react';
 import { VideoGallery } from '../components/VideoEmbed';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com') === -1 ? process.env.REACT_APP_BACKEND_URL : (typeof window !== 'undefined' ? window.location.origin : process.env.REACT_APP_BACKEND_URL));
@@ -181,6 +181,32 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
   const [sent, setSent] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState('');
+  const [dl, setDl] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const cardImg = `${API_URL}/api/recruiting/public/${a.share_id}/card?format=post`;
+  const cardPage = `${API_URL}/api/recruiting/public/${a.share_id}/card-page?format=post`;
+  const downloadCard = async () => {
+    setDl(true);
+    try {
+      const res = await fetch(cardImg);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${(a.name || 'talento').replace(/\s+/g, '_')}_LordTraining.png`;
+      document.body.appendChild(link); link.click(); link.remove();
+      URL.revokeObjectURL(url);
+    } catch { /* ignore */ }
+    setDl(false);
+  };
+  const shareCard = async () => {
+    const data = { title: `${a.name} · LordTraining`, text: `Mira la carta de scouting de ${a.name} en la Cantera de LordTraining`, url: cardPage };
+    try {
+      if (navigator.share) { await navigator.share(data); return; }
+      await navigator.clipboard.writeText(cardPage);
+      setCopied(true); setTimeout(() => setCopied(false), 2200);
+    } catch { /* ignore */ }
+  };
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
@@ -297,6 +323,22 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
             <div data-testid="showcase-modal-videos">
               <div className="text-[11px] font-black uppercase tracking-widest mb-2 flex items-center gap-1.5" style={{ color: accent }}><Video className="w-4 h-4" />Videos</div>
               <VideoGallery videos={a.videos} dark />
+            </div>
+          )}
+
+          {/* Compartir / descargar carta */}
+          {a.share_id && (
+            <div className="grid grid-cols-2 gap-2.5" data-testid="showcase-card-actions">
+              <button onClick={downloadCard} disabled={dl} data-testid="showcase-download-card-btn"
+                className="flex items-center justify-center gap-2 font-black py-2.5 rounded-xl text-slate-900 transition hover:opacity-90 disabled:opacity-60"
+                style={{ background: accent }}>
+                {dl ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}Descargar carta
+              </button>
+              <button onClick={shareCard} data-testid="showcase-share-card-btn"
+                className="flex items-center justify-center gap-2 font-black py-2.5 rounded-xl text-white border transition hover:bg-white/5"
+                style={{ borderColor: accent + '66' }}>
+                {copied ? <CheckCircle2 className="w-4 h-4" style={{ color: accent }} /> : <Share2 className="w-4 h-4" style={{ color: accent }} />}{copied ? '¡Enlace copiado!' : 'Compartir'}
+              </button>
             </div>
           )}
 
