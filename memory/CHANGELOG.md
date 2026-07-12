@@ -1,5 +1,12 @@
 # CHANGELOG — LordTraining
 
+## 2026-06 — Fix: etapas del Plan Gráfico acordes al modelo de periodización
+- **Bug reportado**: en "Plan Gráfico de Periodización" la fila "Etapa" mostraba "Trans" en casi todas las semanas y "Tipo de etapa" "Prepar" en todas, sin respetar el modelo (Tradicional/Matveiev, ATR, etc.).
+- **Causa raíz** (`GraphicPlan.js` → `importPeriodizationData`): (1) leía `micro.weekNumber` cuando el backend devuelve `week_number` (semana quedaba `undefined`); (2) solo procesaba `macrocycles[0]`; (3) su `phaseMapping` local no reconocía el vocabulario real de los modelos (`prep_general`, `accumulation`, `transformation`, `realization`, `recovery`, `block_*`, etc.), cayendo todo a `preparatory_general`/`transicion`.
+- **Fix**: nuevo clasificador compartido `/app/frontend/src/lib/periodizationStages.js` (`classifyStage`, `normalizeMesoType`, `normalizeMicroType`) que mapea el vocabulario de TODOS los modelos (Tradicional, ATR, Bloques, Ondulatorio, Conjugado, Trifásico + fallback por palabra clave y por `meso_type`) a las etapas canónicas. `importPeriodizationData` ahora recorre todos los macrociclos, usa `week_number` y delega en `classifyStage`; la ruta de sync V2 también usa `classifyStage`.
+- **Verificado E2E** (iteration_121, 100%): plan ATR 47 sem → Etapa Prep(1-36)/Comp(37-44)/Trans(45-47), coherente con el modelo.
+
+
 ## 2026-07-12 — Centro de notificaciones unificado + preferencias + ACWR integrado
 - **Centro de notificaciones** (`NotificationCenter.jsx`, portal a `document.body`): historial filtrable por tipo (Todas/Contactos/Resumen/Promover/Nivel/Salud), marcar leído/eliminar/marcar todo. Se abre desde "Ver todo" en la campanita.
 - **Preferencias por tipo** (activar/silenciar): `GET/PUT /notifications/preferences` + colección `notification_prefs`. `create_notification` respeta las preferencias (verificado: un tipo silenciado NO genera notificación). Panel de switches dentro del Centro.
