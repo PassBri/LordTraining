@@ -87,22 +87,25 @@ function AthleteCard({ a, rank, accent, onOpen }) {
   return (
     <button onClick={onOpen} data-testid={`showcase-card-${a.share_id}`}
       className="text-left rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10 hover:border-white/25 hover:-translate-y-0.5 transition-all group">
-      <div className="relative h-52 bg-slate-800 overflow-hidden">
+      <div className="relative h-56 bg-slate-900 overflow-hidden">
         {a.has_photo && a.share_id ? (
-          <img src={photoUrl(a.share_id)} alt={a.name} className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
+          <>
+            <img src={photoUrl(a.share_id)} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-40" />
+            <img src={photoUrl(a.share_id)} alt={a.name} className="relative z-[1] w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" data-testid={`showcase-card-photo-${a.share_id}`} />
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-6xl font-black text-white/10">{(a.name || '?').slice(0, 1)}</div>
         )}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 45%, rgba(10,15,30,.95))' }} />
+        <div className="absolute inset-0 z-[2] pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(10,15,30,.35) 0%, transparent 30%, transparent 55%, rgba(10,15,30,.96))' }} />
         {rank <= 3 && (
-          <div className="absolute top-3 left-3 w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-black text-slate-900" style={{ background: ['#D4AF37', '#cbd5e1', '#d97706'][rank - 1] }}>{rank}</div>
+          <div className="absolute top-3 left-3 z-[3] w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-black text-slate-900 shadow-lg" style={{ background: ['#D4AF37', '#cbd5e1', '#d97706'][rank - 1] }}>{rank}</div>
         )}
         {a.overall_score != null && (
-          <div className="absolute top-3 right-3 w-12 h-12 rounded-xl flex flex-col items-center justify-center text-white font-black leading-none shadow-lg" style={{ background: scoreColor(a.overall_score) }}>
+          <div className="absolute top-3 right-3 z-[3] w-12 h-12 rounded-xl flex flex-col items-center justify-center text-white font-black leading-none shadow-lg" style={{ background: scoreColor(a.overall_score) }}>
             <span className="text-lg">{a.overall_score}</span><span className="text-[7px] tracking-widest opacity-90">SCORE</span>
           </div>
         )}
-        <div className="absolute bottom-3 left-3 right-3">
+        <div className="absolute bottom-3 left-3 right-3 z-[3]">
           <div className="text-white font-black text-lg leading-tight truncate">{a.name}</div>
           <div className="text-white/60 text-[12px] truncate">{[a.position, a.sport_name].filter(Boolean).join(' · ')}</div>
         </div>
