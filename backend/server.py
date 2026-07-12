@@ -106,6 +106,9 @@ app.include_router(hotmart_webhooks_router, prefix="/api")
 from routes.recruiting import router as recruiting_router
 app.include_router(recruiting_router, prefix="/api")
 
+from routes.notifications import router as notifications_router
+app.include_router(notifications_router, prefix="/api")
+
 from routes.calculator_results import router as calculator_results_router
 app.include_router(calculator_results_router, prefix="/api")
 

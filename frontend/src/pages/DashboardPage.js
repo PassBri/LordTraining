@@ -13,6 +13,7 @@ import useGlobalContext from '../hooks/useGlobalContext';
 import useGeneratedPlans from '../hooks/useGeneratedPlans';
 import useSportsCatalog from '../hooks/useSportsCatalog';
 import useTournaments from '../hooks/useTournaments';
+import NotificationsBell from '../components/NotificationsBell';
 const SessionCalendar = lazy(() => import('../components/SessionCalendar'));
 const ScoutingModule = lazy(() => import('../components/ScoutingModule'));
 import { 
@@ -4469,6 +4470,8 @@ const DashboardPage = () => {
           <div className="flex items-start gap-2 shrink-0 pl-2">
             {/* Toggle de estilo (Clásico / Pro) */}
             <ThemeToggle variant="light" className="hidden sm:inline-flex mr-1 mt-1" />
+            {/* Notificaciones in-app (leads + resumen vitrina) */}
+            <NotificationsBell onNavigate={() => { setActivePanel('datos'); setActiveDataSection('scouting'); setScoutingTab('showcase'); }} />
             {/* Alertas proactivas FAB */}
             <div className="relative">
               <button

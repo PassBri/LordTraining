@@ -1,5 +1,13 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-12 — Notificaciones in-app (campanita) + resumen semanal de la vitrina
+- **Nuevo módulo de notificaciones** (`routes/notifications.py`, registrado en `server.py`): colección `notifications`, helper `create_notification()`, endpoints `GET /notifications` (items+unread), `POST /{id}/read`, `POST /read-all`, `DELETE /{id}`.
+- **Aviso in-app al llegar un lead**: `POST /public/showcase/{id}/contact` crea una notificación `showcase_lead` (además del email). Más directo y sin la limitación de dominios de Resend.
+- **Resumen semanal**: `POST /recruiting/showcase/weekly-digest` (auth) genera —si han pasado ≥7 días y hay actividad— una notificación `showcase_weekly` tipo "Tu vitrina esta semana: X visitas, Y contactos, top talento Z" (usa snapshot `weekly_views_snapshot` + `last_weekly_summary` en settings; idempotente por semana).
+- **Campanita "Avisos"** (`NotificationsBell.jsx`) en el header del Dashboard: badge de no leídos, dropdown con íconos por tipo, marcar leído/eliminar/marcar todo, polling 60s, dispara el weekly-digest al montar y navega a Scouting → Vitrina al hacer clic.
+- **Verificado**: curl (crear lead→notif, weekly-digest crea/no duplica, read/read-all/delete) + captura (campanita con resumen semanal "3 visitas y 4 contactos, top Test Prospect" y "Nuevo contacto: Agencia Pro").
+
+
 ## 2026-07-12 — Vitrina "Cantera": notificación por email (Resend) + panel de métricas
 - **Email al coach por cada contacto nuevo** (Resend): plantilla HTML de marca `render/send_showcase_lead_notification` en `email_service.py`; se dispara (no bloqueante, `asyncio.create_task`) desde `POST /public/showcase/{id}/contact`. Se configuró `RESEND_API_KEY` en `backend/.env`. **Verificado envío real** (Resend id devuelto). Limitación: con remitente `onboarding@resend.dev` solo entrega al correo dueño de la cuenta Resend; para otros coaches se requiere dominio verificado + cambiar `SENDER_EMAIL`.
 - **Panel de métricas de la vitrina**: `GET /showcase/metrics` (visitas, contactos, sin leer, contactos por atleta) y `POST /public/showcase/{id}/visit` (contador de visitas, `showcase_views` en settings, se dispara al cargar `/cantera/{id}`). UI en la pestaña Vitrina: strip de 3 métricas + "Contactos por atleta" con barras. Métricas se refrescan al marcar leído/eliminar.

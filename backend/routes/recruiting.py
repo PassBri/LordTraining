@@ -1637,6 +1637,18 @@ async def public_showcase_contact(showcase_id: str, body: ShowcaseLeadIn):
         "read": False, "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await _leads.insert_one(lead)
+    # Notificación in-app (campanita) al coach
+    try:
+        from routes.notifications import create_notification
+        await create_notification(
+            coach_id, "showcase_lead",
+            f"Nuevo contacto: {lead['from_name']}",
+            (f"Interés en {prospect_name}. " if prospect_name else "") + lead["message"][:120],
+            link="scouting:showcase",
+            meta={"lead_id": lead["id"], "prospect_id": prospect_id, "email": lead["email"]},
+        )
+    except Exception:
+        pass
     # Notificación por email al coach (no bloqueante)
     try:
         import asyncio
@@ -1660,6 +1672,55 @@ async def public_showcase_visit(showcase_id: str):
         {"showcase_id": showcase_id, "showcase_enabled": True},
         {"$inc": {"showcase_views": 1}})
     return {"ok": True}
+
+
+@router.post("/showcase/weekly-digest")
+async def showcase_weekly_digest(user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    s = await _get_settings(uid)
+    if not s.get("showcase_enabled"):
+        return {"created": False}
+    now = datetime.now(timezone.utc)
+    last = s.get("last_weekly_summary")
+    due = True
+    if last:
+        try:
+            due = (now - datetime.fromisoformat(last)).days >= 7
+        except Exception:
+            due = True
+    if not due:
+        return {"created": False}
+    views_total = int(s.get("showcase_views", 0) or 0)
+    snap = int(s.get("weekly_views_snapshot", 0) or 0)
+    views_week = max(0, views_total - snap)
+    since = (now - timedelta(days=7)).isoformat()
+    leads_week = await _leads.find(
+        {"coach_id": uid, "created_at": {"$gte": since}},
+        {"_id": 0, "prospect_name": 1}).to_list(1000)
+    per = {}
+    for l in leads_week:
+        n = l.get("prospect_name") or "General"
+        per[n] = per.get(n, 0) + 1
+    top = max(per.items(), key=lambda x: x[1])[0] if per else None
+    has_activity = views_week > 0 or len(leads_week) > 0
+    created = False
+    if has_activity:
+        msg = f"{views_week} visita(s) y {len(leads_week)} contacto(s) nuevo(s) esta semana."
+        if top:
+            msg += f" Top talento: {top}."
+        try:
+            from routes.notifications import create_notification
+            await create_notification(
+                uid, "showcase_weekly", "Resumen semanal de tu vitrina", msg,
+                link="scouting:showcase",
+                meta={"views_week": views_week, "leads_week": len(leads_week), "top": top})
+            created = True
+        except Exception:
+            pass
+    await _settings.update_one({"coach_id": uid}, {"$set": {
+        "last_weekly_summary": now.isoformat(), "weekly_views_snapshot": views_total,
+    }}, upsert=True)
+    return {"created": created}
 
 
 @router.get("/showcase/metrics")
