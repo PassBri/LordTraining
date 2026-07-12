@@ -1182,9 +1182,12 @@ const LandingPage = () => {
           <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15]" style={{fontFamily:INT}}>{t('landing.features.title')}</h2>
         </Reveal>
 
-        <div className="grid grid-cols-12 gap-3">
+        <div className="relative">
+          <button onClick={() => {const el=document.getElementById('features-carousel'); if(el) el.scrollBy({left:-el.clientWidth*0.8,behavior:'smooth'});}} aria-label="Anterior" data-testid="features-carousel-prev" className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-zinc-900 border border-zinc-700 text-white items-center justify-center hover:bg-[#D4AF37] hover:text-[#09090b] transition-colors shadow-lg"><ChevronLeft className="w-5 h-5"/></button>
+          <button onClick={() => {const el=document.getElementById('features-carousel'); if(el) el.scrollBy({left:el.clientWidth*0.8,behavior:'smooth'});}} aria-label="Siguiente" data-testid="features-carousel-next" className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-zinc-900 border border-zinc-700 text-white items-center justify-center hover:bg-[#D4AF37] hover:text-[#09090b] transition-colors shadow-lg"><ChevronRight className="w-5 h-5"/></button>
+          <div id="features-carousel" data-testid="features-carousel" className="flex items-stretch gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-1 px-1" style={{scrollbarWidth:'none'}}>
           {/* Main — Plan Gráfico */}
-          <Reveal delay={0.1} direction="up" className="col-span-12 md:col-span-8">
+          <Reveal delay={0.1} direction="up" className="shrink-0 snap-start w-[360px] md:w-[440px]">
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 relative overflow-hidden h-full" data-testid="feature-periodization">
             <div className="flex items-start justify-between mb-4">
               <div>
@@ -1237,7 +1240,7 @@ const LandingPage = () => {
           </Reveal>
 
           {/* Atletas */}
-          <Reveal delay={0.25} direction="up" className="col-span-12 md:col-span-4">
+          <Reveal delay={0.25} direction="up" className="shrink-0 snap-start w-[300px] md:w-[320px]">
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between h-full" data-testid="feature-team">
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -1272,7 +1275,7 @@ const LandingPage = () => {
           </Reveal>
 
           {/* IA */}
-          <Reveal delay={0.15} direction="up" className="col-span-12 md:col-span-6">
+          <Reveal delay={0.15} direction="up" className="shrink-0 snap-start w-[300px] md:w-[340px]">
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between min-h-[220px] h-full" data-testid="feature-ai">
             <div>
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m8_title')}</h3>
@@ -1293,7 +1296,7 @@ const LandingPage = () => {
           </Reveal>
 
           {/* Analysis */}
-          <Reveal delay={0.3} direction="up" className="col-span-12 md:col-span-6">
+          <Reveal delay={0.3} direction="up" className="shrink-0 snap-start w-[300px] md:w-[340px]">
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between min-h-[220px] h-full" data-testid="feature-analysis">
             <div>
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m7_title')}</h3>
@@ -1314,7 +1317,7 @@ const LandingPage = () => {
           </Reveal>
 
           {/* Multi-sport */}
-          <Reveal delay={0.1} direction="up" className="col-span-6 md:col-span-3">
+          <Reveal delay={0.1} direction="up" className="shrink-0 snap-start w-[200px]">
           <div className="bg-zinc-800 border border-zinc-700 rounded-2xl p-6 flex flex-col justify-between min-h-[120px] h-full" data-testid="feature-multisport">
             <Target className="w-5 h-5 text-[#D4AF37]" />
             <div>
@@ -1325,7 +1328,7 @@ const LandingPage = () => {
           </Reveal>
 
           {/* Calculators */}
-          <Reveal delay={0.2} direction="up" className="col-span-6 md:col-span-5">
+          <Reveal delay={0.2} direction="up" className="shrink-0 snap-start w-[280px]">
           <div className="bg-[#D4AF37] rounded-2xl p-6 flex items-center justify-between h-full" data-testid="feature-calculators">
             <div>
               <h3 className="text-[16px] font-semibold text-zinc-900">{t('landing.hero.stats.calculators')}</h3>
@@ -1336,7 +1339,7 @@ const LandingPage = () => {
           </Reveal>
 
           {/* Export */}
-          <Reveal delay={0.3} direction="up" className="col-span-12 md:col-span-4">
+          <Reveal delay={0.3} direction="up" className="shrink-0 snap-start w-[280px]">
           <div className="bg-white rounded-2xl p-6 flex items-center justify-between h-full" data-testid="feature-export">
             <div>
               <h3 className="text-[16px] font-semibold text-zinc-900">PDF Export</h3>
@@ -1345,6 +1348,7 @@ const LandingPage = () => {
             <FileText className="w-6 h-6 text-zinc-300" />
           </div>
           </Reveal>
+          </div>
         </div>
       </div>
     </section>
