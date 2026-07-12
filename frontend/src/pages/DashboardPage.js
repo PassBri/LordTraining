@@ -4470,62 +4470,11 @@ const DashboardPage = () => {
           <div className="flex items-start gap-2 shrink-0 pl-2">
             {/* Toggle de estilo (Clásico / Pro) */}
             <ThemeToggle variant="light" className="hidden sm:inline-flex mr-1 mt-1" />
-            {/* Notificaciones in-app (leads + resumen vitrina) */}
-            <NotificationsBell onNavigate={(tab) => { setActivePanel('datos'); setActiveDataSection('scouting'); setScoutingTab(tab || 'showcase'); }} />
-            {/* Alertas proactivas FAB */}
-            <div className="relative">
-              <button
-                onClick={() => setAlertsOpen(o => !o)}
-                className="group flex flex-col items-center gap-1 shrink-0 outline-none relative"
-                data-testid="alerts-fab"
-                title={t('data.alertas_de_prevencion_acwr_disponibilidad')}
-              >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-rose-500">
-                  <Bell className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
-                  {coachAlerts.length > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] px-1 rounded-full bg-rose-500 border-2 border-white flex items-center justify-center text-[9px] font-bold text-white" data-testid="alerts-count-badge">
-                      {coachAlerts.length}
-                    </span>
-                  )}
-                </div>
-                <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-rose-500 transition-colors duration-300">
-                  {t('dashboard.shell.fabAlerts')}
-                </span>
-              </button>
-              {alertsOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setAlertsOpen(false)} />
-                  <div className="fixed top-[70px] right-4 z-[70] w-80 rounded-xl bg-white shadow-xl border border-slate-150 p-2 max-h-[70vh] overflow-y-auto" data-testid="alerts-menu">
-                    <button
-                      onClick={() => { setAlertsOpen(false); setSummaryOpen(true); }}
-                      className="w-full flex items-center justify-between gap-2 px-2.5 py-2 mb-1 rounded-lg text-sm font-semibold text-[#007AFF] bg-blue-50 hover:bg-blue-100"
-                      data-testid="open-weekly-summary-btn"
-                    >
-                      <span className="flex items-center gap-1.5"><TrendingUp className="w-4 h-4" />{t('dashboard.alerts.viewWeekly')}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                    <p className="text-[11px] text-slate-400 px-2 py-1 flex items-center gap-1.5"><Bell className="w-3 h-3" />{t('dashboard.alerts.title')}</p>
-                    {coachAlerts.length === 0 ? (
-                      <div className="flex items-center gap-2 px-2.5 py-4 text-sm text-slate-500">
-                        <CheckCircle className="w-4 h-4 text-emerald-500" />{t('dashboard.alerts.empty')}
-                      </div>
-                    ) : (
-                      coachAlerts.map((a, i) => (
-                        <div key={i} className={`rounded-lg p-2.5 mb-1.5 border ${a.severity === 'high' ? 'bg-red-50 border-red-150' : 'bg-amber-50 border-amber-150'}`} data-testid={`alert-item-${i}`}>
-                          <div className="flex items-start gap-2">
-                            <AlertTriangle className={`w-4 h-4 mt-0.5 shrink-0 ${a.severity === 'high' ? 'text-red-500' : 'text-amber-500'}`} />
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold text-slate-800">{a.title}</p>
-                              <p className="text-xs text-slate-500 mt-0.5">{a.message}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
+            {/* Notificaciones in-app unificadas (leads, reclutamiento, salud ACWR + resumen) */}
+            <NotificationsBell
+              onNavigate={(tab) => { setActivePanel('datos'); setActiveDataSection('scouting'); setScoutingTab(tab || 'showcase'); }}
+              onOpenWeeklySummary={() => setSummaryOpen(true)}
+            />
 
             {/* Demo data FAB — siempre visible para cualquier coach */}
             <div className="relative">

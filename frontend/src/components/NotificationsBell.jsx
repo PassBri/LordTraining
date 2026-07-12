@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Bell, Mail, TrendingUp, Check, X, Inbox, Rocket, Award } from 'lucide-react';
+import { Bell, Mail, TrendingUp, Check, X, Inbox, Rocket, Award, AlertTriangle, List } from 'lucide-react';
+import NotificationCenter from './NotificationCenter';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('train_token')}` });
@@ -9,12 +10,14 @@ const iconFor = (type) => ({
   showcase_lead: Mail,
   recruiting_promote: Rocket,
   recruiting_levelup: Award,
+  health_alert: AlertTriangle,
 }[type] || Bell);
 const styleFor = (type) => ({
   showcase_weekly: 'bg-emerald-100 text-emerald-600',
   showcase_lead: 'bg-blue-100 text-blue-600',
   recruiting_promote: 'bg-violet-100 text-violet-600',
   recruiting_levelup: 'bg-amber-100 text-amber-600',
+  health_alert: 'bg-rose-100 text-rose-600',
 }[type] || 'bg-slate-100 text-slate-600');
 
 const playDing = () => {
@@ -43,11 +46,12 @@ const timeAgo = (iso) => {
   return `hace ${Math.floor(s / 86400)} d`;
 };
 
-export default function NotificationsBell({ onNavigate }) {
+export default function NotificationsBell({ onNavigate, onOpenWeeklySummary }) {
   const [items, setItems] = useState([]);
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
   const [pulse, setPulse] = useState(false);
+  const [centerOpen, setCenterOpen] = useState(false);
   const seenIds = useRef(null);
 
   const load = useCallback(async () => {
@@ -77,6 +81,7 @@ export default function NotificationsBell({ onNavigate }) {
     Promise.allSettled([
       fetch(`${API_URL}/api/recruiting/showcase/weekly-digest`, { method: 'POST', headers: authHeaders() }),
       fetch(`${API_URL}/api/recruiting/notify-digest`, { method: 'POST', headers: authHeaders() }),
+      fetch(`${API_URL}/api/notifications/sync-health`, { method: 'POST', headers: authHeaders() }),
     ]).finally(load);
     const iv = setInterval(load, 60000);
     return () => clearInterval(iv);
@@ -150,9 +155,20 @@ export default function NotificationsBell({ onNavigate }) {
                 );
               })}
             </div>
+            <div className="flex items-center gap-2 px-3 py-2 border-t border-slate-100 bg-slate-50">
+              {onOpenWeeklySummary && (
+                <button onClick={() => { setOpen(false); onOpenWeeklySummary(); }} className="flex-1 flex items-center justify-center gap-1.5 text-[12px] font-semibold text-slate-600 hover:text-[#007AFF] py-1.5 rounded-lg hover:bg-white transition" data-testid="notif-open-weekly">
+                  <TrendingUp className="w-3.5 h-3.5" />Resumen semanal
+                </button>
+              )}
+              <button onClick={() => { setOpen(false); setCenterOpen(true); }} className="flex-1 flex items-center justify-center gap-1.5 text-[12px] font-bold text-[#007AFF] py-1.5 rounded-lg hover:bg-white transition" data-testid="notif-open-center">
+                <List className="w-3.5 h-3.5" />Ver todo
+              </button>
+            </div>
           </div>
         </>
       )}
+      {centerOpen && <NotificationCenter onClose={() => { setCenterOpen(false); load(); }} onNavigate={onNavigate} />}
     </div>
   );
 }

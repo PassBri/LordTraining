@@ -1,5 +1,13 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-12 — Centro de notificaciones unificado + preferencias + ACWR integrado
+- **Centro de notificaciones** (`NotificationCenter.jsx`, portal a `document.body`): historial filtrable por tipo (Todas/Contactos/Resumen/Promover/Nivel/Salud), marcar leído/eliminar/marcar todo. Se abre desde "Ver todo" en la campanita.
+- **Preferencias por tipo** (activar/silenciar): `GET/PUT /notifications/preferences` + colección `notification_prefs`. `create_notification` respeta las preferencias (verificado: un tipo silenciado NO genera notificación). Panel de switches dentro del Centro.
+- **Alertas ACWR de salud unificadas**: `POST /notifications/sync-health` persiste las alertas de `coach_metrics._build_alerts` como notificaciones `health_alert` (dedupe 20h), respetando la preferencia. Se dispara al montar la campanita. Se **eliminó la campanita ACWR independiente** del header; su acceso al **resumen semanal del coach** se movió a la campanita unificada ("Resumen semanal").
+- **GET /notifications** ahora soporta `?type=` y `?limit=`; `unread` cuenta global de no leídos.
+- **Verificado**: curl (prefs get/put + silenciado efectivo, sync-health, filtro por tipo) + capturas (Centro con preferencias, filtros y los 3 tipos de notificación; campanita con badge y footer "Resumen semanal / Ver todo").
+
+
 ## 2026-07-12 — Avisos accionables de reclutamiento + sonido/efecto al llegar un lead
 - **Avisos accionables** (`POST /recruiting/notify-digest`, máx 1/día, idempotente): detecta prospectos **listos para promover a atleta** (score ORO≥75, no convertidos, stage≠decision/rejected) y **subidas de nivel** comparando `level_snapshot` por prospecto contra el nivel actual (DIAMANTE>ORO>PLATA>BRONCE>EN DESARROLLO). Genera notificaciones `recruiting_promote` y `recruiting_levelup`. Primera ejecución solo fija baselines (sin falsos positivos).
 - **Campanita mejorada** (`NotificationsBell.jsx`): iconos/colores por tipo (Rocket=promover, Award=nivel, Mail=lead, TrendingUp=resumen), navegación al tab correcto de Scouting (`scouting:ranking`/`showcase`), y dispara `notify-digest` + `weekly-digest` al montar.
