@@ -1281,7 +1281,11 @@ const LandingPage = () => {
               <h3 className="text-[20px] font-semibold text-white mb-2">{t('landing.features.m8_title')}</h3>
               <p className="text-[14px] text-zinc-400 leading-[1.6] max-w-sm">{t('landing.features.m8_desc')}</p>
             </div>
-            <div className="flex items-end justify-between mt-4">
+            <div className="rounded-xl bg-zinc-950/60 border border-zinc-800 p-3 my-3">
+              <div className="flex items-center gap-2 text-[11px] font-semibold text-zinc-400"><span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />Sugerencia IA</div>
+              <p className="text-[12px] text-zinc-300 mt-1.5 leading-snug">"Reduce el volumen un 8% esta semana — ACWR en 1.32 (zona de riesgo)."</p>
+            </div>
+            <div className="flex items-end justify-between mt-1">
               <div className="flex items-center gap-2">
                 {['GPT','AUTO','SMART'].map((txt,i) => (
                   <span key={txt} className={`px-2.5 py-1 rounded-md text-[10px] font-bold ${i===0?'bg-[#8FCFE6]/15 text-[#8FCFE6]':i===1?'bg-zinc-800 text-zinc-400':'bg-[#C3C9D4]/15 text-[#C3C9D4]'}`} style={{fontFamily:BC}}>{txt}</span>
@@ -1317,35 +1321,56 @@ const LandingPage = () => {
           </Reveal>
 
           {/* Multi-sport */}
-          <Reveal delay={0.1} direction="up" className="shrink-0 snap-start w-[200px]">
-          <div className="bg-zinc-800 border border-zinc-700 rounded-2xl p-6 flex flex-col justify-between min-h-[120px] h-full" data-testid="feature-multisport">
-            <Target className="w-5 h-5 text-[#D4AF37]" />
+          <Reveal delay={0.1} direction="up" className="shrink-0 snap-start w-[220px]">
+          <div className="bg-zinc-800 border border-zinc-700 rounded-2xl p-6 flex flex-col justify-between h-full" data-testid="feature-multisport">
+            <div className="w-10 h-10 rounded-xl bg-[#D4AF37]/15 flex items-center justify-center"><Target className="w-5 h-5 text-[#D4AF37]" /></div>
             <div>
-              <h3 className="text-[16px] font-semibold text-white">Multi-sport</h3>
-              <p className="text-[12px] text-zinc-500 mt-0.5">+20</p>
+              <div className="text-[42px] font-black text-white leading-none" style={{fontFamily:BC}}>+20</div>
+              <h3 className="text-[15px] font-semibold text-white mt-1">Deportes</h3>
+              <p className="text-[12px] text-zinc-500 mt-1 leading-snug">Pizarra táctica 3D para cada disciplina.</p>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {['FÚT','BAL','VOL','TEN','RUG','+15'].map((c,i) => (
+                <span key={i} className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[9px] font-black tracking-wide text-zinc-300" style={{fontFamily:BC}}>{c}</span>
+              ))}
             </div>
           </div>
           </Reveal>
 
           {/* Calculators */}
           <Reveal delay={0.2} direction="up" className="shrink-0 snap-start w-[280px]">
-          <div className="bg-[#D4AF37] rounded-2xl p-6 flex items-center justify-between h-full" data-testid="feature-calculators">
-            <div>
-              <h3 className="text-[16px] font-semibold text-zinc-900">{t('landing.hero.stats.calculators')}</h3>
-              <p className="text-zinc-900/50 text-[13px] mt-0.5">1RM · VO2max · HR Zones · Karvonen</p>
+          <div className="bg-[#D4AF37] rounded-2xl p-6 flex flex-col justify-between h-full" data-testid="feature-calculators">
+            <div className="flex items-start justify-between">
+              <div className="w-10 h-10 rounded-xl bg-zinc-900/10 flex items-center justify-center"><Activity className="w-5 h-5 text-zinc-900" /></div>
+              <span className="text-[40px] font-black text-zinc-900 leading-none" style={{fontFamily:BC}}>+20</span>
             </div>
-            <Activity className="w-6 h-6 text-zinc-900/20" />
+            <div>
+              <h3 className="text-[18px] font-bold text-zinc-900">{t('landing.hero.stats.calculators')}</h3>
+              <div className="flex flex-wrap gap-1.5 mt-2.5">
+                {['1RM','VO2max','HR Zones','Karvonen','Wattios','TSS'].map((c,i) => (
+                  <span key={i} className="px-2 py-0.5 rounded-md bg-zinc-900/10 text-[10px] font-bold text-zinc-900" style={{fontFamily:BC}}>{c}</span>
+                ))}
+              </div>
+            </div>
           </div>
           </Reveal>
 
           {/* Export */}
           <Reveal delay={0.3} direction="up" className="shrink-0 snap-start w-[280px]">
-          <div className="bg-white rounded-2xl p-6 flex items-center justify-between h-full" data-testid="feature-export">
-            <div>
-              <h3 className="text-[16px] font-semibold text-zinc-900">PDF Export</h3>
-              <p className="text-zinc-500 text-[13px] mt-0.5">{t('landing.features.m7_desc').split('.')[0]}</p>
+          <div className="bg-white rounded-2xl p-6 flex flex-col justify-between h-full" data-testid="feature-export">
+            <div className="flex items-start justify-between">
+              <div className="w-10 h-10 rounded-xl bg-zinc-100 flex items-center justify-center"><FileText className="w-5 h-5 text-zinc-700" /></div>
+              <span className="px-2 py-0.5 rounded-md bg-[#D4AF37]/15 text-[10px] font-black tracking-widest text-[#a17f1e]" style={{fontFamily:BC}}>PRO</span>
             </div>
-            <FileText className="w-6 h-6 text-zinc-300" />
+            <div>
+              <h3 className="text-[18px] font-bold text-zinc-900">Exportación PDF / Excel</h3>
+              <p className="text-zinc-500 text-[13px] mt-1 leading-snug">Reportes de ACWR, carga acumulada y adherencia listos para clubes y federaciones.</p>
+              <div className="flex gap-1.5 mt-2.5">
+                {['PDF','Excel','CSV'].map((c,i) => (
+                  <span key={i} className="px-2 py-0.5 rounded-md bg-zinc-100 text-[10px] font-bold text-zinc-600" style={{fontFamily:BC}}>{c}</span>
+                ))}
+              </div>
+            </div>
           </div>
           </Reveal>
           </div>
