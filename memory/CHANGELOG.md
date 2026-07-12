@@ -1,5 +1,12 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-12 — Avisos accionables de reclutamiento + sonido/efecto al llegar un lead
+- **Avisos accionables** (`POST /recruiting/notify-digest`, máx 1/día, idempotente): detecta prospectos **listos para promover a atleta** (score ORO≥75, no convertidos, stage≠decision/rejected) y **subidas de nivel** comparando `level_snapshot` por prospecto contra el nivel actual (DIAMANTE>ORO>PLATA>BRONCE>EN DESARROLLO). Genera notificaciones `recruiting_promote` y `recruiting_levelup`. Primera ejecución solo fija baselines (sin falsos positivos).
+- **Campanita mejorada** (`NotificationsBell.jsx`): iconos/colores por tipo (Rocket=promover, Award=nivel, Mail=lead, TrendingUp=resumen), navegación al tab correcto de Scouting (`scouting:ranking`/`showcase`), y dispara `notify-digest` + `weekly-digest` al montar.
+- **Sonido + efecto sutil al llegar un lead nuevo**: al detectar una notificación `showcase_lead` nueva en el polling (60s), reproduce un "ding" de dos tonos (Web Audio API, sin assets) y anima la campanita (`animate-bounce`). La primera carga fija baseline sin sonar.
+- **Verificado**: curl (notify-digest crea promote+levelup con escenario simulado; idempotencia <1 día) + captura (campanita con "Subida de nivel a ORO", "Talento listo para promover" y "Nuevo contacto").
+
+
 ## 2026-07-12 — Notificaciones in-app (campanita) + resumen semanal de la vitrina
 - **Nuevo módulo de notificaciones** (`routes/notifications.py`, registrado en `server.py`): colección `notifications`, helper `create_notification()`, endpoints `GET /notifications` (items+unread), `POST /{id}/read`, `POST /read-all`, `DELETE /{id}`.
 - **Aviso in-app al llegar un lead**: `POST /public/showcase/{id}/contact` crea una notificación `showcase_lead` (además del email). Más directo y sin la limitación de dominios de Resend.

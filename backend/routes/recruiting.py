@@ -1723,6 +1723,79 @@ async def showcase_weekly_digest(user=Depends(get_current_user_dep())):
     return {"created": created}
 
 
+_LEVEL_ORDER = {"Sin evaluar": -1, "EN DESARROLLO": 0, "BRONCE": 1, "PLATA": 2, "ORO": 3, "DIAMANTE": 4}
+
+
+def _level_rank(score):
+    _, label = _card_level(score)
+    return _LEVEL_ORDER.get(label, -1), label
+
+
+@router.post("/notify-digest")
+async def recruiting_notify_digest(user=Depends(get_current_user_dep())):
+    """Genera avisos accionables de reclutamiento (promover, subidas de nivel). Máx 1/día."""
+    uid = _uid(user)
+    s = await _get_settings(uid)
+    now = datetime.now(timezone.utc)
+    last = s.get("last_recruiting_digest")
+    if last:
+        try:
+            if (now - datetime.fromisoformat(last)).total_seconds() < 86400:
+                return {"created": []}
+        except Exception:
+            pass
+    prospects = await _prospects.find(
+        {"coach_id": uid},
+        {"_id": 0, "id": 1, "name": 1, "overall_score": 1, "converted_athlete_id": 1,
+         "stage": 1, "level_snapshot": 1}).to_list(3000)
+
+    promote_ready = [p for p in prospects
+                     if (p.get("overall_score") or 0) >= 75
+                     and not p.get("converted_athlete_id")
+                     and p.get("stage") not in ("decision", "rejected")]
+
+    levelups = []
+    for p in prospects:
+        if p.get("overall_score") is None:
+            continue
+        rank, label = _level_rank(p["overall_score"])
+        snap = p.get("level_snapshot")
+        if snap is None:
+            await _prospects.update_one({"id": p["id"]}, {"$set": {"level_snapshot": rank}})
+            continue
+        if rank != snap:
+            await _prospects.update_one({"id": p["id"]}, {"$set": {"level_snapshot": rank}})
+            if rank > snap:
+                levelups.append((p.get("name") or "Un talento", label))
+
+    from routes.notifications import create_notification
+    created = []
+    last_promote = int(s.get("last_promote_count", -1))
+    if promote_ready and len(promote_ready) != last_promote:
+        n = len(promote_ready)
+        msg = (f"{n} prospecto(s) con nivel ORO+ listo(s) para promover a atleta."
+               if n > 1 else f"{promote_ready[0].get('name','Un prospecto')} está listo para promover a atleta.")
+        await create_notification(uid, "recruiting_promote",
+                                  "Talento listo para promover 🚀", msg, link="scouting:ranking",
+                                  meta={"count": n})
+        created.append("promote")
+    if levelups:
+        if len(levelups) == 1:
+            title, msg = "¡Subida de nivel! 📈", f"{levelups[0][0]} subió a {levelups[0][1]} esta semana."
+        else:
+            title = "¡Subidas de nivel! 📈"
+            msg = f"{len(levelups)} talentos subieron de nivel esta semana."
+        await create_notification(uid, "recruiting_levelup", title, msg, link="scouting:ranking",
+                                  meta={"count": len(levelups)})
+        created.append("levelup")
+
+    await _settings.update_one({"coach_id": uid}, {"$set": {
+        "last_recruiting_digest": now.isoformat(),
+        "last_promote_count": len(promote_ready),
+    }}, upsert=True)
+    return {"created": created}
+
+
 @router.get("/showcase/metrics")
 async def showcase_metrics(user=Depends(get_current_user_dep())):
     uid = _uid(user)

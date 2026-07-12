@@ -4471,7 +4471,7 @@ const DashboardPage = () => {
             {/* Toggle de estilo (Clásico / Pro) */}
             <ThemeToggle variant="light" className="hidden sm:inline-flex mr-1 mt-1" />
             {/* Notificaciones in-app (leads + resumen vitrina) */}
-            <NotificationsBell onNavigate={() => { setActivePanel('datos'); setActiveDataSection('scouting'); setScoutingTab('showcase'); }} />
+            <NotificationsBell onNavigate={(tab) => { setActivePanel('datos'); setActiveDataSection('scouting'); setScoutingTab(tab || 'showcase'); }} />
             {/* Alertas proactivas FAB */}
             <div className="relative">
               <button

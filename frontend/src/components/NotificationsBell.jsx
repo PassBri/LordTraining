@@ -1,10 +1,40 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Bell, Mail, TrendingUp, Check, X, Inbox } from 'lucide-react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { Bell, Mail, TrendingUp, Check, X, Inbox, Rocket, Award } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('train_token')}` });
 
-const iconFor = (type) => type === 'showcase_weekly' ? TrendingUp : type === 'showcase_lead' ? Mail : Bell;
+const iconFor = (type) => ({
+  showcase_weekly: TrendingUp,
+  showcase_lead: Mail,
+  recruiting_promote: Rocket,
+  recruiting_levelup: Award,
+}[type] || Bell);
+const styleFor = (type) => ({
+  showcase_weekly: 'bg-emerald-100 text-emerald-600',
+  showcase_lead: 'bg-blue-100 text-blue-600',
+  recruiting_promote: 'bg-violet-100 text-violet-600',
+  recruiting_levelup: 'bg-amber-100 text-amber-600',
+}[type] || 'bg-slate-100 text-slate-600');
+
+const playDing = () => {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ctx = new AC();
+    const now = ctx.currentTime;
+    [[880, 0], [1174.66, 0.12]].forEach(([freq, t]) => {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = freq; o.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.0001, now + t);
+      g.gain.exponentialRampToValueAtTime(0.13, now + t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + t + 0.4);
+      o.start(now + t); o.stop(now + t + 0.42);
+    });
+    setTimeout(() => ctx.close(), 800);
+  } catch { /* silent */ }
+};
+
 const timeAgo = (iso) => {
   const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
   if (s < 60) return 'ahora';
@@ -17,20 +47,37 @@ export default function NotificationsBell({ onNavigate }) {
   const [items, setItems] = useState([]);
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
+  const [pulse, setPulse] = useState(false);
+  const seenIds = useRef(null);
 
   const load = useCallback(async () => {
     try {
       const r = await fetch(`${API_URL}/api/notifications`, { headers: authHeaders() });
       if (!r.ok) return;
       const d = await r.json();
-      setItems(d.items || []); setUnread(d.unread || 0);
+      const list = d.items || [];
+      // Detectar leads nuevos para sonido/efecto (no en la primera carga)
+      if (seenIds.current === null) {
+        seenIds.current = new Set(list.map(n => n.id));
+      } else {
+        const fresh = list.filter(n => !seenIds.current.has(n.id));
+        list.forEach(n => seenIds.current.add(n.id));
+        if (fresh.some(n => n.type === 'showcase_lead')) {
+          playDing();
+          setPulse(true);
+          setTimeout(() => setPulse(false), 2500);
+        }
+      }
+      setItems(list); setUnread(d.unread || 0);
     } catch { /* silent */ }
   }, []);
 
   useEffect(() => {
-    // Genera el resumen semanal si corresponde y carga notificaciones
-    fetch(`${API_URL}/api/recruiting/showcase/weekly-digest`, { method: 'POST', headers: authHeaders() })
-      .catch(() => {}).finally(load);
+    // Genera resumen semanal + avisos accionables si corresponde, luego carga
+    Promise.allSettled([
+      fetch(`${API_URL}/api/recruiting/showcase/weekly-digest`, { method: 'POST', headers: authHeaders() }),
+      fetch(`${API_URL}/api/recruiting/notify-digest`, { method: 'POST', headers: authHeaders() }),
+    ]).finally(load);
     const iv = setInterval(load, 60000);
     return () => clearInterval(iv);
   }, [load]);
@@ -51,7 +98,7 @@ export default function NotificationsBell({ onNavigate }) {
   };
   const openItem = (n) => {
     if (!n.read) markRead(n.id);
-    if (n.link === 'scouting:showcase' && onNavigate) onNavigate();
+    if (n.link && n.link.startsWith('scouting:') && onNavigate) onNavigate(n.link.split(':')[1] || 'showcase');
     setOpen(false);
   };
 
@@ -59,7 +106,7 @@ export default function NotificationsBell({ onNavigate }) {
     <div className="relative">
       <button onClick={() => setOpen(o => !o)} data-testid="notifications-bell"
         className="group flex flex-col items-center gap-1 shrink-0 outline-none relative">
-        <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg hover:text-[#007AFF]">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-white shadow-md border hover:shadow-lg hover:text-[#007AFF] ${pulse ? 'text-[#007AFF] border-[#007AFF] animate-bounce' : 'text-slate-500 border-slate-100'}`}>
           <Bell className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
           {unread > 0 && (
             <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] px-1 rounded-full bg-[#007AFF] border-2 border-white flex items-center justify-center text-[9px] font-bold text-white" data-testid="notifications-count-badge">
@@ -87,7 +134,7 @@ export default function NotificationsBell({ onNavigate }) {
                 return (
                   <div key={n.id} onClick={() => openItem(n)} data-testid={`notification-${n.id}`}
                     className={`group/item flex items-start gap-2.5 px-3 py-2.5 border-b border-slate-50 cursor-pointer transition ${n.read ? 'hover:bg-slate-50' : 'bg-blue-50/50 hover:bg-blue-50'}`}>
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${n.type === 'showcase_weekly' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${styleFor(n.type)}`}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0 flex-1">
