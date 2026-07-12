@@ -2378,6 +2378,18 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
     sww = draw.textlength(stamp, font=sff)
     draw.text((W - 60 - sww, fy + 34), stamp, font=sff, fill=(100, 116, 139))
 
+    # ── Marco coleccionable (estilo carta premium) ──
+    m = 20
+    for i in range(3):
+        off = m + 6 + i * 3
+        draw.rounded_rectangle([off, off, W - off, H - off], radius=30, outline=gold, width=1)
+    draw.rounded_rectangle([m, m, W - m, H - m], radius=34, outline=gold, width=5)
+    clen, cw = 64, 9
+    for (x0, y0, dx, dy) in [(m + 8, m + 8, 1, 1), (W - m - 8, m + 8, -1, 1),
+                             (m + 8, H - m - 8, 1, -1), (W - m - 8, H - m - 8, -1, -1)]:
+        draw.line([(x0, y0), (x0 + dx * clen, y0)], fill=gold, width=cw)
+        draw.line([(x0, y0), (x0, y0 + dy * clen)], fill=gold, width=cw)
+
     out = _io.BytesIO()
     base.save(out, format="PNG")
     return out.getvalue()

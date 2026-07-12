@@ -5,7 +5,6 @@ import { VideoGallery } from '../components/VideoEmbed';
 
 const API_URL = (process.env.REACT_APP_BACKEND_URL && process.env.REACT_APP_BACKEND_URL.indexOf('itrain.com') === -1 ? process.env.REACT_APP_BACKEND_URL : (typeof window !== 'undefined' ? window.location.origin : process.env.REACT_APP_BACKEND_URL));
 
-const scoreColor = (s) => s == null ? '#94a3b8' : s >= 80 ? '#10b981' : s >= 65 ? '#f59e0b' : '#ef4444';
 const photoUrl = (sid) => `${API_URL}/api/recruiting/public/${sid}/photo`;
 
 export default function PublicShowcase() {
@@ -207,34 +206,54 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
     setSending(false);
   };
   const inputCls = 'w-full bg-white/5 border border-white/15 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/40';
+  const cond = { fontFamily: "'Barlow Condensed', sans-serif" };
   return (
-    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" style={{ background: 'rgba(5,10,20,.8)', backdropFilter: 'blur(6px)' }} onClick={onClose} data-testid="showcase-modal">
-      <div className="w-full max-w-2xl bg-[#0b1220] border border-white/10 rounded-none sm:rounded-2xl overflow-hidden my-0 sm:my-8" onClick={e => e.stopPropagation()}>
-        <div className="relative">
-          <button onClick={onClose} className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white" data-testid="showcase-modal-close"><X className="w-5 h-5" /></button>
-          {/* Encabezado estilo carnet: foto completa al lado + datos */}
-          <div className="flex items-stretch gap-4 p-5 pr-14 bg-gradient-to-b from-slate-800/40 to-transparent">
-            <div className="shrink-0 w-28 sm:w-32 aspect-[3/4] rounded-xl overflow-hidden bg-slate-800 border border-white/10 relative" data-testid="showcase-modal-photo-box">
-              {a.has_photo && a.share_id ? (
-                <>
-                  <img src={photoUrl(a.share_id)} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-40" />
-                  <img src={photoUrl(a.share_id)} alt={a.name} className="relative z-[1] w-full h-full object-contain" data-testid="showcase-modal-photo" />
-                </>
-              ) : <div className="w-full h-full flex items-center justify-center text-5xl font-black text-white/15">{(a.name || '?').slice(0, 1)}</div>}
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" style={{ background: 'rgba(5,10,20,.85)', backdropFilter: 'blur(6px)' }} onClick={onClose} data-testid="showcase-modal">
+      <div className="w-full max-w-2xl rounded-none sm:rounded-2xl overflow-hidden my-0 sm:my-8 relative"
+        style={{ background: '#0A0F1E', border: `1px solid ${accent}55`, boxShadow: `0 0 0 1px rgba(255,255,255,.04) inset, 0 30px 60px -20px rgba(0,0,0,.8), 0 0 40px -18px ${accent}` }}
+        onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-3 right-3 z-30 w-9 h-9 rounded-full bg-black/50 hover:bg-black/70 border border-white/10 flex items-center justify-center text-white" data-testid="showcase-modal-close"><X className="w-5 h-5" /></button>
+
+        {/* Barra de marca LordTraining */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-3 pr-14" style={{ borderBottom: `1px solid ${accent}22` }}>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: accent }}><Trophy className="w-4 h-4 text-slate-900" strokeWidth={2.6} /></div>
+            <div className="leading-none">
+              <span className="text-white font-black text-sm tracking-wide" style={cond}>LORD</span>
+              <span className="font-black text-sm tracking-wide" style={{ ...cond, color: accent }}>TRAINING</span>
             </div>
-            <div className="flex-1 min-w-0 flex flex-col justify-center">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="text-white text-xl sm:text-2xl font-black leading-tight break-words">{a.name}</div>
-                  <div className="text-white/60 text-sm mt-0.5">{[a.position, a.sport_name, a.current_club].filter(Boolean).join(' · ')}</div>
+          </div>
+          <span className="text-[10px] font-black tracking-[0.25em]" style={{ color: accent, ...cond }}>SCOUTING REPORT</span>
+        </div>
+
+        {/* Encabezado premium: foto enmarcada + datos + score */}
+        <div className="relative flex items-stretch gap-4 p-5" style={{ background: `radial-gradient(600px 200px at 15% 0%, ${accent}14, transparent 70%)` }}>
+          <div className="shrink-0 w-28 sm:w-32 aspect-[3/4] rounded-xl overflow-hidden relative" style={{ background: '#0f172a', border: `2px solid ${accent}`, boxShadow: `0 0 20px -6px ${accent}` }} data-testid="showcase-modal-photo-box">
+            {a.has_photo && a.share_id ? (
+              <>
+                <img src={photoUrl(a.share_id)} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-40" />
+                <img src={photoUrl(a.share_id)} alt={a.name} className="relative z-[1] w-full h-full object-contain" data-testid="showcase-modal-photo" />
+              </>
+            ) : <div className="w-full h-full flex items-center justify-center text-5xl font-black text-white/15" style={cond}>{(a.name || '?').slice(0, 1)}</div>}
+          </div>
+          <div className="flex-1 min-w-0 flex flex-col justify-center">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                {a.level_label && <span className="inline-block mb-1 px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest" style={{ color: a.level_color, border: `1px solid ${a.level_color}55`, background: a.level_color + '1a', ...cond }}>{a.level_label}</span>}
+                <div className="text-white text-2xl sm:text-3xl font-black uppercase tracking-wide leading-none break-words" style={cond}>{a.name}</div>
+                <div className="text-sm mt-1 font-semibold" style={{ color: accent }}>{[a.position, a.sport_name].filter(Boolean).join(' · ')}</div>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-white/50 text-[12px]">
+                  {a.age && <span>{a.age} años</span>}
+                  {a.nationality && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{a.nationality}</span>}
+                  {a.current_club && <span className="truncate max-w-[160px]">{a.current_club}</span>}
                 </div>
-                {a.overall_score != null && <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex flex-col items-center justify-center text-white font-black shadow-lg" style={{ background: scoreColor(a.overall_score) }}><span className="text-xl sm:text-2xl leading-none">{a.overall_score}</span><span className="text-[8px] tracking-widest">SCORE</span></div>}
               </div>
-              <div className="flex flex-wrap items-center gap-2 mt-2 text-white/50 text-[12px]">
-                {a.age && <span>{a.age} años</span>}
-                {a.nationality && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{a.nationality}</span>}
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-full" style={{ background: a.level_color + '22', color: a.level_color }}>{a.level_label}</span>
-              </div>
+              {a.overall_score != null && (
+                <div className="shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl" style={{ background: '#070d16', border: `2px solid ${accent}`, boxShadow: `0 0 18px -6px ${accent}` }}>
+                  <span className="text-2xl sm:text-3xl font-black leading-none text-white tracking-tighter" style={cond}>{a.overall_score}</span>
+                  <span className="text-[8px] font-bold tracking-[0.2em]" style={{ color: accent }}>OVERALL</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -242,7 +261,7 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
         <div className="p-5 space-y-5">
           {a.top_metrics?.length > 0 && (
             <div data-testid="showcase-modal-metrics">
-              <div className="text-white/40 text-[11px] font-black uppercase tracking-widest mb-2">Mejores métricas</div>
+              <div className="text-[11px] font-black uppercase tracking-widest mb-2.5" style={{ color: accent }}>Mejores métricas</div>
               <div className="space-y-2.5">
                 {a.top_metrics.map((m, i) => (
                   <div key={i}>
@@ -256,7 +275,7 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
 
           {a.strengths?.length > 0 && (
             <div data-testid="showcase-modal-strengths">
-              <div className="text-white/40 text-[11px] font-black uppercase tracking-widest mb-2">Fortalezas (IA)</div>
+              <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: accent }}>Fortalezas (IA)</div>
               <ul className="space-y-1.5">
                 {a.strengths.map((s, i) => (
                   <li key={i} className="flex gap-2 text-[13px] text-white/80"><Star className="w-4 h-4 shrink-0 mt-0.5" style={{ color: accent }} />{s}</li>
@@ -267,7 +286,7 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
 
           {a.achievements?.length > 0 && (
             <div>
-              <div className="text-white/40 text-[11px] font-black uppercase tracking-widest mb-2">Logros</div>
+              <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: accent }}>Logros</div>
               <div className="flex flex-wrap gap-2">
                 {a.achievements.map((s, i) => <span key={i} className="flex items-center gap-1 text-[12px] text-white/80 bg-white/5 border border-white/10 rounded-full px-2.5 py-1"><Award className="w-3.5 h-3.5" style={{ color: accent }} />{s}</span>)}
               </div>
@@ -276,7 +295,7 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
 
           {a.videos?.length > 0 && (
             <div data-testid="showcase-modal-videos">
-              <div className="text-white/40 text-[11px] font-black uppercase tracking-widest mb-2 flex items-center gap-1.5"><Video className="w-4 h-4" />Videos</div>
+              <div className="text-[11px] font-black uppercase tracking-widest mb-2 flex items-center gap-1.5" style={{ color: accent }}><Video className="w-4 h-4" />Videos</div>
               <VideoGallery videos={a.videos} dark />
             </div>
           )}
