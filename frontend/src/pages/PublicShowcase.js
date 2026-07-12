@@ -126,6 +126,7 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [error, setError] = useState('');
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
@@ -134,7 +135,11 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
   }, [onClose]);
   const submit = async (e) => {
     e.preventDefault();
-    if (!form.from_name.trim() || !form.email.trim() || form.message.trim().length < 5) return;
+    const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim());
+    if (!form.from_name.trim()) { setError('Ingresa tu nombre.'); return; }
+    if (!emailOk) { setError('Ingresa un email válido.'); return; }
+    if (form.message.trim().length < 5) { setError('El mensaje debe tener al menos 5 caracteres.'); return; }
+    setError('');
     setSending(true);
     try {
       const res = await fetch(`${API_URL}/api/recruiting/public/showcase/${showcaseId}/contact`, {
@@ -143,7 +148,7 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
       });
       if (!res.ok) throw new Error();
       setSent(true);
-    } catch { alert('No se pudo enviar el mensaje. Verifica tu email e intenta de nuevo.'); }
+    } catch { setError('No se pudo enviar el mensaje. Verifica tu email e intenta de nuevo.'); }
     setSending(false);
   };
   const inputCls = 'w-full bg-white/5 border border-white/15 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/40';
@@ -239,6 +244,7 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
                   onChange={e => setForm(f => ({ ...f, email: e.target.value }))} data-testid="contact-email-input" />
                 <textarea className={inputCls + ' resize-none'} rows={3} placeholder="Tu mensaje *" value={form.message} maxLength={1500}
                   onChange={e => setForm(f => ({ ...f, message: e.target.value }))} data-testid="contact-message-input" />
+                {error && <p className="text-red-400 text-[12px] font-semibold" data-testid="contact-error">{error}</p>}
                 <button type="submit" disabled={sending} data-testid="contact-submit-btn"
                   className="w-full flex items-center justify-center gap-2 font-black py-2.5 rounded-lg text-slate-900 transition hover:opacity-90 disabled:opacity-60"
                   style={{ background: accent }}>
