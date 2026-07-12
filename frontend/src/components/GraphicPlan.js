@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import { Dialog, DialogContent } from '../components/ui/dialog';
+import { classifyStage, normalizeMesoType, normalizeMicroType } from '../lib/periodizationStages';
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer, ComposedChart, ReferenceLine, ReferenceArea
@@ -250,9 +251,11 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
   // Inline edit state for value-mode cells { rowId, week }
   const [editingCell, setEditingCell] = useState(null);
 
-  // Import periodization data when available
-  const importPeriodizationData = useCallback((macrocycle) => {
-    if (!macrocycle || !macrocycle.mesocycles) return;
+  // Import periodization data when available.
+  // Acepta un único macrociclo o el arreglo completo de macrociclos del plan.
+  const importPeriodizationData = useCallback((input) => {
+    const macros = (Array.isArray(input) ? input : [input]).filter(m => m && m.mesocycles);
+    if (!macros.length) return;
 
     const newPlanData = {
       macrocycles: {},
@@ -272,110 +275,77 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       duration_chart: {}
     };
 
-    // Map phase IDs to our types
-    const phaseMapping = {
-      'preparatory_general': 'preparatory_general',
-      'preparatory_specific': 'preparatory_specific',
-      'precompetitive': 'precompetitive',
-      'competitive': 'competitive',
-      'transition': 'transition'
-    };
+    // Process every macrocycle → mesocycle → microcycle
+    macros.forEach(macrocycle => {
+      const macroPhase = macrocycle.phase;
+      (macrocycle.mesocycles || []).forEach(meso => {
+        const mesoPhase = meso.phase || macroPhase;
+        const mesoType = typeof meso.type === 'object' ? meso.type?.id : meso.type;
+        // Etapa canónica según el modelo de periodización
+        const { macro: macroType, period } = classifyStage({ phaseId: mesoPhase, mesoType });
 
-    // Map mesocycle types
-    const mesoTypeMapping = {
-      'entrante': 'entrante',
-      'desarrollo': 'basico_desarrollador',
-      'choque': 'basico_desarrollador',
-      'estabilizador': 'basico_estabilizador',
-      'competitivo': 'competitivo',
-      'recuperacion': 'recuperacion'
-    };
+        (meso.microcycles || []).forEach(micro => {
+          const week = micro.week_number ?? micro.weekNumber;
+          if (week == null) return;
 
-    // Map microcycle types  
-    const microTypeMapping = {
-      'ordinario': 'corriente',
-      'choque': 'choque',
-      'aproximacion': 'aproximacion',
-      'competitivo': 'competitivo',
-      'recuperacion': 'restablecimiento'
-    };
+          // Ciclo: Tipo de etapa (fase) + Etapa (período)
+          newPlanData.macrocycles[week] = macroType;
+          newPlanData.phases[week] = macroType;
+          newPlanData.periods[week] = period;
 
-    // Process each mesocycle
-    macrocycle.mesocycles.forEach(meso => {
-      meso.microcycles?.forEach(micro => {
-        const week = micro.weekNumber;
-        
-        // Set macrocycle phase
-        const phaseId = phaseMapping[meso.phase] || 'preparatory_general';
-        newPlanData.macrocycles[week] = phaseId;
-        newPlanData.phases[week] = phaseId;
-        
-        // Set period based on phase
-        if (['preparatory_general', 'preparatory_specific'].includes(meso.phase)) {
-          newPlanData.periods[week] = 'preparatorio';
-        } else if (['competitive', 'precompetitive'].includes(meso.phase)) {
-          newPlanData.periods[week] = 'competitivo';
-        } else {
-          newPlanData.periods[week] = 'transicion';
-        }
+          // Tipos de meso/micro
+          const microType = typeof micro.type === 'object' ? micro.type?.id : micro.type;
+          newPlanData.mesocycles[week] = normalizeMesoType(mesoType || mesoPhase);
+          newPlanData.microcycles[week] = normalizeMicroType(microType);
 
-        // Set mesocycle type
-        const mesoTypeId = mesoTypeMapping[meso.type?.id] || 'basico_desarrollador';
-        newPlanData.mesocycles[week] = mesoTypeId;
+          // Volumen e intensidad (0-100 → escala 1-5)
+          const volumeLevel = Math.min(5, Math.max(1, Math.ceil((micro.volume || 0) / 20)));
+          const intensityLevel = Math.min(5, Math.max(1, Math.ceil((micro.intensity || 0) / 20)));
+          const intensityLevels = ['recovery', 'low', 'medium', 'high', 'very_high'];
+          newPlanData.intensity[`${intensityLevels[intensityLevel - 1]}_${week}`] = intensityLevel;
 
-        // Set microcycle type
-        const microTypeId = microTypeMapping[micro.type?.id] || 'corriente';
-        newPlanData.microcycles[week] = microTypeId;
+          // Frecuencia según sesiones
+          const sessionsCount = micro.sessions?.length || 5;
+          newPlanData.frequency[week] = String(sessionsCount);
 
-        // Set volume and intensity levels (convert 0-100 to 1-5 scale)
-        const volumeLevel = Math.min(5, Math.max(1, Math.ceil(micro.volume / 20)));
-        const intensityLevel = Math.min(5, Math.max(1, Math.ceil(micro.intensity / 20)));
-        
-        // Set intensity by level
-        const intensityLevels = ['recovery', 'low', 'medium', 'high', 'very_high'];
-        newPlanData.intensity[`${intensityLevels[intensityLevel - 1]}_${week}`] = intensityLevel;
-        
-        // Set frequency based on sessions
-        const sessionsCount = micro.sessions?.length || 5;
-        newPlanData.frequency[week] = String(sessionsCount);
+          // Énfasis de preparación según la etapa canónica
+          if (macroType === 'preparatory_general') {
+            newPlanData.preparation[`general_physical_${week}`] = volumeLevel;
+            newPlanData.physical[`endurance_${week}`] = volumeLevel;
+            newPlanData.physical[`strength_${week}`] = Math.max(1, volumeLevel - 1);
+          } else if (macroType === 'preparatory_specific') {
+            newPlanData.preparation[`specific_physical_${week}`] = volumeLevel;
+            newPlanData.preparation[`technical_${week}`] = volumeLevel;
+            newPlanData.physical[`strength_${week}`] = volumeLevel;
+            newPlanData.physical[`speed_${week}`] = Math.max(1, volumeLevel - 1);
+          } else if (macroType === 'precompetitive') {
+            newPlanData.preparation[`technical_${week}`] = volumeLevel;
+            newPlanData.preparation[`tactical_${week}`] = volumeLevel;
+            newPlanData.physical[`speed_${week}`] = volumeLevel;
+          } else if (macroType === 'competitive') {
+            newPlanData.preparation[`tactical_${week}`] = volumeLevel;
+            newPlanData.preparation[`psychological_${week}`] = volumeLevel;
+            newPlanData.activities[`main_competition_${week}`] = micro.sessions?.some(s => s.type === 'competition' || s.session_type === 'competition');
+          }
 
-        // Set preparation emphasis based on phase
-        if (meso.phase === 'preparatory_general') {
-          newPlanData.preparation[`general_physical_${week}`] = volumeLevel;
-          newPlanData.physical[`endurance_${week}`] = volumeLevel;
-          newPlanData.physical[`strength_${week}`] = Math.max(1, volumeLevel - 1);
-        } else if (meso.phase === 'preparatory_specific') {
-          newPlanData.preparation[`specific_physical_${week}`] = volumeLevel;
-          newPlanData.preparation[`technical_${week}`] = volumeLevel;
-          newPlanData.physical[`strength_${week}`] = volumeLevel;
-          newPlanData.physical[`speed_${week}`] = Math.max(1, volumeLevel - 1);
-        } else if (meso.phase === 'precompetitive') {
-          newPlanData.preparation[`technical_${week}`] = volumeLevel;
-          newPlanData.preparation[`tactical_${week}`] = volumeLevel;
-          newPlanData.physical[`speed_${week}`] = volumeLevel;
-        } else if (meso.phase === 'competitive') {
-          newPlanData.preparation[`tactical_${week}`] = volumeLevel;
-          newPlanData.preparation[`psychological_${week}`] = volumeLevel;
-          newPlanData.activities[`main_competition_${week}`] = micro.sessions?.some(s => s.type === 'competition');
-        }
+          // Actividad de entrenamiento en todas las semanas
+          newPlanData.activities[`training_${week}`] = true;
 
-        // Set training activity for all weeks
-        newPlanData.activities[`training_${week}`] = true;
-
-        // Deload weeks get recovery
-        if (micro.isDeload) {
-          newPlanData.activities[`recovery_${week}`] = true;
-          newPlanData.microcycles[week] = 'restablecimiento';
-        }
+          // Semanas de descarga / transición
+          if (micro.isDeload || newPlanData.microcycles[week] === 'restablecimiento' || macroType === 'transition') {
+            newPlanData.activities[`recovery_${week}`] = true;
+          }
+        });
       });
     });
 
     setPlanData(newPlanData);
-    
+
     // Update cycle duration based on total weeks
-    if (macrocycle.totalWeeks <= 13) {
+    const totalW = Object.keys(newPlanData.phases).length;
+    if (totalW <= 13) {
       setCycleDuration('quarter');
-    } else if (macrocycle.totalWeeks <= 26) {
+    } else if (totalW <= 26) {
       setCycleDuration('semester');
     } else {
       setCycleDuration('annual');
@@ -385,7 +355,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
     setGeneralInfo(prev => ({
       ...prev,
       athlete: athleteName || prev.athlete,
-      periodizationType: macrocycle.model || 'tradicional'
+      periodizationType: macros[0]?.model || prev.periodizationType || 'tradicional'
     }));
 
     setHasImportedData(true);
@@ -431,13 +401,6 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       ejerciciosBySesion[e.sesion_id].push(e);
     });
 
-    const macroPhaseMap = {
-      accumulation: 'preparatory_general', prep_general: 'preparatory_general',
-      transformation: 'preparatory_specific', prep_specific: 'preparatory_specific',
-      realization: 'competitive', competitive: 'competitive',
-      precompetitive: 'precompetitive',
-      transition: 'transition', recovery: 'transition'
-    };
     const mesoTypeMap = {
       basico_desarrollador: 'basico_desarrollador', basico_estabilizador: 'basico_estabilizador',
       entrante: 'entrante', competitivo: 'competitivo', recuperacion: 'recuperacion',
@@ -463,18 +426,13 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
           const phase = macro.tipo;
           const sessions = sesionesByMicro[micro.id] || [];
 
-          // ── CICLO rows ──
-          newPlanData.macrocycles[w] = macroPhaseMap[phase] || 'preparatory_general';
-          newPlanData.phases[w] = macroPhaseMap[phase] || 'preparatory_general';
-          if (['accumulation', 'prep_general', 'prep_specific', 'transformation'].includes(phase)) {
-            newPlanData.periods[w] = 'preparatorio';
-          } else if (['competitive', 'realization', 'precompetitive'].includes(phase)) {
-            newPlanData.periods[w] = 'competitivo';
-          } else {
-            newPlanData.periods[w] = 'transicion';
-          }
-          newPlanData.mesocycles[w] = mesoTypeMap[meso.tipo] || 'basico_desarrollador';
-          newPlanData.microcycles[w] = microTypeMap[micro.tipo] || 'corriente';
+          // ── CICLO rows (etapa canónica según el modelo de periodización) ──
+          const { macro: macroType, period } = classifyStage({ phaseId: phase, mesoType: meso.tipo });
+          newPlanData.macrocycles[w] = macroType;
+          newPlanData.phases[w] = macroType;
+          newPlanData.periods[w] = period;
+          newPlanData.mesocycles[w] = mesoTypeMap[meso.tipo] || normalizeMesoType(meso.tipo || phase);
+          newPlanData.microcycles[w] = microTypeMap[micro.tipo] || normalizeMicroType(micro.tipo);
 
           // ── MAGNITUD DE LA CARGA rows ──
           newPlanData.frequency[w] = String(sessions.length || 0);
@@ -642,7 +600,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
       }));
       if (activePlan.macrocycles?.length > 0 && lastImportedPlanRef.current !== activePlan.id) {
         lastImportedPlanRef.current = activePlan.id;
-        importPeriodizationData(activePlan.macrocycles[0]);
+        importPeriodizationData(activePlan.macrocycles);
       }
     }
   }, [activePlan, athleteName, athleteCategory, coachName, importPeriodizationData, sportMap, modelMap]);

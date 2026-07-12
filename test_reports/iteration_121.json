@@ -1,0 +1,22 @@
+{
+  "summary": "Frontend E2E validation of Graphic Plan periodization stages fix (importPeriodizationData + V2 sync). Logged in as super admin, opened plan 'Plan Deporte General - ATR (Issurin)' (47 semanas, id 25b9abc7-b264-4809-a998-b688f660a6ca), navigated Datos → Plan Gráfico. Used week-slider-thumb (data-testid) to drag through the visible window and collected every cell-etapa-{week} and cell-tipo-etapa-{week} across all 47 weeks. Result: distribution is COHERENT with the ATR model — Etapa: {Prep: 36 (wk1-36), Comp: 8 (wk37-44), Trans: 3 (wk45-47)}; Tipo de etapa: {Prepar: 36, Compet: 8, Transi: 3}. 3 distinct values on both rows (bug required ≥2 distinct and NOT 100% Trans / 100% Prepar). Bug fixed successfully.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "periodizationStages.js classifyStage is well-scoped and covers Tradicional, ATR, Bloques, Ondulatorio, Conjugado, Trifásico plus a keyword fallback — OK.",
+    "GraphicPlan.js remains > 3000 lines. Consider splitting into subcomponents (header, table, charts, importers) for maintainability; not blocking.",
+    "Console noise: 'DialogContent requires a DialogTitle' Radix warnings on the Planes drawer/dialog. Non-blocking accessibility issue — add a VisuallyHidden DialogTitle or aria-label.",
+    "Slider (week-slider-thumb) is fully mouse-drag only; consider keyboard support (Home/End/PageUp/PageDown) for accessibility.",
+    "Cells outside the current 24-week window are NOT rendered — that's by design for performance, but E2E test agents (and PDF export code that reads only DOM) need to be aware. The internal planData state does hold all 47 weeks correctly (verified by dragging through 3 slices)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend only)", "frontend": "100%"},
+  "test_credentials": "SuperAdmin juegolaureado@gmail.com / LordTraining2026! · Plan ATR (Issurin) 47 sem · id 25b9abc7-b264-4809-a998-b688f660a6ca",
+  "seed_data_creation": "None; used existing DB plan 'Plan Deporte General - ATR (Issurin)'. Athlete selector was left empty (no athlete needed since plan alone drives the periodization stages).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The Plan Gráfico table only renders 24 weeks at a time in the DOM (window shown at the top). To inspect all weeks with Playwright, drag [data-testid='week-slider-thumb'] along [data-testid='week-slider-track'] to shift the visible slice and re-scrape cell-etapa-{week} / cell-tipo-etapa-{week}. Footer '[Sxx — Sxx de N]' confirms the current window. Full 47-week distribution for the ATR plan validated: Prep(1-36), Comp(37-44), Trans(45-47).",
+  "rca of the issue": "Root cause (already fixed by main agent): importPeriodizationData was reading micro.weekNumber (camelCase) while backend returns week_number (snake_case), so week was undefined and all writes collided/were dropped; additionally only macrocycles[0] was processed and its local phaseMapping ignored ATR vocabulary (accumulation/transformation/realization/recovery), defaulting every macro to preparatory_general and every period to transicion. Fix processes every macrocycle, uses micro.week_number, and delegates to classifyStage which maps ATR/Tradicional/Bloques/etc. vocabulary to the canonical stages. V2 sync path already used classifyStage. Verified end-to-end via UI."
+}
