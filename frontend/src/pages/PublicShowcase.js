@@ -156,9 +156,14 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
     <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" style={{ background: 'rgba(5,10,20,.8)', backdropFilter: 'blur(6px)' }} onClick={onClose} data-testid="showcase-modal">
       <div className="w-full max-w-2xl bg-[#0b1220] border border-white/10 rounded-none sm:rounded-2xl overflow-hidden my-0 sm:my-8" onClick={e => e.stopPropagation()}>
         <div className="relative">
-          <div className="h-56 bg-slate-800 overflow-hidden">
-            {a.has_photo && a.share_id ? <img src={photoUrl(a.share_id)} alt={a.name} className="w-full h-full object-cover object-top" /> : <div className="w-full h-full flex items-center justify-center text-7xl font-black text-white/10">{(a.name || '?').slice(0, 1)}</div>}
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 40%, #0b1220)' }} />
+          <div className="relative h-72 sm:h-80 bg-slate-900 overflow-hidden">
+            {a.has_photo && a.share_id ? (
+              <>
+                <img src={photoUrl(a.share_id)} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-40" />
+                <img src={photoUrl(a.share_id)} alt={a.name} className="relative z-[1] w-full h-full object-contain" data-testid="showcase-modal-photo" />
+              </>
+            ) : <div className="w-full h-full flex items-center justify-center text-7xl font-black text-white/10">{(a.name || '?').slice(0, 1)}</div>}
+            <div className="absolute inset-0 z-[2] pointer-events-none" style={{ background: 'linear-gradient(180deg, transparent 55%, #0b1220)' }} />
           </div>
           <button onClick={onClose} className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white" data-testid="showcase-modal-close"><X className="w-5 h-5" /></button>
           <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between">
