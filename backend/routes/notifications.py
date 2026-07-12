@@ -14,6 +14,11 @@ _client = AsyncIOMotorClient(os.environ["MONGO_URL"])
 _db = _client[os.environ["DB_NAME"]]
 _notifications = _db["notifications"]
 _prefs = _db["notification_prefs"]
+_push_subs = _db["push_subscriptions"]
+
+_VAPID_PUBLIC = os.environ.get("VAPID_PUBLIC_KEY", "")
+_VAPID_PRIVATE = os.environ.get("VAPID_PRIVATE_KEY", "")
+_VAPID_CLAIM = os.environ.get("VAPID_CLAIM_EMAIL", "mailto:admin@lordtraining.com")
 
 # Tipos de notificación y su etiqueta (para preferencias)
 NOTIF_TYPES = {
@@ -68,7 +73,41 @@ async def create_notification(coach_id: str, ntype: str, title: str, message: st
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await _notifications.insert_one(doc)
+    try:
+        import asyncio
+        asyncio.create_task(send_web_push(coach_id, title, message, link))
+    except Exception:
+        pass
     return doc
+
+
+def _push_one(sub, payload):
+    from pywebpush import webpush, WebPushException
+    try:
+        webpush(subscription_info=sub, data=payload,
+                vapid_private_key=_VAPID_PRIVATE,
+                vapid_claims={"sub": _VAPID_CLAIM})
+        return None
+    except WebPushException as e:
+        code = getattr(getattr(e, "response", None), "status_code", None)
+        return code
+    except Exception:
+        return None
+
+
+async def send_web_push(coach_id: str, title: str, body: str, link: Optional[str] = None):
+    if not _VAPID_PRIVATE:
+        return
+    subs = await _push_subs.find({"coach_id": coach_id}, {"_id": 0}).to_list(50)
+    if not subs:
+        return
+    import asyncio
+    import json as _json
+    payload = _json.dumps({"title": title, "body": body, "url": "/dashboard"})
+    for s in subs:
+        code = await asyncio.to_thread(_push_one, s.get("subscription"), payload)
+        if code in (404, 410):
+            await _push_subs.delete_one({"endpoint": s.get("endpoint")})
 
 
 @router.get("")
@@ -86,6 +125,38 @@ async def list_notifications(type: Optional[str] = None, limit: int = 50,
 
 class PrefsIn(BaseModel):
     prefs: dict
+
+
+class PushSubIn(BaseModel):
+    subscription: dict
+
+
+@router.get("/vapid-public-key")
+async def vapid_public_key():
+    return {"key": _VAPID_PUBLIC}
+
+
+@router.post("/subscribe")
+async def push_subscribe(body: PushSubIn, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    sub = body.subscription or {}
+    endpoint = sub.get("endpoint")
+    if not endpoint:
+        raise HTTPException(400, "Suscripción inválida")
+    await _push_subs.update_one(
+        {"endpoint": endpoint},
+        {"$set": {"coach_id": uid, "endpoint": endpoint, "subscription": sub,
+                  "updated_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True)
+    return {"ok": True}
+
+
+@router.post("/unsubscribe")
+async def push_unsubscribe(body: PushSubIn, user=Depends(get_current_user_dep())):
+    endpoint = (body.subscription or {}).get("endpoint")
+    if endpoint:
+        await _push_subs.delete_one({"endpoint": endpoint})
+    return {"ok": True}
 
 
 @router.get("/preferences")

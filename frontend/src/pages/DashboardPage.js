@@ -4608,13 +4608,13 @@ const DashboardPage = () => {
             trainingPlans={trainingPlans}
             loadingPlans={loadingPlans}
             activePlan={activePlan}
-            onSelectPlan={(plan) => { handleSetActivePlan(plan); setIsPlansSheetOpen(false); }}
+            onSelectPlan={(plan) => { setActivePanel('datos'); handleSetActivePlan(plan); setIsPlansSheetOpen(false); }}
             onDuplicatePlan={handleDuplicatePlan}
             onSharePlan={handleSharePlan}
             onDeletePlan={handleDeleteTrainingPlan}
             onExportPDF={handleExportPDF}
             onRefresh={fetchTrainingPlans}
-            onCreatePlan={() => { setActiveDataSection('create-plan'); setIsPlansSheetOpen(false); }}
+            onCreatePlan={() => { setActivePanel('datos'); setActiveDataSection('create-plan'); setIsPlansSheetOpen(false); }}
             getSportName={(id) => (allSports.find(s => s.id === id)?.name) || id}
             getModelName={resolveModelName}
             t={t}

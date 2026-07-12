@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Bell, Mail, TrendingUp, X, Inbox, Rocket, Award, AlertTriangle, Settings, Check, Trash2 } from 'lucide-react';
 import { Switch } from './ui/switch';
+import { enablePush, disablePush, pushPermission, pushSupported } from '../lib/webpush';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('train_token')}` });
@@ -26,6 +27,7 @@ export default function NotificationCenter({ onClose, onNavigate }) {
   const [showPrefs, setShowPrefs] = useState(false);
   const [prefs, setPrefs] = useState(null);
   const [types, setTypes] = useState({});
+  const [pushState, setPushState] = useState(pushPermission());
 
   const load = useCallback(async () => {
     try {
@@ -65,6 +67,11 @@ export default function NotificationCenter({ onClose, onNavigate }) {
     const next = { ...prefs, [t]: !prefs[t] };
     setPrefs(next);
     fetch(`${API_URL}/api/notifications/preferences`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ prefs: { [t]: next[t] } }) }).catch(() => {});
+  };
+  const togglePush = async () => {
+    if (pushState === 'granted') { await disablePush(); setPushState('default'); return; }
+    try { await enablePush(); setPushState('granted'); }
+    catch (e) { setPushState(e.message === 'denied' ? 'denied' : pushPermission()); }
   };
 
   const tabs = [['all', 'Todas'], ...Object.keys(META).map(t => [t, metaFor(t).label])];

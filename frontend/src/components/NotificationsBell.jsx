@@ -87,6 +87,10 @@ export default function NotificationsBell({ onNavigate, onOpenWeeklySummary }) {
     return () => clearInterval(iv);
   }, [load]);
 
+  useEffect(() => {
+    document.title = unread > 0 ? `(${unread}) LordTraining` : 'LordTraining';
+  }, [unread]);
+
   const markRead = async (id) => {
     setItems(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
     setUnread(u => Math.max(0, u - 1));
