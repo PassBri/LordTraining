@@ -156,27 +156,31 @@ function AthleteModal({ a, accent, showcaseId, onClose }) {
     <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" style={{ background: 'rgba(5,10,20,.8)', backdropFilter: 'blur(6px)' }} onClick={onClose} data-testid="showcase-modal">
       <div className="w-full max-w-2xl bg-[#0b1220] border border-white/10 rounded-none sm:rounded-2xl overflow-hidden my-0 sm:my-8" onClick={e => e.stopPropagation()}>
         <div className="relative">
-          <div className="relative h-72 sm:h-80 bg-slate-900 overflow-hidden">
-            {a.has_photo && a.share_id ? (
-              <>
-                <img src={photoUrl(a.share_id)} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-40" />
-                <img src={photoUrl(a.share_id)} alt={a.name} className="relative z-[1] w-full h-full object-contain" data-testid="showcase-modal-photo" />
-              </>
-            ) : <div className="w-full h-full flex items-center justify-center text-7xl font-black text-white/10">{(a.name || '?').slice(0, 1)}</div>}
-            <div className="absolute inset-0 z-[2] pointer-events-none" style={{ background: 'linear-gradient(180deg, transparent 55%, #0b1220)' }} />
-          </div>
-          <button onClick={onClose} className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white" data-testid="showcase-modal-close"><X className="w-5 h-5" /></button>
-          <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between">
-            <div>
-              <div className="text-white text-2xl font-black leading-tight">{a.name}</div>
-              <div className="text-white/60 text-sm">{[a.position, a.sport_name, a.current_club].filter(Boolean).join(' · ')}</div>
-              <div className="flex items-center gap-2 mt-1.5 text-white/50 text-[12px]">
+          <button onClick={onClose} className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white" data-testid="showcase-modal-close"><X className="w-5 h-5" /></button>
+          {/* Encabezado estilo carnet: foto completa al lado + datos */}
+          <div className="flex items-stretch gap-4 p-5 pr-14 bg-gradient-to-b from-slate-800/40 to-transparent">
+            <div className="shrink-0 w-28 sm:w-32 aspect-[3/4] rounded-xl overflow-hidden bg-slate-800 border border-white/10 relative" data-testid="showcase-modal-photo-box">
+              {a.has_photo && a.share_id ? (
+                <>
+                  <img src={photoUrl(a.share_id)} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-40" />
+                  <img src={photoUrl(a.share_id)} alt={a.name} className="relative z-[1] w-full h-full object-contain" data-testid="showcase-modal-photo" />
+                </>
+              ) : <div className="w-full h-full flex items-center justify-center text-5xl font-black text-white/15">{(a.name || '?').slice(0, 1)}</div>}
+            </div>
+            <div className="flex-1 min-w-0 flex flex-col justify-center">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="text-white text-xl sm:text-2xl font-black leading-tight break-words">{a.name}</div>
+                  <div className="text-white/60 text-sm mt-0.5">{[a.position, a.sport_name, a.current_club].filter(Boolean).join(' · ')}</div>
+                </div>
+                {a.overall_score != null && <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex flex-col items-center justify-center text-white font-black shadow-lg" style={{ background: scoreColor(a.overall_score) }}><span className="text-xl sm:text-2xl leading-none">{a.overall_score}</span><span className="text-[8px] tracking-widest">SCORE</span></div>}
+              </div>
+              <div className="flex flex-wrap items-center gap-2 mt-2 text-white/50 text-[12px]">
                 {a.age && <span>{a.age} años</span>}
                 {a.nationality && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{a.nationality}</span>}
                 <span className="text-[10px] font-black px-2 py-0.5 rounded-full" style={{ background: a.level_color + '22', color: a.level_color }}>{a.level_label}</span>
               </div>
             </div>
-            {a.overall_score != null && <div className="w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-white font-black shadow-lg" style={{ background: scoreColor(a.overall_score) }}><span className="text-2xl leading-none">{a.overall_score}</span><span className="text-[8px] tracking-widest">SCORE</span></div>}
           </div>
         </div>
 
