@@ -2274,7 +2274,7 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
 
     base = Image.new("RGB", (W, H), obsidian)
     draw = ImageDraw.Draw(base)
-    photo_h = int(H * (0.52 if is_story else 0.48))
+    photo_h = int(H * (0.60 if is_story else 0.48))
 
     # Foto (o placeholder) — se muestra COMPLETA (contain) con fondo desenfocado
     if photo:
