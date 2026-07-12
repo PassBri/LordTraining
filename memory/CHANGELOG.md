@@ -1,5 +1,11 @@
 # CHANGELOG — LordTraining
 
+## 2026-07-12 — Vitrina "Cantera": notificación por email (Resend) + panel de métricas
+- **Email al coach por cada contacto nuevo** (Resend): plantilla HTML de marca `render/send_showcase_lead_notification` en `email_service.py`; se dispara (no bloqueante, `asyncio.create_task`) desde `POST /public/showcase/{id}/contact`. Se configuró `RESEND_API_KEY` en `backend/.env`. **Verificado envío real** (Resend id devuelto). Limitación: con remitente `onboarding@resend.dev` solo entrega al correo dueño de la cuenta Resend; para otros coaches se requiere dominio verificado + cambiar `SENDER_EMAIL`.
+- **Panel de métricas de la vitrina**: `GET /showcase/metrics` (visitas, contactos, sin leer, contactos por atleta) y `POST /public/showcase/{id}/visit` (contador de visitas, `showcase_views` en settings, se dispara al cargar `/cantera/{id}`). UI en la pestaña Vitrina: strip de 3 métricas + "Contactos por atleta" con barras. Métricas se refrescan al marcar leído/eliminar.
+- **Verificado**: curl (visit/metrics), envío real de email (Resend), y captura de la pestaña Vitrina (3 visitas · 2 contactos · 2 sin leer · Test Prospect 2 contactos).
+
+
 ## 2026-07-12 — Vitrina "Cantera": vista previa Open Graph + formulario de contacto (leads)
 - **Portada Open Graph** (`recruiting.py`): `_build_showcase_cover` (Pillow, 1200x630) con logo, "TOP TALENTOS", título, entidad, lema y marca. Endpoints `GET /public/showcase/{id}/cover` (PNG) y `GET /public/showcase/{id}/share` (HTML con meta OG/Twitter + redirect a `/cantera/{id}`). El enlace que copia el coach ahora es el `/share` (muestra portada al pegarlo en WhatsApp/redes); el botón "abrir" lleva a `/cantera/{id}`.
 - **Formulario de contacto por atleta** en la vitrina pública (`PublicShowcase.js`): agencias/universidades escriben directo (nombre, organización, email, mensaje) → `POST /public/showcase/{id}/contact`. Anti-spam con honeypot + validación de email.
