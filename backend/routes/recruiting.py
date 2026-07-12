@@ -1502,7 +1502,10 @@ def _build_showcase_cover(s: dict, logo: Optional[bytes]) -> bytes:
         try:
             return ImageFont.truetype(_FONT_BOLD if bold else _FONT_REG, size)
         except Exception:
-            return ImageFont.load_default()
+            try:
+                return ImageFont.load_default(size)
+            except Exception:
+                return ImageFont.load_default()
 
     base = Image.new("RGB", (W, H), obsidian)
     d = ImageDraw.Draw(base)
@@ -2113,9 +2116,22 @@ async def _photo_bytes(photo_path: Optional[str]) -> Optional[bytes]:
 
 
 # ───────────────────────── TARJETA REDES SOCIALES ─────────────────────────
-_FONT_BOLD = "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
-_FONT_REG = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
-_FONT_COND = "/usr/share/fonts/truetype/liberation/LiberationSansNarrow-Bold.ttf"
+_FONT_ASSET_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "fonts")
+
+
+def _resolve_font(bundled_name: str, *system_paths: str) -> str:
+    """Prefiere la fuente empaquetada en el repo (existe en preview y producción),
+    con respaldo a las fuentes del sistema."""
+    candidates = [os.path.join(_FONT_ASSET_DIR, bundled_name), *system_paths]
+    for c in candidates:
+        if c and os.path.exists(c):
+            return c
+    return candidates[0]
+
+
+_FONT_BOLD = _resolve_font("LiberationSans-Bold.ttf", "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
+_FONT_REG = _resolve_font("LiberationSans-Regular.ttf", "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
+_FONT_COND = _resolve_font("LiberationSansNarrow-Bold.ttf", "/usr/share/fonts/truetype/liberation/LiberationSansNarrow-Bold.ttf", "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf")
 _HAAR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets",
                           "haarcascade_frontalface_default.xml")
 _FACE_CASCADE = None
@@ -2233,7 +2249,10 @@ def _build_social_card(p: dict, photo: Optional[bytes], fmt: str = "post",
         try:
             return ImageFont.truetype(_FONT_BOLD if bold else _FONT_REG, size)
         except Exception:
-            return ImageFont.load_default()
+            try:
+                return ImageFont.load_default(size)
+            except Exception:
+                return ImageFont.load_default()
 
     base = Image.new("RGB", (W, H), obsidian)
     draw = ImageDraw.Draw(base)

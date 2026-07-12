@@ -1,5 +1,13 @@
 # CHANGELOG — LordTraining
 
+## 2026-06 — Fix texto de tarjeta de scouting + Video configurable en Landing
+- **Bug (Producción)**: el texto de la carta descargable (`_build_social_card`) salía diminuto/oscuro. Causa raíz: el contenedor de Producción no tiene las fuentes Liberation del sistema, así que Pillow caía a `load_default()` (bitmap ~10px). Preview sí las tenía, por eso allí se veía bien.
+- **Fix**: fuentes empaquetadas en el repo `/app/backend/assets/fonts/` (LiberationSans Bold/Regular/Narrow-Bold) + `_resolve_font()` con respaldos + `font()` usa `load_default(size)` (Pillow 12) si falla. Ahora el texto se ve igual en preview y producción (tras redeploy).
+- **Tarjeta premium**: brillo radial dorado tras el score, destellos diagonales y marco coleccionable con esquinas.
+- **Botones en modal Cantera**: "Descargar carta" (PNG) y "Compartir" (Web Share API + fallback copiar enlace card-page OG).
+- **Video de Scouting en Landing (nuevo)**: `landing_settings.py` → GET/PUT `/api/landing/scouting-media` (PUT solo super admin). Editor en Panel Super Admin (`LandingAppearance.jsx` → `ScoutingVideoEditor`). Landing (`LandingPage.js` → `ScoutingMedia`) reproduce YouTube o MP4 en autoplay silenciado + loop con botón de sonido; respaldo a la imagen si no hay video configurado.
+
+
 ## 2026-06 — Fix: etapas del Plan Gráfico acordes al modelo de periodización
 - **Bug reportado**: en "Plan Gráfico de Periodización" la fila "Etapa" mostraba "Trans" en casi todas las semanas y "Tipo de etapa" "Prepar" en todas, sin respetar el modelo (Tradicional/Matveiev, ATR, etc.).
 - **Causa raíz** (`GraphicPlan.js` → `importPeriodizationData`): (1) leía `micro.weekNumber` cuando el backend devuelve `week_number` (semana quedaba `undefined`); (2) solo procesaba `macrocycles[0]`; (3) su `phaseMapping` local no reconocía el vocabulario real de los modelos (`prep_general`, `accumulation`, `transformation`, `realization`, `recovery`, `block_*`, etc.), cayendo todo a `preparatory_general`/`transicion`.

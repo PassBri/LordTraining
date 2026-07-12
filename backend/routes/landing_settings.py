@@ -18,6 +18,7 @@ JWT_ALGORITHM = "HS256"
 VALID_THEMES = {"classic", "material", "futuristic", "light"}
 _SETTINGS_KEY = "landing_appearance"
 _SOCIAL_KEY = "social_links"
+_SCOUTING_MEDIA_KEY = "scouting_media"
 
 # Plataformas soportadas para enlaces de redes sociales
 SOCIAL_PLATFORMS = ["x", "linkedin", "instagram", "tiktok", "youtube", "facebook"]
@@ -34,6 +35,10 @@ class SocialLinksPayload(BaseModel):
     tiktok: str = ""
     youtube: str = ""
     facebook: str = ""
+
+
+class ScoutingMediaPayload(BaseModel):
+    video_url: str = ""
 
 
 async def _require_super(request: Request, credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -94,3 +99,23 @@ async def set_social_links(payload: SocialLinksPayload, request: Request, user=D
         upsert=True,
     )
     return {"links": links}
+
+
+@router.get("/scouting-media")
+async def get_scouting_media(db=Depends(get_db)):
+    """Público — el landing consulta el video de la sección de Scouting."""
+    doc = await db.landing_settings.find_one({"key": _SCOUTING_MEDIA_KEY}, {"_id": 0})
+    return {"video_url": (doc or {}).get("video_url", "")}
+
+
+@router.put("/scouting-media")
+async def set_scouting_media(payload: ScoutingMediaPayload, request: Request, user=Depends(_require_super)):
+    url = (payload.video_url or "").strip()
+    if url and not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    await request.app.state.db.landing_settings.update_one(
+        {"key": _SCOUTING_MEDIA_KEY},
+        {"$set": {"video_url": url, "updated_by": user["id"], "updated_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    return {"video_url": url}

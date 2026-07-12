@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Check, Loader2, Save, Globe, Eye } from 'lucide-react';
+import { Check, Loader2, Save, Globe, Eye, Film, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
@@ -108,6 +108,84 @@ const SocialLinksEditor = () => {
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Guardar enlaces
           </button>
+        </>
+      )}
+    </div>
+  );
+};
+
+const ScoutingVideoEditor = () => {
+  const [url, setUrl] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch(`${BACKEND}/api/landing/scouting-media`)
+      .then(r => r.json())
+      .then(d => setUrl(d?.video_url || ''))
+      .catch(() => setUrl(''));
+  }, []);
+
+  const save = async (value) => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      const res = await putWithAuth(`${BACKEND}/api/landing/scouting-media`, { video_url: value });
+      if (res.status === 401) { toast.error('Tu sesión expiró. Vuelve a iniciar sesión.'); return; }
+      if (res.status === 403) { toast.error('Solo el Super Admin puede editar el video.'); return; }
+      if (!res.ok) throw new Error('Error');
+      const d = await res.json();
+      setUrl(d.video_url || '');
+      toast.success(value ? 'Video de scouting guardado' : 'Video eliminado. Se mostrará la imagen por defecto.');
+    } catch (e) {
+      toast.error('No se pudo guardar el video. Inténtalo de nuevo.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-10 pt-8 border-t border-slate-700/40" data-testid="scouting-video-section">
+      <div className="mb-5 flex items-center gap-2">
+        <Film className="w-5 h-5 text-[#CCFF00]" />
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">Video de Scouting (Landing)</h2>
+          <p className="text-sm text-slate-500">Pega un enlace de <span className="font-semibold">YouTube</span> o un <span className="font-semibold">MP4 directo</span>. Se reproducirá en silencio y en bucle en la sección "Scouting e Identificación de Talento", con un botón para activar el sonido. Deja vacío para usar la imagen por defecto.</p>
+        </div>
+      </div>
+      {url === null ? (
+        <div className="flex items-center gap-2 text-slate-400 text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Cargando…</div>
+      ) : (
+        <>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">URL del video</label>
+          <input
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://www.youtube.com/watch?v=... o https://.../video.mp4"
+            className="w-full h-10 px-3 rounded-lg border border-slate-300 text-sm text-slate-800 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] outline-none"
+            data-testid="scouting-video-input"
+          />
+          <div className="flex items-center gap-3 mt-4">
+            <button
+              onClick={() => save((url || '').trim())}
+              disabled={saving}
+              className="inline-flex items-center gap-2 h-11 px-6 rounded-full bg-[#1565C0] text-white font-bold text-sm hover:bg-[#0d4a91] transition-colors disabled:opacity-60"
+              data-testid="scouting-video-save-btn"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Guardar video
+            </button>
+            {url ? (
+              <button
+                onClick={() => { setUrl(''); save(''); }}
+                disabled={saving}
+                className="inline-flex items-center gap-2 h-11 px-4 rounded-full border border-slate-300 text-slate-600 font-semibold text-sm hover:bg-slate-100 transition-colors disabled:opacity-60"
+                data-testid="scouting-video-clear-btn"
+              >
+                <Trash2 className="w-4 h-4" /> Quitar
+              </button>
+            ) : null}
+          </div>
         </>
       )}
     </div>
@@ -252,6 +330,7 @@ export const LandingAppearance = () => {
         })}
       </div>
       <SocialLinksEditor />
+      <ScoutingVideoEditor />
     </div>
   );
 };

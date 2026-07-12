@@ -12,7 +12,7 @@ import {
   ArrowRight, Activity, FileText, Dumbbell,
   Heart, Ruler, Eye, Sparkles, Layers, LineChart,
   ChevronRight, ChevronLeft, Zap, Shield, GraduationCap, Globe, UserCheck, Building2,
-  PlayCircle, X as XIcon, Video
+  PlayCircle, X as XIcon, Video, Volume2, VolumeX
 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 
@@ -446,6 +446,74 @@ const TestimonialsCarousel = ({ t }) => {
 /* ═══ SCOUTING & TALENT IDENTIFICATION SECTION ═══ */
 const SCOUT_IMG = 'https://images.unsplash.com/photo-1591805953001-f6ad7822d736?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200';
 
+const _ytId = (url) => {
+  const m = String(url || '').match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+  return m ? m[1] : null;
+};
+
+const ScoutingMedia = ({ alt }) => {
+  const [url, setUrl] = useState(undefined); // undefined = cargando, '' = sin video
+  const [muted, setMuted] = useState(true);
+  const videoRef = useRef(null);
+  const iframeRef = useRef(null);
+
+  useEffect(() => {
+    let alive = true;
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/api/landing/scouting-media`)
+      .then(r => r.json())
+      .then(d => { if (alive) setUrl(d?.video_url || ''); })
+      .catch(() => { if (alive) setUrl(''); });
+    return () => { alive = false; };
+  }, []);
+
+  const ytId = _ytId(url);
+  const isVideoFile = url && !ytId && /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(url);
+
+  const toggleSound = () => {
+    const next = !muted;
+    setMuted(next);
+    if (videoRef.current) { videoRef.current.muted = next; if (!next) videoRef.current.play?.().catch(() => {}); }
+    if (iframeRef.current?.contentWindow) {
+      const cmd = next ? 'mute' : 'unMute';
+      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: cmd, args: [] }), '*');
+      if (!next) iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'setVolume', args: [100] }), '*');
+    }
+  };
+
+  const wrap = 'relative w-full h-[300px] md:h-[360px] overflow-hidden bg-zinc-950';
+
+  if (url === undefined || (!ytId && !isVideoFile)) {
+    // Cargando o sin video → imagen de respaldo
+    return <img src={SCOUT_IMG} alt={alt} className="w-full h-[300px] md:h-[360px] object-cover" loading="lazy" />;
+  }
+
+  return (
+    <div className={wrap} data-testid="scouting-media">
+      {ytId ? (
+        <iframe
+          ref={iframeRef}
+          title="Scouting video"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          style={{ width: '100%', height: '100%', transform: 'translate(-50%,-50%) scale(1.5)' }}
+          src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&playsinline=1&showinfo=0&iv_load_policy=3&enablejsapi=1`}
+          allow="autoplay; encrypted-media"
+          frameBorder="0"
+        />
+      ) : (
+        <video ref={videoRef} className="w-full h-full object-cover" src={url} autoPlay muted loop playsInline preload="metadata" poster={SCOUT_IMG} />
+      )}
+      <button
+        onClick={toggleSound}
+        className="absolute bottom-4 right-4 z-20 w-10 h-10 rounded-full bg-zinc-900/80 backdrop-blur-md border border-zinc-600/60 flex items-center justify-center text-white hover:bg-zinc-800 transition-colors"
+        aria-label={muted ? 'Activar sonido' : 'Silenciar'}
+        data-testid="scouting-media-sound-btn"
+      >
+        {muted ? <VolumeX className="w-4.5 h-4.5" /> : <Volume2 className="w-4.5 h-4.5 text-[#D4AF37]" />}
+      </button>
+    </div>
+  );
+};
+
 const ScoutingSection = ({ t }) => {
   const tools = [
     { icon: Activity, title: t('landing.scouting.tool_1_title'), desc: t('landing.scouting.tool_1_desc') },
@@ -493,8 +561,8 @@ const ScoutingSection = ({ t }) => {
         <div className="grid lg:grid-cols-2 gap-8 items-center mb-14">
           <Reveal direction="left">
             <div className="relative rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl" data-testid="scouting-image">
-              <img src={SCOUT_IMG} alt={t('landing.scouting.badge_title')} className="w-full h-[300px] md:h-[360px] object-cover" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent" />
+              <ScoutingMedia alt={t('landing.scouting.badge_title')} />
+              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent pointer-events-none" />
               {/* floating stat card */}
               <div className="absolute bottom-4 left-4 bg-zinc-900/90 backdrop-blur-md border border-zinc-700/60 rounded-xl px-4 py-3 shadow-xl flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-[#D4AF37]/15 flex items-center justify-center">
