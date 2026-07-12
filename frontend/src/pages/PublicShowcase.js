@@ -84,40 +84,92 @@ export default function PublicShowcase() {
 }
 
 function AthleteCard({ a, rank, accent, onOpen }) {
+  const medals = {
+    1: 'linear-gradient(135deg, #FDE047 0%, #D4AF37 50%, #B45309 100%)',
+    2: 'linear-gradient(135deg, #F8FAFC 0%, #CBD5E1 50%, #64748B 100%)',
+    3: 'linear-gradient(135deg, #FDBA74 0%, #D97706 50%, #78350F 100%)',
+  };
+  const metrics = (a.top_metrics || []).slice(0, 3);
+  const cond = { fontFamily: "'Barlow Condensed', sans-serif" };
   return (
     <button onClick={onOpen} data-testid={`showcase-card-${a.share_id}`}
-      className="text-left rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10 hover:border-white/25 hover:-translate-y-0.5 transition-all group">
-      <div className="relative h-56 bg-slate-900 overflow-hidden">
-        {a.has_photo && a.share_id ? (
-          <>
-            <img src={photoUrl(a.share_id)} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-40" />
-            <img src={photoUrl(a.share_id)} alt={a.name} className="relative z-[1] w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" data-testid={`showcase-card-photo-${a.share_id}`} />
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-6xl font-black text-white/10">{(a.name || '?').slice(0, 1)}</div>
+      className="relative w-full aspect-[2.7/4] rounded-2xl overflow-hidden flex flex-col justify-end group border border-white/10 ring-1 ring-inset ring-white/5 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] hover:border-white/30"
+      style={{ background: '#0A0F1E', boxShadow: '0 10px 30px -12px rgba(0,0,0,.7)' }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 24px 48px -12px ${accent}44`; }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 10px 30px -12px rgba(0,0,0,.7)'; }}>
+
+      {/* Photo layer */}
+      {a.has_photo && a.share_id ? (
+        <>
+          <img src={photoUrl(a.share_id)} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-125 blur-3xl opacity-40" />
+          <img src={photoUrl(a.share_id)} alt={a.name} data-testid={`showcase-card-photo-${a.share_id}`}
+            className="absolute left-0 right-0 bottom-[26%] w-full h-[72%] object-contain object-bottom z-10 transition-transform duration-500 group-hover:scale-105"
+            style={{ filter: 'drop-shadow(0 15px 18px rgba(0,0,0,.85))' }} />
+        </>
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center text-8xl font-black text-white/10" style={cond}>{(a.name || '?').slice(0, 1)}</div>
+      )}
+
+      {/* Vignette */}
+      <div className="absolute inset-0 z-10 pointer-events-none" style={{ boxShadow: 'inset 0 0 60px rgba(0,0,0,.85)' }} />
+
+      {/* Rank medal */}
+      {rank <= 3 && (
+        <div className="absolute top-3 left-3 z-30 w-9 h-9 rounded-full flex items-center justify-center text-sm font-black text-slate-900 shadow-lg shadow-black/50" style={{ background: medals[rank], ...cond }} data-testid={`showcase-card-rank-${a.share_id}`}>{rank}</div>
+      )}
+
+      {/* Overall score */}
+      {a.overall_score != null && (
+        <div className="absolute top-3 right-3 z-30 flex flex-col items-center justify-center px-2.5 py-1.5 rounded-xl border-t-2 shadow-xl backdrop-blur-md"
+          style={{ background: 'rgba(10,15,30,.55)', borderColor: accent }}>
+          <span className="text-3xl font-black leading-none tracking-tighter text-white" style={cond}>{a.overall_score}</span>
+          <span className="text-[7px] font-bold tracking-[0.2em]" style={{ color: accent }}>OVR</span>
+        </div>
+      )}
+
+      {/* Holographic foil sweep on hover */}
+      <div className="absolute inset-0 z-40 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{ background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,.35) 45%, rgba(212,175,55,.35) 52%, transparent 62%)', mixBlendMode: 'overlay' }} />
+
+      {/* Info panel */}
+      <div className="relative z-20 w-full pb-4 px-4 flex flex-col items-center" style={{ background: '#070d16' }}>
+        <div className="absolute -top-12 left-0 right-0 h-12 pointer-events-none" style={{ background: 'linear-gradient(to top, #070d16, transparent)' }} />
+        <div className="pt-3 w-full flex flex-col items-center">
+        {a.level_label && (
+          <span className="relative z-30 mb-2 px-3 py-0.5 rounded-full text-[10px] font-black tracking-widest border backdrop-blur-md"
+            style={{ color: a.level_color, borderColor: a.level_color + '55', background: a.level_color + '1a', ...cond }}>{a.level_label}</span>
         )}
-        <div className="absolute inset-0 z-[2] pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(10,15,30,.35) 0%, transparent 30%, transparent 55%, rgba(10,15,30,.96))' }} />
-        {rank <= 3 && (
-          <div className="absolute top-3 left-3 z-[3] w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-black text-slate-900 shadow-lg" style={{ background: ['#D4AF37', '#cbd5e1', '#d97706'][rank - 1] }}>{rank}</div>
-        )}
-        {a.overall_score != null && (
-          <div className="absolute top-3 right-3 z-[3] w-12 h-12 rounded-xl flex flex-col items-center justify-center text-white font-black leading-none shadow-lg" style={{ background: scoreColor(a.overall_score) }}>
-            <span className="text-lg">{a.overall_score}</span><span className="text-[7px] tracking-widest opacity-90">SCORE</span>
+        <div className="text-white text-2xl font-black uppercase tracking-wide text-center leading-none truncate w-full" style={{ ...cond, textShadow: '0 2px 8px rgba(0,0,0,.9)' }} data-testid={`showcase-card-name-${a.share_id}`}>{a.name}</div>
+        <div className="flex items-center justify-center gap-1.5 text-[11px] text-white/60 font-semibold mt-1 flex-wrap">
+          {[a.position, a.sport_name].filter(Boolean).map((x, i) => <span key={i}>{x}</span>)}
+        </div>
+        {(a.age || a.nationality || a.current_club || a.videos?.length > 0) && (
+          <div className="flex items-center justify-center gap-2 text-[11px] text-white/45 mt-1 flex-wrap">
+            {a.age && <span>{a.age} años</span>}
+            {a.nationality && <span className="flex items-center gap-0.5"><MapPin className="w-3 h-3" />{a.nationality}</span>}
+            {a.current_club && <span className="truncate max-w-[120px]">{a.current_club}</span>}
+            {a.videos?.length > 0 && <span className="flex items-center gap-0.5"><Video className="w-3 h-3" />{a.videos.length}</span>}
           </div>
         )}
-        <div className="absolute bottom-3 left-3 right-3 z-[3]">
-          <div className="text-white font-black text-lg leading-tight truncate">{a.name}</div>
-          <div className="text-white/60 text-[12px] truncate">{[a.position, a.sport_name].filter(Boolean).join(' · ')}</div>
+
+        {/* Top metrics mini-bars */}
+        {metrics.length > 0 && (
+          <div className="w-full grid gap-3 border-t border-white/10 pt-3 mt-3" style={{ gridTemplateColumns: `repeat(${metrics.length}, 1fr)` }} data-testid={`showcase-card-metrics-${a.share_id}`}>
+            {metrics.map((m, i) => (
+              <div key={i} className="flex flex-col items-center min-w-0">
+                <span className="text-lg font-black text-white leading-none" style={cond}>{m.value}</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-white/45 truncate w-full text-center mt-0.5">{m.label}</span>
+                <div className="w-full h-1 bg-white/10 rounded-full mt-1.5 overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.max(0, Math.min(100, m.value))}%`, background: accent }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center gap-1 text-[11px] font-black tracking-wide mt-3 group-hover:gap-2 transition-all" style={{ color: accent }}>
+          VER FICHA <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
         </div>
-      </div>
-      <div className="p-3.5 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-[10px] font-black px-2 py-0.5 rounded-full shrink-0" style={{ background: a.level_color + '22', color: a.level_color }}>{a.level_label}</span>
-          {a.current_club && <span className="text-white/45 text-[11px] truncate">{a.current_club}</span>}
-        </div>
-        <div className="flex items-center gap-1.5 text-white/40 shrink-0">
-          {a.videos?.length > 0 && <span className="flex items-center gap-0.5 text-[11px]"><Video className="w-3.5 h-3.5" />{a.videos.length}</span>}
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" style={{ color: accent }} />
         </div>
       </div>
     </button>
