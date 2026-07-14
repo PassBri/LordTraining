@@ -8,6 +8,7 @@ import BrandLogo from '../BrandLogo';
 import LanguageSelector from '../LanguageSelector';
 import ThemeToggle from '../ThemeToggle';
 import SectionSkeleton from '../SectionSkeleton';
+import HelpTutorialButton from '../HelpTutorialButton';
 import { SCOUTING_TABS } from '../../lib/scoutingTabs';
 
 // Layout presentacional del Modo Pro (WhatsApp Web): sidebar navy 30% + contenido claro 70%.
@@ -21,6 +22,7 @@ const WhatsAppShell = ({ ctx }) => {
     setIsMasterReportOpen, setIsSessionsExportOpen, setIsCoachDrawerOpen,
     handleSetActivePlan, renderMainContent,
     scoutingTab, setScoutingTab,
+    tutorialCategory,
   } = ctx;
 
   const navIconCls = 'w-[18px] h-[18px] shrink-0';
@@ -129,6 +131,8 @@ const WhatsAppShell = ({ ctx }) => {
               </button>
             );
           })}
+          {/* Tutoriales (drawer contextual) */}
+          <HelpTutorialButton variant="sidebar" collapsed={collapsed} category={tutorialCategory || 'general'} />
 
           {/* Subsecciones de Scouting (Recruiting & Talent ID) — solo cuando Scouting está activo */}
           {!collapsed && activePanel === 'datos' && activeDataSection === 'scouting' && setScoutingTab && (

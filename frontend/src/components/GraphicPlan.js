@@ -26,6 +26,7 @@ import {
   Trophy,
   ClipboardCheck,
   RotateCcw,
+  RotateCw,
   ChevronLeft,
   ChevronRight,
   Maximize2,
@@ -250,6 +251,46 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
 
   // Inline edit state for value-mode cells { rowId, week }
   const [editingCell, setEditingCell] = useState(null);
+
+  // ── Undo / Redo history for planData ──
+  const historyRef = useRef({ past: [], future: [], last: null, restoring: false });
+  const [, setHistVersion] = useState(0);
+  useEffect(() => {
+    const h = historyRef.current;
+    if (h.restoring) { h.restoring = false; h.last = planData; return; }
+    if (h.last === null) { h.last = planData; return; }
+    if (h.last === planData) return;
+    h.past.push(h.last);
+    if (h.past.length > 60) h.past.shift();
+    h.future = [];
+    h.last = planData;
+    setHistVersion(v => v + 1);
+  }, [planData]);
+  const undoChange = useCallback(() => {
+    const h = historyRef.current;
+    if (!h.past.length) return;
+    h.future.push(h.last);
+    const prev = h.past.pop();
+    h.restoring = true; h.last = prev;
+    setPlanData(prev);
+    setHistVersion(v => v + 1);
+    toast.info(t('graphicPlan.cambio_deshecho', { defaultValue: 'Cambio deshecho' }));
+  }, [t]);
+  const redoChange = useCallback(() => {
+    const h = historyRef.current;
+    if (!h.future.length) return;
+    h.past.push(h.last);
+    const next = h.future.pop();
+    h.restoring = true; h.last = next;
+    setPlanData(next);
+    setHistVersion(v => v + 1);
+    toast.info(t('graphicPlan.cambio_rehecho', { defaultValue: 'Cambio rehecho' }));
+  }, [t]);
+  const canUndo = historyRef.current.past.length > 0;
+  const canRedo = historyRef.current.future.length > 0;
+
+  // Dismiss del banner de advertencia de carga por nivel
+  const [levelWarningDismissed, setLevelWarningDismissed] = useState(false);
 
   // Import periodization data when available.
   // Acepta un único macrociclo o el arreglo completo de macrociclos del plan.
@@ -2002,6 +2043,20 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-6 h-6" />{t('graphicPlan.plan_grafico_de_periodizacion')}</CardTitle>
             <div className="flex items-center gap-2">
+              {/* Deshacer / Rehacer cambios */}
+              <div className="flex items-center rounded-md bg-white/10 mr-1">
+                <Button size="sm" variant="ghost" className="text-white hover:bg-white/20 h-8 px-2 rounded-r-none disabled:opacity-40"
+                  onClick={undoChange} disabled={!canUndo} title={t('graphicPlan.deshacer', { defaultValue: 'Deshacer cambio' })}
+                  data-testid="graphic-plan-undo-btn">
+                  <RotateCcw className="w-4 h-4" />
+                </Button>
+                <div className="w-px h-5 bg-white/20" />
+                <Button size="sm" variant="ghost" className="text-white hover:bg-white/20 h-8 px-2 rounded-l-none disabled:opacity-40"
+                  onClick={redoChange} disabled={!canRedo} title={t('graphicPlan.rehacer', { defaultValue: 'Rehacer cambio' })}
+                  data-testid="graphic-plan-redo-btn">
+                  <RotateCw className="w-4 h-4" />
+                </Button>
+              </div>
               {periodizationData && (
                 <Button
                   size="sm"
@@ -2108,7 +2163,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
             </div>
           )}
           {/* Advertencia de exceso de carga según nivel del deportista (no bloqueante) */}
-          {levelCaps && loadWarnings.length > 0 && (
+          {levelCaps && loadWarnings.length > 0 && !levelWarningDismissed && (
             <div className="mb-4 p-3 rounded-lg border border-orange-300 bg-orange-50 flex items-start gap-3" data-testid="level-load-warning">
               <AlertTriangle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
@@ -2130,6 +2185,9 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
                   )}
                 </div>
               </div>
+              <button onClick={() => setLevelWarningDismissed(true)} className="text-orange-500 hover:text-orange-800 flex-shrink-0" title={t('graphicPlan.ocultar_alertas', { defaultValue: 'Ocultar alertas' })} data-testid="dismiss-level-warning-btn">
+                <X className="w-4 h-4" />
+              </button>
             </div>
           )}
           <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
@@ -2740,7 +2798,7 @@ const GraphicPlan = ({ athleteId, periodizationData, athleteName, athleteCategor
           </Dialog>
 
           {/* Navigation Slider Bar — sticky at bottom while scrolling through table */}
-          <div className="sticky bottom-0 z-30 bg-white/95 backdrop-blur-sm border-t py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]" data-testid="week-slider-nav">
+          <div className={`sticky bottom-0 z-30 bg-white/95 backdrop-blur-sm border-t py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] ${totalWeeks <= 12 ? 'hidden' : ''}`} data-testid="week-slider-nav">
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-3">
                 <Select value={cycleDuration} onValueChange={setCycleDuration}>

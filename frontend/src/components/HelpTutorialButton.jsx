@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { GraduationCap, X, PlayCircle, Video, Loader2 } from 'lucide-react';
 
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
@@ -33,7 +34,7 @@ export const resolveTutorialCategory = (activePanel, activeDataSection, section)
   return 'general';
 };
 
-const HelpTutorialButton = ({ category = 'general', variant = 'fab' }) => {
+const HelpTutorialButton = ({ category = 'general', variant = 'fab', collapsed = false }) => {
   const [open, setOpen] = useState(false);
   const [videos, setVideos] = useState([]);
   const [catLabels, setCatLabels] = useState({});
@@ -70,7 +71,22 @@ const HelpTutorialButton = ({ category = 'general', variant = 'fab' }) => {
 
   return (
     <>
-      {variant === 'topbar' ? (
+      {variant === 'sidebar' ? (
+        <button
+          onClick={() => setOpen(true)}
+          data-testid="help-tutorials-btn"
+          title="Ver tutoriales de esta sección"
+          className={`group w-full flex items-center rounded-lg text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 relative ${collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5'}`}>
+          <GraduationCap className="w-[18px] h-[18px] shrink-0" strokeWidth={1.9} />
+          {!collapsed && <span className="truncate">Tutoriales</span>}
+          {unseenCount > 0 && (
+            <span data-testid="help-tutorials-badge"
+              className={`${collapsed ? 'absolute -top-0.5 -right-0.5' : 'ml-auto'} min-w-[18px] h-[18px] px-1 rounded-full bg-[#EF4444] text-white text-[10px] font-black flex items-center justify-center`}>
+              {unseenCount}
+            </span>
+          )}
+        </button>
+      ) : variant === 'topbar' ? (
         <button
           onClick={() => setOpen(true)}
           data-testid="help-tutorials-btn"
@@ -108,8 +124,8 @@ const HelpTutorialButton = ({ category = 'general', variant = 'fab' }) => {
       </button>
       )}
 
-      {open && (
-        <div className="fixed inset-0 z-[90] flex justify-end bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} data-testid="help-tutorials-drawer">
+      {open && createPortal((
+        <div className="fixed inset-0 z-[9999] flex justify-end bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} data-testid="help-tutorials-drawer">
           <div className="w-full max-w-md h-full bg-[#0a0e14] border-l border-white/10 flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
               <div>
@@ -167,7 +183,7 @@ const HelpTutorialButton = ({ category = 'general', variant = 'fab' }) => {
             </div>
           </div>
         </div>
-      )}
+      ), document.body)}
     </>
   );
 };

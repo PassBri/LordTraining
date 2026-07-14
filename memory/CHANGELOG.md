@@ -465,3 +465,18 @@
 - Modo Clásico: TODOS los botones de la barra (navegación izquierda + acciones derecha) ahora usan fondo oscuro uniforme (#0A0F1E) con ícono en color de acento. El botón activo se diferencia con anillo (ring-2) del color del módulo + punto de color arriba a la derecha. Afecta: Panel, Datos, Planes, Scouting, Reporte, Sesiones, secciones/sub-secciones de Datos, Avisos (NotificationsBell), Demo, Admin, Plan, Tutoriales, Coach AI, Idiomas (LanguageSelector fabStyle), Salir y ThemeToggle. El Modo Pro no se tocó.
 - Panel resumen Legal: las tarjetas "Por vencer (≤30 días)" y "Vencidos" ahora son clicables → filtran la lista al instante (toggle on/off) con resaltado (anillo del color). "Documentos" limpia el filtro de vencimiento. Nuevo filterExpiry integrado con los filtros de tipo/prospecto y botón Limpiar.
 - Verificado con screenshot (barra uniforme, activo con anillo/punto). ACCIÓN USUARIO: REDEPLOY para Producción.
+
+## 2026-07-14 (e) — Fix Tutoriales + limpieza video landing + Plan Gráfico (undo/redo, alertas, footer)
+- BUGFIX Tutoriales: el drawer no se veía en el Dashboard (el botón quedó dentro del header con blur/transform que confinaba el position:fixed). Solución: renderizar el drawer con createPortal a document.body (z-[9999]). Verificado: abre sobre todo el dashboard.
+- Landing: eliminado el badge flotante "Análisis objetivo / Decisiones basadas en datos" sobre el video de Scouting (se mantiene el stat −42%).
+- Plan Gráfico (GraphicPlan.js):
+  - Botones Deshacer/Rehacer (undo/redo) en la barra superior. Historial basado en snapshots de planData (useRef past/future + effect con flag restoring, máx 60). Permite recuperarse tras usar "Ajustar" u otros cambios.
+  - Botón X para ocultar la alerta "Cargas por encima del nivel" (state levelWarningDismissed). Verificado: oculta el banner.
+  - Barra de navegación inferior (horizonte + presets 12s/24s/36s/52s + "S1—Sx de N") ahora se oculta en planes cortos (totalWeeks <= 12) donde no aporta; sigue visible en planes largos (verificado con plan de 26 sem).
+- Verificado con screenshots. ACCIÓN USUARIO: REDEPLOY para Producción.
+
+## 2026-07-14 (f) — Tutoriales en el sidebar del Modo Pro
+- HelpTutorialButton: nueva variante 'sidebar' (fila de navegación con ícono+label y badge de no vistos, soporta collapsed).
+- Modo Pro (WhatsAppShell): el botón de Tutoriales se movió del flotante inferior al sidebar (sección HERRAMIENTAS), pasando tutorialCategory vía ctx. Se eliminó el botón flotante en Modo Pro.
+- Verificado con screenshot: aparece en el sidebar y abre el drawer (portal) sobre toda la pantalla.
+- ACCIÓN USUARIO: REDEPLOY para Producción.

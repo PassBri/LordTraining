@@ -4263,6 +4263,7 @@ const DashboardPage = () => {
       setIsMasterReportOpen, setIsSessionsExportOpen, setIsCoachDrawerOpen,
       handleSetActivePlan, renderMainContent,
       scoutingTab, setScoutingTab,
+      tutorialCategory: resolveTutorialCategory(activePanel, activeDataSection, currentSection),
     }} />
   );
 
@@ -4621,9 +4622,8 @@ const DashboardPage = () => {
       ) : renderWhatsAppLayout()}
 
       {/* ====== BOTÓN AYUDA / TUTORIALES (solo Modo Pro; en Clásico va en la barra superior) ====== */}
-      {uiMode === 'whatsapp' && (
-        <HelpTutorialButton category={resolveTutorialCategory(activePanel, activeDataSection, currentSection)} />
-      )}
+      {/* Tutoriales: en Modo Pro se muestra dentro del sidebar (WhatsAppShell); en Clásico en la barra superior */}
+
 
       {/* ====== SHEET DE PLANES (Modo Clásico, abierto desde botón superior) ====== */}
       <Sheet open={isPlansSheetOpen} onOpenChange={setIsPlansSheetOpen}>
