@@ -521,3 +521,10 @@
 - pool (Natación): carriles ahora verticales (a lo largo) + líneas de salida/llegada.
 - SPORT_TYPE actualizado: Hockey→hockey, Handball→handball, Ciclismo→velodrome.
 - Verificado con screenshots. ACCIÓN USUARIO: REDEPLOY para Producción.
+
+## 2026-07-14 (n) — Canchas específicas: raqueta, combate y juegos tradicionales
+- Raqueta diferenciada: tennis (cajones+individuales), padel (paredes+servicio), badminton (pasillos+cuadros de saque), squash (T+cajones traseros).
+- Combate: ring (Boxeo), octagon (MMA/Taekwondo), karate (tatami+líneas árbitro), judo (área+zona seguridad).
+- Tradicionales: lane (Tejo/Minitejo), rana (Rana/Bolirana: mesa+boca+huecos), bowling (Boliche/Bolo Criollo: bolos+flechas), petanca (Petanca/Bochas: terreno+boliche+bolas).
+- SPORT_TYPE actualizado para todos. Verificado con screenshots.
+- ACCIÓN USUARIO: REDEPLOY para Producción.
