@@ -512,3 +512,12 @@
 - Baloncesto: se corrigieron los flags de sweep de los arcos de 3 puntos (estaban invertidos); ahora ambas "bombas" curvan hacia el centro de la cancha. Verificado con screenshot.
 - Revisión de todas las canchas: formato estándar correcto (fútbol/futsal/hockey/handball, rugby, voleibol, tenis, combate, tiro, béisbol, pista, piscina, golf, escalada).
 - Pendiente opcional: diferenciar canchas de raqueta (Tenis/Pádel/Bádminton/Squash) que hoy comparten una plantilla común.
+
+## 2026-07-14 (m) — Correcciones de canchas (atletismo/ciclismo/hockey/handball/natación)
+- track (Atletismo): óvalo/estadio real con carriles anidados + línea de meta (antes se veía deformado).
+- velodrome (Ciclismo): nueva plantilla de velódromo (óvalo + línea de medición punteada + línea central).
+- hockey: nueva plantilla de hockey campo (línea central, 23m punteadas, círculo de tiro "D" arriba/abajo, porterías) — antes usaba plantilla de fútbol.
+- handball: nueva plantilla con área de 6m (sólida) y 9m (punteada) en "D" + porterías — antes usaba fútbol.
+- pool (Natación): carriles ahora verticales (a lo largo) + líneas de salida/llegada.
+- SPORT_TYPE actualizado: Hockey→hockey, Handball→handball, Ciclismo→velodrome.
+- Verificado con screenshots. ACCIÓN USUARIO: REDEPLOY para Producción.
