@@ -131,9 +131,9 @@ const AnimatedLineWave = ({ color, amplitude = 30, speed = '6s', points = 200 })
 
 const PeriodizationMiniChart = ({ t }) => {
   const [hoverIdx, setHoverIdx] = useState(null);
-  const volData = [75,82,88,65,78,85,92,70,80,88,95,68,72,85,90,62,70,82,88,55,65,78,85,50];
-  const intData = [40,45,50,55,52,58,65,70,62,68,75,78,72,78,82,85,80,85,88,90,85,90,92,95];
-  const denData = [60,55,52,48,58,55,50,65,60,55,48,70,65,60,52,72,68,60,55,75,70,65,58,80];
+  const volData = [78,86,92,58, 82,90,96,62, 80,86,72,56, 76,82,66,52, 64,70,54,42, 58,48,38,28];
+  const intData = [40,44,48,36, 46,50,54,42, 60,66,72,56, 70,76,82,64, 80,86,92,70, 88,94,90,96];
+  const denData = [54,58,62,44, 60,64,68,48, 66,70,74,54, 72,76,60,50, 58,54,48,40, 52,46,42,38];
   const phases = [
     {n:t('landing.chart.accumulation'),c:'#7A6428'},
     {n:t('landing.chart.transformation'),c:'#D4AF37'},
@@ -908,6 +908,7 @@ const LandingPage = () => {
       .count-animate { animation: countUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
       @keyframes shieldGlow { 0%,100% { opacity: 0.55; transform: scale(0.92); } 50% { opacity: 1; transform: scale(1.08); } }
       @keyframes shieldFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+      @keyframes pedestalShadow { 0%,100% { opacity: 0.85; transform: translateX(-50%) scaleX(1); } 50% { opacity: 0.55; transform: translateX(-50%) scaleX(0.9); } }
     `}</style>
 
     {/* Aviso de Vista Previa (solo cuando ?previewTheme=...) */}
@@ -981,23 +982,30 @@ const LandingPage = () => {
         {/* Main grid: brand left + chart right (Material Design — generous spacing, vertically centered) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Left column — branding + CTA */}
-          <div className="lg:col-span-5 flex flex-col items-center lg:items-start gap-7">
+          <div className="lg:col-span-5 flex flex-col items-center lg:items-start gap-5">
             {/* Big heraldic shield — hero brand mark */}
             <Reveal delay={0.15} direction="up">
               <div className="flex justify-center lg:justify-start relative" data-testid="hero-shield">
-                {/* Pulsing golden glow halo */}
+                {/* Pulsing golden glow halo (más amplio y cálido) */}
                 <span className="absolute inset-0 m-auto rounded-full pointer-events-none" style={{
-                  width: '70%', height: '70%', top: 0, bottom: 0, left: 0, right: 0,
-                  background: 'radial-gradient(circle, rgba(245,200,80,0.45) 0%, rgba(212,175,55,0.18) 35%, transparent 70%)',
-                  filter: 'blur(28px)',
-                  animation: 'shieldGlow 3s ease-in-out infinite',
+                  width: '92%', height: '92%', top: '-6%', bottom: 0, left: 0, right: 0,
+                  background: 'radial-gradient(circle, rgba(245,205,90,0.55) 0%, rgba(212,175,55,0.22) 38%, transparent 72%)',
+                  filter: 'blur(40px)',
+                  animation: 'shieldGlow 3.4s ease-in-out infinite',
                 }} />
                 <img
                   src={landingLogo}
                   alt="LordTraining"
-                  className="relative h-[220px] sm:h-[260px] lg:h-[300px] w-auto"
+                  className="relative z-10 h-[240px] sm:h-[280px] lg:h-[320px] w-auto"
                   style={{ filter: 'drop-shadow(0 18px 32px rgba(0,0,0,0.55))', animation: 'shieldFloat 3s ease-in-out infinite' }}
                 />
+                {/* Sombra de pedestal — aterriza el busto */}
+                <span className="absolute left-1/2 -translate-x-1/2 pointer-events-none z-0" style={{
+                  bottom: '-8px', width: '58%', height: '26px',
+                  background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.30) 0%, rgba(0,0,0,0.55) 40%, transparent 72%)',
+                  filter: 'blur(9px)',
+                  animation: 'pedestalShadow 3s ease-in-out infinite',
+                }} />
               </div>
             </Reveal>
 

@@ -490,3 +490,9 @@
 - Se quitó el movimiento (animaciones anim-ball/arrow/player/pulse) y el badge "LIVE"; los SVG de cancha se limpian con chalkCourt() (quita defs/gradiente/fondo y clases de animación) dejando solo líneas de tiza blanca + marcadores estáticos sobre fondo verde (BOARD_BG con textura de rejilla).
 - Los 22 deportes "extra" (antes círculos con inicial + badge 3D) ahora usan una cancha genérica (GENERIC_COURT) en el mismo tablero verde, para formato 100% consistente.
 - Verificado con screenshot. ACCIÓN USUARIO: REDEPLOY para Producción.
+
+## 2026-07-14 (i) — Pulido del hero de la landing + limpieza video Scouting
+- Video Scouting: eliminado el badge "−42% / sesgo en evaluación" (video 100% limpio).
+- Hero: halo dorado más amplio/cálido + sombra de pedestal (keyframe pedestalShadow) para aterrizar el busto; busto un poco más grande (lg h-320); columna izquierda más compacta (gap-7→gap-5) para reducir espacio vacío.
+- Gráfico hero (Periodización ATR): datos de vol/int/den reajustados para contar la historia del macrociclo (volumen ↓ con descargas, intensidad ↑, pico y taper final).
+- Verificado con screenshot. ACCIÓN USUARIO: REDEPLOY para Producción.
