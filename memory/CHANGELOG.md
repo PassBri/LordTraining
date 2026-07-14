@@ -507,3 +507,8 @@
 - Cancha de Baloncesto (COURTS.basket en LandingPage): corregida la línea de 3 puntos (antes arcos incorrectos) por la geometría real (segmentos rectos desde línea de fondo + arco "bomba"), más zona pintada, círculos de tiro libre arriba/abajo, aro y tablero. Verificado con screenshot.
 - Nota: el drag-to-scroll no se pudo reproducir con la herramienta de screenshot (fuerza viewport 1920px sin desbordar), pero el patrón es estándar y funcionará en pantallas reales pequeñas.
 - ACCIÓN USUARIO: REDEPLOY para Producción.
+
+## 2026-07-14 (l) — Fix arco baloncesto (invertido) + revisión de canchas
+- Baloncesto: se corrigieron los flags de sweep de los arcos de 3 puntos (estaban invertidos); ahora ambas "bombas" curvan hacia el centro de la cancha. Verificado con screenshot.
+- Revisión de todas las canchas: formato estándar correcto (fútbol/futsal/hockey/handball, rugby, voleibol, tenis, combate, tiro, béisbol, pista, piscina, golf, escalada).
+- Pendiente opcional: diferenciar canchas de raqueta (Tenis/Pádel/Bádminton/Squash) que hoy comparten una plantilla común.
