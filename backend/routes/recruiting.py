@@ -6,7 +6,7 @@ pipeline Kanban, recomendación con IA (GPT-5.5 / Claude Sonnet 4.6), ranking,
 ficha PDF estilo NCAA, integración con Gestión de Equipos (al reclutar → atleta).
 """
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Header, Query, Response, Request
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Header, Query, Response, Request
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
@@ -37,6 +37,7 @@ _contacts = _db["recruiting_contacts"]
 _settings = _db["recruiting_settings"]
 _share_events = _db["recruiting_share_events"]
 _leads = _db["recruiting_leads"]
+_legal_docs = _db["recruiting_legal_docs"]
 _users = _db["users"]
 
 
@@ -59,6 +60,11 @@ MIME_TYPES = {
     "jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png",
     "gif": "image/gif", "webp": "image/webp",
 }
+
+LEGAL_DOC_TYPES = [
+    "contrato", "transferencia", "cesion", "autorizacion_menores",
+    "consentimiento_informado", "certificado_medico", "cesion_derechos_imagen", "otros",
+]
 
 
 def _init_storage():
@@ -2065,6 +2071,74 @@ async def upload_photo(file: UploadFile = File(...), user=Depends(get_current_us
         "is_deleted": False, "created_at": datetime.now(timezone.utc).isoformat(),
     })
     return {"path": result["path"]}
+
+
+# ───────────────────────── LEGAL DOCS (Contratos/Transferencias PDF) ─────────────────────────
+@router.post("/legal-docs")
+async def upload_legal_doc(
+    file: UploadFile = File(...),
+    prospect_id: Optional[str] = Form(None),
+    doc_type: str = Form("otros"),
+    title: str = Form(""),
+    user=Depends(get_current_user_dep()),
+):
+    uid = _uid(user)
+    ext = (file.filename or "doc.pdf").split(".")[-1].lower()
+    if ext != "pdf":
+        raise HTTPException(400, "Solo se permiten archivos PDF")
+    data = await file.read()
+    if len(data) > 15 * 1024 * 1024:
+        raise HTTPException(400, "PDF demasiado grande (máx 15MB)")
+    pid = (prospect_id or "").strip() or None
+    prospect_name = None
+    if pid:
+        p = await _prospects.find_one({"id": pid, "coach_id": uid}, {"_id": 0, "id": 1, "name": 1})
+        if not p:
+            raise HTTPException(404, "Prospecto no encontrado")
+        prospect_name = p.get("name")
+    dt = doc_type if doc_type in LEGAL_DOC_TYPES else "otros"
+    path = f"{APP_NAME}/scouting-legal/{uid}/{uuid.uuid4().hex}.pdf"
+    try:
+        result = _put_object(path, data, "application/pdf")
+    except Exception as e:
+        raise HTTPException(500, f"Error subiendo documento: {e}")
+    await _files.insert_one({
+        "id": uuid.uuid4().hex, "coach_id": uid, "storage_path": result["path"],
+        "content_type": "application/pdf", "size": result.get("size", len(data)),
+        "is_deleted": False, "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    doc = {
+        "id": uuid.uuid4().hex, "coach_id": uid, "prospect_id": pid,
+        "prospect_name": prospect_name, "doc_type": dt,
+        "title": (title or file.filename or "Documento").strip()[:160],
+        "original_filename": file.filename, "storage_path": result["path"],
+        "content_type": "application/pdf", "size": result.get("size", len(data)),
+        "is_deleted": False, "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await _legal_docs.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@router.get("/legal-docs")
+async def list_legal_docs(prospect_id: Optional[str] = Query(None), user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    q = {"coach_id": uid, "is_deleted": False}
+    if prospect_id == "general":
+        q["prospect_id"] = None
+    elif prospect_id:
+        q["prospect_id"] = prospect_id
+    items = await _legal_docs.find(q, {"_id": 0}).sort("created_at", -1).to_list(2000)
+    return items
+
+
+@router.delete("/legal-docs/{doc_id}")
+async def delete_legal_doc(doc_id: str, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    res = await _legal_docs.update_one({"id": doc_id, "coach_id": uid}, {"$set": {"is_deleted": True}})
+    if not res.matched_count:
+        raise HTTPException(404, "Documento no encontrado")
+    return {"ok": True}
 
 
 @router.get("/files/{path:path}")

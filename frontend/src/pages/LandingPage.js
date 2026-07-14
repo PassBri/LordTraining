@@ -471,14 +471,25 @@ const ScoutingMedia = ({ alt }) => {
   }, [open]);
 
   const url = media?.video_url;
-  const poster = media?.poster_url || SCOUT_IMG;
   const ytId = _ytId(url);
   const isVideoFile = url && !ytId && /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(url);
   const hasVideo = ytId || isVideoFile;
+  const ytThumb = ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : null;
+  const poster = media?.poster_url || ytThumb || SCOUT_IMG;
+
+  // Fallback en cadena: maxres -> hq -> imagen por defecto
+  const onPosterError = (e) => {
+    const src = e.currentTarget.src;
+    if (ytId && src.includes('maxresdefault')) {
+      e.currentTarget.src = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+    } else if (src !== SCOUT_IMG) {
+      e.currentTarget.src = SCOUT_IMG;
+    }
+  };
 
   // Sin video → solo imagen (mismo tamaño)
   if (media === undefined || !hasVideo) {
-    return <img src={poster} alt={alt} className="w-full h-[300px] md:h-[360px] object-cover" loading="lazy" />;
+    return <img src={poster} onError={onPosterError} alt={alt} className="w-full h-[300px] md:h-[360px] object-cover" loading="lazy" />;
   }
 
   return (
@@ -490,7 +501,7 @@ const ScoutingMedia = ({ alt }) => {
         data-testid="scouting-media"
         aria-label="Reproducir video de scouting"
       >
-        <img src={poster} alt={alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        <img src={poster} onError={onPosterError} alt={alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         <div className="absolute inset-0 bg-black/25 group-hover:bg-black/10 transition-colors flex items-center justify-center">
           <PlayCircle className="w-16 h-16 md:w-20 md:h-20 text-white/90 group-hover:text-[#D4AF37] group-hover:scale-110 transition-all drop-shadow-lg" strokeWidth={1.5} />
         </div>

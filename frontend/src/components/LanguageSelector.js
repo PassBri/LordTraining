@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
 
 const LANGUAGES = [
-  { code: 'es', label: 'Espanol', flag: 'ES' },
+  { code: 'es', label: 'Español', flag: 'ES' },
   { code: 'en', label: 'English', flag: 'EN' },
-  { code: 'pt', label: 'Portugues', flag: 'PT' },
-  { code: 'fr', label: 'Francais', flag: 'FR' },
+  { code: 'pt', label: 'Português', flag: 'PT' },
+  { code: 'fr', label: 'Français', flag: 'FR' },
   { code: 'de', label: 'Deutsch', flag: 'DE' },
   { code: 'ar', label: 'العربية', flag: 'AR' },
   { code: 'hi', label: 'हिन्दी', flag: 'HI' },
@@ -76,7 +76,7 @@ export const LanguageSelector = ({ variant = 'light', compact = false, fabStyle 
     <div
       ref={menuRef}
       className={`fixed rounded-xl border shadow-2xl py-1 ${
-        isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+        isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-slate-200'
       }`}
       style={{ top: coords.top, left: coords.left, width: MENU_WIDTH, zIndex: 99999 }}
       data-testid="language-selector-dropdown"
@@ -87,8 +87,8 @@ export const LanguageSelector = ({ variant = 'light', compact = false, fabStyle 
           onClick={() => handleChange(lang.code)}
           className={`w-full flex items-center gap-2.5 px-3 py-2 text-[13px] transition-colors ${
             i18n.language === lang.code
-              ? isDark ? 'bg-white/10 text-white font-semibold' : 'bg-slate-50 text-slate-900 font-semibold'
-              : isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'
+              ? isDark ? 'bg-[#D4AF37]/10 text-[#D4AF37] font-semibold' : 'bg-slate-50 text-slate-900 font-semibold'
+              : isDark ? 'text-zinc-300 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50'
           }`}
           data-testid={`lang-option-${lang.code}`}
         >
@@ -97,7 +97,7 @@ export const LanguageSelector = ({ variant = 'light', compact = false, fabStyle 
           }`}>{lang.flag}</span>
           <span>{lang.label}</span>
           {i18n.language === lang.code && (
-            <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#007AFF]" />
+            <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
           )}
         </button>
       ))}

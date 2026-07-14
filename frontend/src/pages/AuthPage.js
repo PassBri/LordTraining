@@ -165,10 +165,6 @@ const SPORTS = [
 
 /* ═══ RIGHT PANEL — TACTICAL BOARD ═══ */
 const AuthVisual = () => {
-  const { t } = useTranslation();
-  const typedText = t('auth.visual.phrase1');
-  const readiness = useCountUp(85, 1200);
-  const acwr = useCountUp(0.87, 1000);
   const [sportIdx, setSportIdx] = useState(0);
   const [visible, setVisible] = useState(true);
 
@@ -189,7 +185,7 @@ const AuthVisual = () => {
   <div className="relative h-full overflow-hidden" style={{background:'#09090b'}}>
 
     {/* Field container */}
-    <div className="absolute overflow-hidden" style={{top:'17%',left:'13%',right:'13%',bottom:'17%',background:'#171d24',borderRadius:'16px',boxShadow:'0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)'}}>
+    <div className="absolute overflow-hidden" style={{top:'8%',left:'10%',right:'10%',bottom:'8%',background:'#171d24',borderRadius:'16px',boxShadow:'0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)'}}>
       {/* SVG field lines */}
       <svg className="absolute inset-0 w-full h-full" viewBox={sport.vb} preserveAspectRatio="xMidYMid meet"
         style={{opacity:visible?1:0,transition:'opacity 0.3s ease'}}>
@@ -227,85 +223,6 @@ const AuthVisual = () => {
       <div className="absolute bottom-3 left-4 flex gap-1.5 z-10">
         {SPORTS.map((_,i) => (
           <div key={i} className="w-[4px] h-[4px] rounded-full transition-colors duration-400" style={{background:i===sportIdx?'#D4AF37':'rgba(255,255,255,0.15)'}}/>
-        ))}
-      </div>
-    </div>
-
-    {/* HUD — Session header */}
-    <div className="absolute left-1/2 -translate-x-1/2" style={{top:'5%'}}>
-      <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl whitespace-nowrap" style={{background:'rgba(18,20,28,0.9)',border:'1px solid rgba(255,255,255,0.08)',backdropFilter:'blur(16px)',boxShadow:'0 8px 24px rgba(0,0,0,0.45)'}}>
-        <BrandLogo variant="icon" theme="light" size={18} />
-        <span className="text-[13px] font-semibold text-white/80">{t('auth.visual.week')} · {t('auth.visual.phase')}</span>
-        <span className="w-[5px] h-[5px] rounded-full bg-[#D4AF37] ml-1" style={{animation:'livePulse 1.5s infinite'}}/>
-        <span className="text-[11px] text-[#D4AF37]/70">Live</span>
-      </div>
-    </div>
-
-    {/* HUD — Readiness */}
-    <div className="absolute" style={{top:'16%',left:'18px'}}>
-      <div className="px-3.5 py-3 rounded-2xl" style={{background:'rgba(18,20,28,0.9)',border:'1px solid rgba(255,255,255,0.08)',backdropFilter:'blur(16px)',boxShadow:'0 8px 24px rgba(0,0,0,0.45)'}}>
-        <span className="text-[10px] text-white/35 uppercase tracking-[0.12em] font-bold block mb-1.5">{t('auth.visual.readiness')}</span>
-        <div className="flex items-center gap-2">
-          <svg width="44" height="44" className="-rotate-90">
-            <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="2.5"/>
-            <circle cx="22" cy="22" r="18" fill="none" stroke="#D4AF37" strokeWidth="2.5"
-              strokeDasharray={2*Math.PI*18} strokeDashoffset={2*Math.PI*18*0.15}
-              strokeLinecap="round"/>
-          </svg>
-          <div>
-            <span className="text-[32px] font-black text-[#D4AF37] leading-none block" style={{fontFamily:BC}}>{readiness}</span>
-            <span className="text-[10px] text-[#D4AF37]/50 block">Optimal</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* HUD — ACWR */}
-    <div className="absolute" style={{top:'16%',right:'18px'}}>
-      <div className="px-3.5 py-3 rounded-2xl" style={{background:'rgba(18,20,28,0.9)',border:'1px solid rgba(255,255,255,0.08)',backdropFilter:'blur(16px)',boxShadow:'0 8px 24px rgba(0,0,0,0.45)'}}>
-        <span className="text-[8px] text-white/30 uppercase tracking-[0.12em] font-bold block mb-1">{t('auth.visual.acwr')}</span>
-        <span className="text-[26px] font-black text-[#D4AF37] leading-none block" style={{fontFamily:BC}}>{acwr}</span>
-        <svg viewBox="0 0 80 20" className="w-20 h-5 mt-1.5">
-          <path d="M0,16 L11,13 L22,14 L33,10 L44,11 L55,7 L66,8 L80,4" fill="none" stroke="#D4AF37" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-        <span className="text-[10px] text-[#D4AF37]/50 mt-1 block">{t('auth.visual.optimal_zone')}</span>
-      </div>
-    </div>
-
-    {/* HUD — Adherence */}
-    <div className="absolute" style={{bottom:'24%',right:'18px'}}>
-      <div className="px-3.5 py-2.5 rounded-2xl" style={{background:'rgba(18,20,28,0.9)',border:'1px solid rgba(255,255,255,0.08)',backdropFilter:'blur(16px)',boxShadow:'0 8px 24px rgba(0,0,0,0.45)'}}>
-        <span className="text-[24px] font-black text-[#D4AF37] leading-none block" style={{fontFamily:BC}}>94%</span>
-        <span className="text-[10px] text-white/30 uppercase tracking-[0.1em] mt-0.5 block">{t('auth.visual.adherence')}</span>
-      </div>
-    </div>
-
-    {/* Headline top (estático) */}
-    <div className="absolute top-0 left-0 right-0 z-20 px-7 pt-6 pb-14 overflow-visible" style={{background:'linear-gradient(to bottom, rgba(8,9,14,0.95) 0%, rgba(8,9,14,0.6) 60%, transparent 100%)'}}>
-      <div className="mb-1.5">
-        <h2 className="text-[22px] leading-tight font-semibold text-white/90" style={{fontFamily:INT}}>
-          {typedText}
-        </h2>
-      </div>
-      <p className="text-[12px] text-white/30">{t('auth.visual.system_line')}</p>
-    </div>
-
-    {/* Bench bar */}
-    <div className="absolute bottom-0 left-0 right-0 z-20 px-5 py-3 flex items-center justify-between" style={{background:'rgba(8,9,14,0.92)',borderTop:'0.5px solid rgba(255,255,255,0.06)'}}>
-      <div className="flex items-center gap-2">
-        <div className="flex">
-          {[{bg:'#1c160b',c:'#D4AF37',b:'#D4AF37',t:'JP'},{bg:'#141821',c:'#D4AF37',b:'#D4AF37',t:'MA'},{bg:'#1c160b',c:'#C6864E',b:'#C6864E',t:'LC'},{bg:'rgba(255,255,255,0.05)',c:'rgba(255,255,255,0.35)',b:'rgba(255,255,255,0.08)',t:'+21'}].map((a,i) => (
-            <div key={i} className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-bold" style={{background:a.bg,color:a.c,border:`1.5px solid ${a.b}`,marginLeft:i>0?'-6px':'0',zIndex:4-i,position:'relative'}}>{a.t}</div>
-          ))}
-        </div>
-        <span className="text-[11px] text-white/30">{t('auth.visual.optimal_zone')}</span>
-      </div>
-      <div className="flex items-center gap-4">
-        {[{v:'17',l:t('landing.hero.stats.models')},{v:'6',l:t('landing.hero.stats.controls')},{v:'150+',l:t('landing.hero.stats.exercises')}].map((s,i) => (
-          <div key={i} className="text-center" style={{borderLeft:i>0?'0.5px solid rgba(255,255,255,0.05)':'none',paddingLeft:i>0?'12px':'0'}}>
-            <span className="text-[14px] font-black text-[#D4AF37] leading-none block" style={{fontFamily:BC}}>{s.v}</span>
-            <span className="text-[7px] text-white/15 mt-0.5 block">{s.l}</span>
-          </div>
         ))}
       </div>
     </div>

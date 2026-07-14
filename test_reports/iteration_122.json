@@ -1,0 +1,35 @@
+{
+  "summary": "Frontend E2E validation for 4 changes: (1) AuthPage right panel — tactical board only, (2) Language selector — accents + dark zinc-900 + gold active dot, (3) Legal module tab, (4) Legal per-prospect tab. Found 1 CRITICAL runtime bug fixed by testing agent: ScoutingLegal component was used in ScoutingModule.js (lines 168 & 1225) but never imported → app crashed with 'ScoutingLegal is not defined' the moment users clicked the Legal tab (or opened any prospect detail). Added the missing 'import ScoutingLegal from ./ScoutingLegal;'. After fix, all 4 features work end-to-end: coach login → Scouting → Legal tab renders uploader (type + Asociar-a + title + PDF picker + Subir), PDF upload succeeds (toast 'Documento subido'), doc appears in list with chip 'Contrato · General · 1 KB · fecha', view button carries ?auth token, download triggers browser download, delete removes it (returns to legal-empty). Opening a prospect card shows 3rd tab 'Legal' between Estadísticas — uploader hides Asociar-a (as required), upload/delete confined to that prospect. AuthPage HUD-free (0/9 banned strings). Language dropdown bg rgb(24,24,27)=zinc-900, active dot rgb(212,175,55)=#D4AF37, options Español/Português/Français correctly accented on both /auth (dark) and / (dark landing nav).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/auth_page.png",
+    "/app/test_reports/lang_dropdown_auth.png",
+    "/app/test_reports/landing_lang.png",
+    "/app/test_reports/legal_module_after_fix.png",
+    "/app/test_reports/legal_after_upload.png",
+    "/app/test_reports/legal_prospect.png",
+    "/app/test_reports/legal_prospect_after.png"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ScoutingModule.js used <ScoutingLegal /> at lines 168 and 1225 but the import statement was missing — a lint step in CI (no-undef) would have caught this. Fixed by the test agent by adding: import ScoutingLegal from './ScoutingLegal';",
+    "ScoutingModule.js is 1674 lines. It already imports ScoutingAlerts/Contacts/Map/Legal as separate files — consider extracting the remaining tab bodies (prospects, pipeline, evaluation, ranking, vitrina) into siblings to keep this file <700 lines.",
+    "LanguageSelector variant works correctly, but the active dot uses inline class 'bg-[#D4AF37]' regardless of variant — that is intentional per the spec (gold on both themes), so OK.",
+    "ScoutingLegal.js opens PDFs via a URL that leaks the JWT in the query string (?auth=TOKEN) — this is a known trade-off for direct browser tag download/preview; if the token has long TTL, consider a short-lived signed URL. Non-blocking.",
+    "AuthPage tactical board rotates every 3.5s across 6 sports — smooth and does not overlap the form. The @keyframes livePulse/blink are defined but no element references them anymore (dead style). Minor cleanup possible.",
+    "The console warning 'An error occurred in the <ScoutingModule> component. Consider adding an error boundary to your tree' was the symptom of the missing import — with the fix applied it disappears. Consider wrapping the module in an ErrorBoundary anyway so any future runtime issue does not blank the whole dashboard."
+  ],
+  "updated_files": ["/app/frontend/src/components/ScoutingModule.js"],
+  "success_rate": {"backend": "N/A (frontend only)", "frontend": "100% (after import fix)"},
+  "test_credentials": "test@train.com / test123456 (coach). Also super admin available at juegolaureado@gmail.com / LordTraining2026!",
+  "seed_data_creation": "Uploaded and then deleted TEST_ContratoModule (general repo) and TEST_ContratoProspecto (assigned to TEST_ProspectoElite prospect). Both cleaned up — no residual test data left.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The Legal fix was a missing import in /app/frontend/src/components/ScoutingModule.js — verify it is still there before running any Scouting tests. Test PDF at /tmp/test_legal.pdf can be regenerated with the Python snippet in iteration_122 notes. Coach user (test@train.com/test123456) has 1 prospect 'TEST_ProspectoElite'.",
+  "rca of the issue": "Root cause: When main agent added <ScoutingLegal .../> usages inside ScoutingModule.js (module Legal tab at line 168 and prospect detail Legal tab at line 1225), they forgot to add the corresponding 'import ScoutingLegal from ./ScoutingLegal;' at the top of the file. Because JSX identifiers are validated at runtime (not compile-time in dev), the app rendered until React tried to instantiate <ScoutingLegal> and threw ReferenceError, which React caught and displayed as an overlay ('Uncaught runtime errors: ScoutingLegal is not defined'). Reproduction: login as coach → click Scouting tab → click Legal sub-tab. Mitigation applied: added 'import ScoutingLegal from ./ScoutingLegal;' next to the other Scouting* imports. Verified fix by uploading a PDF at module scope, downloading it, deleting it, then repeating inside a prospect detail (which also confirmed the prospect-select is hidden when scopeProspectId is set)."
+}

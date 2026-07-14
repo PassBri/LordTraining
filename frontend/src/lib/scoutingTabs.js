@@ -1,7 +1,7 @@
 // Lista de subsecciones (tabs) del módulo Scouting / Recruiting & Talent ID.
 // Módulo ligero compartido por ScoutingModule.js (vista) y WhatsAppShell.js
 // (sidebar del Modo Pro) — evita arrastrar todo ScoutingModule al bundle principal.
-import { Users, Trello, ClipboardCheck, Trophy, BellRing, Contact, Map as MapIcon, Star } from 'lucide-react';
+import { Users, Trello, ClipboardCheck, Trophy, BellRing, Contact, Map as MapIcon, Star, Scale } from 'lucide-react';
 
 export const SCOUTING_TABS = [
   { key: 'prospects', label: 'Prospectos', icon: Users },
@@ -9,6 +9,7 @@ export const SCOUTING_TABS = [
   { key: 'evaluation', label: 'Evaluación', icon: ClipboardCheck },
   { key: 'ranking', label: 'Ranking', icon: Trophy },
   { key: 'showcase', label: 'Vitrina', icon: Star },
+  { key: 'legal', label: 'Legal', icon: Scale },
   { key: 'alerts', label: 'Alertas', icon: BellRing },
   { key: 'contacts', label: 'Contactos', icon: Contact },
   { key: 'map', label: 'Mapa', icon: MapIcon },

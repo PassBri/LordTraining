@@ -13,6 +13,7 @@ import ProspectStats from './ProspectStats';
 import ScoutingAlerts from './ScoutingAlerts';
 import ScoutingContacts from './ScoutingContacts';
 import ScoutingMap from './ScoutingMap';
+import ScoutingLegal from './ScoutingLegal';
 import { SCOUTING_TABS as SCOUTING_TABS_SHARED } from '../lib/scoutingTabs';
 import {
   Target, Plus, Users, Trello, ClipboardCheck, Trophy, X, Trash2, Edit2, Sparkles,
@@ -165,6 +166,7 @@ export default function ScoutingModule({ activeTab, onTabChange } = {}) {
           {tab === 'evaluation' && <EvaluationTab prospects={prospects} onSaved={refreshOne} />}
           {tab === 'ranking' && <RankingTab dash={dash} prospects={prospects} compare={compare} setCompare={setCompare} onOpen={setDetail} />}
           {tab === 'showcase' && <ShowcaseManager prospects={prospects} onOpen={setDetail} />}
+          {tab === 'legal' && <ScoutingLegal prospects={prospects} />}
           {tab === 'alerts' && <ScoutingAlerts onOpen={openById} />}
           {tab === 'contacts' && <ScoutingContacts prospects={prospects} />}
           {tab === 'map' && <ScoutingMap onOpen={openById} />}
@@ -1115,7 +1117,7 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
 
         {/* Detail tabs */}
         <div className="flex items-center gap-2 px-5 pt-4">
-          {[['resumen', 'Resumen'], ['estadisticas', 'Estadísticas']].map(([k, l]) => (
+          {[['resumen', 'Resumen'], ['estadisticas', 'Estadísticas'], ['legal', 'Legal']].map(([k, l]) => (
             <button key={k} onClick={() => setDetailTab(k)} data-testid={`detail-tab-${k}`}
               className="px-3 py-1.5 rounded-full text-xs font-bold transition"
               style={detailTab === k ? { background: '#0f172a', color: '#CCFF00' } : { background: '#f1f5f9', color: '#64748b' }}>{l}</button>
@@ -1218,6 +1220,10 @@ function ProspectDetail({ prospect: p, teams, onClose, onChanged, onDeleted, onE
 
         {detailTab === 'estadisticas' && (
           <div className="p-5"><ProspectStats prospectId={p.id} sport={p.sport} onStatsChanged={() => onChanged(p.id)} /></div>
+        )}
+
+        {detailTab === 'legal' && (
+          <div className="p-5"><ScoutingLegal scopeProspectId={p.id} /></div>
         )}
 
         {/* Share dialog */}
