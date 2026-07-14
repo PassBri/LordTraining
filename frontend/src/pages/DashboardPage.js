@@ -4566,6 +4566,27 @@ const DashboardPage = () => {
               </button>
             </Link>
 
+            {/* Tutoriales (contextual por módulo) */}
+            <HelpTutorialButton category={resolveTutorialCategory(activePanel, activeDataSection, currentSection)} variant="topbar" />
+
+            {/* Coach AI FAB */}
+            <button
+              onClick={() => setIsCoachDrawerOpen(true)}
+              className="group flex flex-col items-center gap-1 shrink-0 outline-none"
+              data-testid="coach-ai-topbar-btn"
+              title="Coach AI"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-slate-900 text-white shadow-md border border-slate-900 hover:shadow-lg hover:bg-slate-800">
+                <Brain className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
+              </div>
+              <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-slate-700 transition-colors duration-300">
+                Coach AI
+              </span>
+            </button>
+
+            {/* Language Selector FAB */}
+            <LanguageSelector variant="light" compact fabStyle />
+
             {/* Cerrar sesión FAB */}
             <button
               onClick={handleLogout}
@@ -4579,9 +4600,6 @@ const DashboardPage = () => {
                 {t('dashboard.shell.fabLogout')}
               </span>
             </button>
-
-            {/* Language Selector FAB */}
-            <LanguageSelector variant="light" compact fabStyle />
           </div>
         </div>
       </div>
@@ -4598,8 +4616,10 @@ const DashboardPage = () => {
        </>
       ) : renderWhatsAppLayout()}
 
-      {/* ====== BOTÓN AYUDA / TUTORIALES (contextual por módulo, ambos modos) ====== */}
-      <HelpTutorialButton category={resolveTutorialCategory(activePanel, activeDataSection, currentSection)} />
+      {/* ====== BOTÓN AYUDA / TUTORIALES (solo Modo Pro; en Clásico va en la barra superior) ====== */}
+      {uiMode === 'whatsapp' && (
+        <HelpTutorialButton category={resolveTutorialCategory(activePanel, activeDataSection, currentSection)} />
+      )}
 
       {/* ====== SHEET DE PLANES (Modo Clásico, abierto desde botón superior) ====== */}
       <Sheet open={isPlansSheetOpen} onOpenChange={setIsPlansSheetOpen}>
@@ -4621,20 +4641,6 @@ const DashboardPage = () => {
           />
         </SheetContent>
       </Sheet>
-
-      {/* ====== COACH AI FLOATING BUTTON (oculto en modo Pro) ====== */}
-      {uiMode !== 'whatsapp' && (
-      <button
-        onClick={() => setIsCoachDrawerOpen(true)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-slate-900 hover:bg-slate-800 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
-        data-testid="coach-ai-fab"
-      >
-        <Brain className="w-6 h-6 group-hover:scale-110 transition-transform" />
-        <span className="absolute -top-10 right-0 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-          Coach AI
-        </span>
-      </button>
-      )}
 
       {/* ====== COACH AI DRAWER ====== */}
       {isCoachDrawerOpen && (

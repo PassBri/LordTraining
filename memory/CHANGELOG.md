@@ -454,3 +454,9 @@
 - Verificado backend con curl: upload+expiry, sync-expiry ("vence en 10 días"), PATCH limpia fecha, delete OK.
 - Landing Page: eliminados los "eyebrows" dorados que repetían el título en Scouting, Video Tutoriales, Pizarra Multi-Deporte, Funcionalidades, Audiencias, Cómo funciona, Confianza (testimonios) y Precios → ahora un solo título por sección. Reducido el padding vertical de secciones (py-14/16/20/24 → py-10/12/14) y márgenes internos → menos espacio en blanco. Verificado con screenshots.
 - ACCIÓN USUARIO: REDEPLOY para reflejar en Producción.
+
+## 2026-07-14 (c) — Barra superior del Dashboard + Panel resumen Legal
+- Barra superior (Modo Clásico) reordenada: Cambio de Modo, Avisos, Demo, Admin, Plan, Tutoriales, Coach AI, Idiomas, Salir. Los botones flotantes de Tutoriales y Coach AI se movieron a la barra (HelpTutorialButton ahora soporta variant="topbar"; el flotante de Tutoriales queda solo en Modo Pro; se eliminó el FAB flotante de Coach AI en Clásico).
+- Sección Legal (vista de módulo): nuevo panel resumen con 3 tarjetas (Documentos, Por vencer ≤30 días, Vencidos) + filtros por tipo de documento y por prospecto (incl. Repositorio general). Estado vacío diferenciado para filtros sin resultados.
+- Verificado con screenshots (barra + pestaña Legal renderizan correctamente).
+- ACCIÓN USUARIO: REDEPLOY para reflejar en Producción.

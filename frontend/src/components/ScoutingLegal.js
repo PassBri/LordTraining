@@ -56,6 +56,8 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
   const [targetProspect, setTargetProspect] = useState(scopeProspectId || 'general');
   const fileRef = useRef(null);
   const [file, setFile] = useState(null);
+  const [filterType, setFilterType] = useState('all');
+  const [filterProspect, setFilterProspect] = useState('all');
 
   const load = useCallback(() => {
     const q = scopeProspectId ? `?prospect_id=${scopeProspectId}` : '';
@@ -114,6 +116,15 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
 
   const compact = !!scopeProspectId;
 
+  const list = docs || [];
+  const expiringSoon = list.filter(d => { const s = expiryStatus(d.expiry_date); return s && s.days >= 0 && s.days <= 30; });
+  const expired = list.filter(d => { const s = expiryStatus(d.expiry_date); return s && s.days < 0; });
+  const visibleDocs = list.filter(d =>
+    (filterType === 'all' || d.doc_type === filterType) &&
+    (filterProspect === 'all'
+      || (filterProspect === 'general' ? !d.prospect_id : d.prospect_id === filterProspect))
+  );
+
   return (
     <div className={compact ? '' : 'space-y-5'} data-testid="scouting-legal">
       {!compact && (
@@ -125,6 +136,51 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
               <p className="text-[#CCFF00] text-sm font-medium">{tt('Contratos, transferencias y documentación oficial en PDF.')}</p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Resumen + filtros (solo vista de módulo) */}
+      {!compact && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" data-testid="legal-summary">
+          {[
+            { k: 'total', l: 'Documentos', v: list.length, c: '#0ea5e9', Icon: FileText },
+            { k: 'soon', l: 'Por vencer (≤30 días)', v: expiringSoon.length, c: '#f97316', Icon: CalendarClock },
+            { k: 'expired', l: 'Vencidos', v: expired.length, c: '#ef4444', Icon: CalendarClock },
+          ].map(({ k, l, v, c, Icon }) => (
+            <button key={k} type="button"
+              onClick={() => { if (k === 'total') { setFilterType('all'); } }}
+              className="text-left rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center gap-3" data-testid={`legal-summary-${k}`}>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: c + '18' }}><Icon className="w-5 h-5" style={{ color: c }} /></div>
+              <div>
+                <div className="text-2xl font-black text-slate-800 leading-none" data-testid={`legal-summary-${k}-value`}>{v}</div>
+                <div className="text-[11px] text-slate-400 font-semibold uppercase tracking-wide mt-0.5">{tt(l)}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {!compact && (
+        <div className="flex flex-wrap items-center gap-2" data-testid="legal-filters">
+          <span className="text-[12px] font-bold text-slate-500">{tt('Filtrar')}:</span>
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="h-8 w-auto min-w-[150px] bg-white text-[13px]" data-testid="legal-filter-type"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{tt('Todos los tipos')}</SelectItem>
+              {LEGAL_DOC_TYPES.map(([v, l]) => <SelectItem key={v} value={v}>{tt(l)}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={filterProspect} onValueChange={setFilterProspect}>
+            <SelectTrigger className="h-8 w-auto min-w-[160px] bg-white text-[13px]" data-testid="legal-filter-prospect"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{tt('Todos los prospectos')}</SelectItem>
+              <SelectItem value="general">{tt('Repositorio general')}</SelectItem>
+              {prospects.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          {(filterType !== 'all' || filterProspect !== 'all') && (
+            <button onClick={() => { setFilterType('all'); setFilterProspect('all'); }} className="text-[12px] font-bold text-slate-400 hover:text-slate-700 flex items-center gap-1" data-testid="legal-filter-clear"><X className="w-3.5 h-3.5" />{tt('Limpiar')}</button>
+          )}
         </div>
       )}
 
@@ -183,13 +239,13 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
       {/* List */}
       {docs === null ? (
         <div className="flex justify-center py-12"><Loader2 className="w-7 h-7 animate-spin text-slate-400" /></div>
-      ) : docs.length === 0 ? (
+      ) : visibleDocs.length === 0 ? (
         <div className="p-8 text-center text-slate-400 text-sm rounded-xl border border-dashed border-slate-200 bg-white" data-testid="legal-empty">
-          {tt('Aún no hay documentos legales. Sube el primero arriba.')}
+          {list.length === 0 ? tt('Aún no hay documentos legales. Sube el primero arriba.') : tt('Ningún documento coincide con el filtro.')}
         </div>
       ) : (
         <div className="space-y-2" data-testid="legal-list">
-          {docs.map(d => {
+          {visibleDocs.map(d => {
             const tm = typeMeta(d.doc_type);
             return (
               <div key={d.id} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3" data-testid={`legal-doc-${d.id}`}>

@@ -33,7 +33,7 @@ export const resolveTutorialCategory = (activePanel, activeDataSection, section)
   return 'general';
 };
 
-const HelpTutorialButton = ({ category = 'general' }) => {
+const HelpTutorialButton = ({ category = 'general', variant = 'fab' }) => {
   const [open, setOpen] = useState(false);
   const [videos, setVideos] = useState([]);
   const [catLabels, setCatLabels] = useState({});
@@ -70,6 +70,26 @@ const HelpTutorialButton = ({ category = 'general' }) => {
 
   return (
     <>
+      {variant === 'topbar' ? (
+        <button
+          onClick={() => setOpen(true)}
+          data-testid="help-tutorials-btn"
+          title="Ver tutoriales de esta sección"
+          className="group flex flex-col items-center gap-1 shrink-0 outline-none relative">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#0A0F1E] text-[#D4AF37] shadow-md border border-[#D4AF37]/40 hover:shadow-lg relative">
+            <GraduationCap className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
+            {unseenCount > 0 && (
+              <span data-testid="help-tutorials-badge"
+                className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-[#EF4444] text-white text-[9px] font-black flex items-center justify-center border-2 border-white animate-pulse">
+                {unseenCount}
+              </span>
+            )}
+          </div>
+          <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-[#D4AF37] transition-colors duration-300">
+            Tutoriales
+          </span>
+        </button>
+      ) : (
       <button
         onClick={() => setOpen(true)}
         data-testid="help-tutorials-btn"
@@ -86,6 +106,7 @@ const HelpTutorialButton = ({ category = 'general' }) => {
           </span>
         )}
       </button>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-[90] flex justify-end bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} data-testid="help-tutorials-drawer">
