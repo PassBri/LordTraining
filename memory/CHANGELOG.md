@@ -496,3 +496,8 @@
 - Hero: halo dorado más amplio/cálido + sombra de pedestal (keyframe pedestalShadow) para aterrizar el busto; busto un poco más grande (lg h-320); columna izquierda más compacta (gap-7→gap-5) para reducir espacio vacío.
 - Gráfico hero (Periodización ATR): datos de vol/int/den reajustados para contar la historia del macrociclo (volumen ↓ con descargas, intensidad ↑, pico y taper final).
 - Verificado con screenshot. ACCIÓN USUARIO: REDEPLOY para Producción.
+
+## 2026-07-14 (j) — Canchas reales (solo terreno) en la galería de la landing
+- Se reemplazaron los SVG con jugadores/jugadas y las tarjetas genéricas por plantillas de CANCHA REAL por tipo de deporte (solo líneas del terreno, sin jugadores ni flechas) → look profesional y uniforme.
+- Nuevos helpers en LandingPage: COURTS (13 plantillas: field, rugby, basket, volley, racket, combat, lane, target, diamond, track, pool, golf, climb), SPORT_TYPE (mapa deporte→tipo), courtFor() y SPORTS_LIST (32 deportes). Render único con courtFor(name), preserveAspectRatio meet + padding.
+- Verificado con screenshots (fútbol/baloncesto/voleibol/tenis/rugby/handball/futsal/pádel/bádminton/squash correctos). ACCIÓN USUARIO: REDEPLOY para Producción.
