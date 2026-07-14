@@ -590,10 +590,6 @@ const ScoutingSection = ({ t }) => {
             <div className="relative rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl" data-testid="scouting-image">
               <ScoutingMedia alt={t('landing.scouting.badge_title')} />
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent pointer-events-none" />
-              <div className="absolute top-4 right-4 bg-zinc-900/90 backdrop-blur-md border border-zinc-700/60 rounded-xl px-3 py-2 shadow-xl">
-                <div className="text-[18px] font-black text-[#D4AF37] leading-none" style={{fontFamily:BC}}>−42%</div>
-                <div className="text-[9px] text-zinc-400 mt-0.5">{t('landing.scouting.stat_label')}</div>
-              </div>
             </div>
           </Reveal>
 
