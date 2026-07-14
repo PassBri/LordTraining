@@ -114,12 +114,13 @@ export const LanguageSelector = ({ variant = 'light', compact = false, fabStyle 
           className="group flex flex-col items-center gap-1 shrink-0 outline-none"
           data-testid="language-selector-trigger"
         >
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+          <div className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
             open
-              ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/30'
-              : 'bg-white text-slate-500 shadow-md border border-slate-100 hover:shadow-lg'
+              ? 'bg-[#0A0F1E] shadow-lg shadow-black/30 ring-2 ring-teal-400'
+              : 'bg-[#0A0F1E] text-slate-400 shadow-sm border border-white/10 hover:bg-white/10'
           }`}>
-            <Globe className={`w-[18px] h-[18px] transition-transform duration-300 ${open ? 'text-white' : 'group-hover:text-teal-500'}`} strokeWidth={open ? 2.5 : 1.8} />
+            <Globe className={`w-[18px] h-[18px] transition-transform duration-300 ${open ? 'text-teal-400' : 'text-slate-400 group-hover:text-teal-400'}`} strokeWidth={open ? 2.5 : 1.8} />
+            {open && <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-teal-400 border-2 border-white" />}
           </div>
           <span className={`text-[8px] font-bold tracking-wide leading-tight text-center transition-colors duration-300 ${
             open ? 'text-teal-600' : 'text-slate-400 group-hover:text-teal-500'

@@ -460,3 +460,8 @@
 - Sección Legal (vista de módulo): nuevo panel resumen con 3 tarjetas (Documentos, Por vencer ≤30 días, Vencidos) + filtros por tipo de documento y por prospecto (incl. Repositorio general). Estado vacío diferenciado para filtros sin resultados.
 - Verificado con screenshots (barra + pestaña Legal renderizan correctamente).
 - ACCIÓN USUARIO: REDEPLOY para reflejar en Producción.
+
+## 2026-07-14 (d) — Barra Modo Clásico con acento oscuro uniforme + tarjetas Legal accionables
+- Modo Clásico: TODOS los botones de la barra (navegación izquierda + acciones derecha) ahora usan fondo oscuro uniforme (#0A0F1E) con ícono en color de acento. El botón activo se diferencia con anillo (ring-2) del color del módulo + punto de color arriba a la derecha. Afecta: Panel, Datos, Planes, Scouting, Reporte, Sesiones, secciones/sub-secciones de Datos, Avisos (NotificationsBell), Demo, Admin, Plan, Tutoriales, Coach AI, Idiomas (LanguageSelector fabStyle), Salir y ThemeToggle. El Modo Pro no se tocó.
+- Panel resumen Legal: las tarjetas "Por vencer (≤30 días)" y "Vencidos" ahora son clicables → filtran la lista al instante (toggle on/off) con resaltado (anillo del color). "Documentos" limpia el filtro de vencimiento. Nuevo filterExpiry integrado con los filtros de tipo/prospecto y botón Limpiar.
+- Verificado con screenshot (barra uniforme, activo con anillo/punto). ACCIÓN USUARIO: REDEPLOY para Producción.

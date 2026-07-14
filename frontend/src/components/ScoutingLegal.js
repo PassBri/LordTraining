@@ -58,6 +58,7 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
   const [file, setFile] = useState(null);
   const [filterType, setFilterType] = useState('all');
   const [filterProspect, setFilterProspect] = useState('all');
+  const [filterExpiry, setFilterExpiry] = useState('all');
 
   const load = useCallback(() => {
     const q = scopeProspectId ? `?prospect_id=${scopeProspectId}` : '';
@@ -122,7 +123,14 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
   const visibleDocs = list.filter(d =>
     (filterType === 'all' || d.doc_type === filterType) &&
     (filterProspect === 'all'
-      || (filterProspect === 'general' ? !d.prospect_id : d.prospect_id === filterProspect))
+      || (filterProspect === 'general' ? !d.prospect_id : d.prospect_id === filterProspect)) &&
+    (() => {
+      if (filterExpiry === 'all') return true;
+      const s = expiryStatus(d.expiry_date);
+      if (filterExpiry === 'soon') return s && s.days >= 0 && s.days <= 30;
+      if (filterExpiry === 'expired') return s && s.days < 0;
+      return true;
+    })()
   );
 
   return (
@@ -143,20 +151,25 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
       {!compact && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" data-testid="legal-summary">
           {[
-            { k: 'total', l: 'Documentos', v: list.length, c: '#0ea5e9', Icon: FileText },
-            { k: 'soon', l: 'Por vencer (≤30 días)', v: expiringSoon.length, c: '#f97316', Icon: CalendarClock },
-            { k: 'expired', l: 'Vencidos', v: expired.length, c: '#ef4444', Icon: CalendarClock },
-          ].map(({ k, l, v, c, Icon }) => (
+            { k: 'total', l: 'Documentos', v: list.length, c: '#0ea5e9', Icon: FileText, fe: 'all' },
+            { k: 'soon', l: 'Por vencer (≤30 días)', v: expiringSoon.length, c: '#f97316', Icon: CalendarClock, fe: 'soon' },
+            { k: 'expired', l: 'Vencidos', v: expired.length, c: '#ef4444', Icon: CalendarClock, fe: 'expired' },
+          ].map(({ k, l, v, c, Icon, fe }) => {
+            const active = filterExpiry === fe && fe !== 'all';
+            return (
             <button key={k} type="button"
-              onClick={() => { if (k === 'total') { setFilterType('all'); } }}
-              className="text-left rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center gap-3" data-testid={`legal-summary-${k}`}>
+              onClick={() => setFilterExpiry(prev => (prev === fe ? 'all' : fe))}
+              className={`text-left rounded-xl border bg-white px-4 py-3 flex items-center gap-3 transition-all ${active ? 'ring-2 shadow-md' : 'border-slate-200 hover:shadow-sm'}`}
+              style={active ? { borderColor: c, '--tw-ring-color': c } : undefined}
+              data-testid={`legal-summary-${k}`}>
               <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: c + '18' }}><Icon className="w-5 h-5" style={{ color: c }} /></div>
               <div>
                 <div className="text-2xl font-black text-slate-800 leading-none" data-testid={`legal-summary-${k}-value`}>{v}</div>
                 <div className="text-[11px] text-slate-400 font-semibold uppercase tracking-wide mt-0.5">{tt(l)}</div>
               </div>
             </button>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -178,8 +191,8 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
               {prospects.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
             </SelectContent>
           </Select>
-          {(filterType !== 'all' || filterProspect !== 'all') && (
-            <button onClick={() => { setFilterType('all'); setFilterProspect('all'); }} className="text-[12px] font-bold text-slate-400 hover:text-slate-700 flex items-center gap-1" data-testid="legal-filter-clear"><X className="w-3.5 h-3.5" />{tt('Limpiar')}</button>
+          {(filterType !== 'all' || filterProspect !== 'all' || filterExpiry !== 'all') && (
+            <button onClick={() => { setFilterType('all'); setFilterProspect('all'); setFilterExpiry('all'); }} className="text-[12px] font-bold text-slate-400 hover:text-slate-700 flex items-center gap-1" data-testid="legal-filter-clear"><X className="w-3.5 h-3.5" />{tt('Limpiar')}</button>
           )}
         </div>
       )}
