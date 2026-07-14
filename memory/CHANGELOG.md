@@ -437,3 +437,13 @@
 - Mejora conservada solo vía COLOR + Material Design (sin cambiar tamaño): activo = relleno color + shadow-lg + ring-2 ring-white/40 (halo, box-shadow sin impacto en layout); inactivo = blanco neutro + shadow-sm + hover:bg-slate-50 (state layer) + hover:shadow-md. Aplicado a los 3 grupos.
 - Verificado: barra compacta como antes, contenido inferior bien alineado, estados activos claros.
 - ACCIÓN USUARIO: REDEPLOY.
+
+## 2026-07-14 — Fixes UI (idioma/login/YouTube) + Sección Legal en Scouting
+- LanguageSelector: labels corregidos ("Español" con ñ, "Português", "Français"); dropdown oscuro → zinc-900, punto de idioma activo dorado (#D4AF37) en vez de azul.
+- AuthPage (Login): removidos overlays estadísticos del panel derecho (HUD Readiness/ACWR/Adherencia, header "Semana/Fase Live", bench bar y stats). Ahora solo se muestra la pizarra táctica rotando (6 deportes), campo agrandado (top/bottom 8%).
+- Landing ScoutingMedia: miniatura de YouTube ahora se deriva del ID (maxresdefault) con fallback en cadena maxres → hqdefault → imagen por defecto (onError).
+- NUEVA Sección Legal en Scouting (contratos/transferencias/PDFs):
+  - Backend recruiting.py: colección recruiting_legal_docs + endpoints POST/GET/DELETE /api/recruiting/legal-docs. PDFs en Object Storage (Emergent). Descarga vía /api/recruiting/files/{path}?auth=. Tipos: contrato, transferencia, cesion, autorizacion_menores, consentimiento_informado, certificado_medico, cesion_derechos_imagen, otros.
+  - Frontend ScoutingLegal.js (reutilizable, prop scopeProspectId): tab "Legal" a nivel módulo (repositorio general + por prospecto) y tab "Legal" dentro del detalle del prospecto (asociación fija).
+- Testing: backend validado con curl (upload/list/download/delete OK); frontend E2E testing_agent 100% (iteration_122.json).
+- ACCIÓN USUARIO: REDEPLOY para reflejar en Producción.
