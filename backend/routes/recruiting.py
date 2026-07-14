@@ -2080,6 +2080,7 @@ async def upload_legal_doc(
     prospect_id: Optional[str] = Form(None),
     doc_type: str = Form("otros"),
     title: str = Form(""),
+    expiry_date: Optional[str] = Form(None),
     user=Depends(get_current_user_dep()),
 ):
     uid = _uid(user)
@@ -2113,11 +2114,73 @@ async def upload_legal_doc(
         "title": (title or file.filename or "Documento").strip()[:160],
         "original_filename": file.filename, "storage_path": result["path"],
         "content_type": "application/pdf", "size": result.get("size", len(data)),
+        "expiry_date": (expiry_date or "").strip()[:10] or None,
         "is_deleted": False, "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await _legal_docs.insert_one(doc)
     doc.pop("_id", None)
     return doc
+
+
+class LegalDocPatch(BaseModel):
+    title: Optional[str] = None
+    doc_type: Optional[str] = None
+    expiry_date: Optional[str] = None
+
+
+@router.patch("/legal-docs/{doc_id}")
+async def update_legal_doc(doc_id: str, payload: LegalDocPatch, user=Depends(get_current_user_dep())):
+    uid = _uid(user)
+    upd = {}
+    if payload.title is not None:
+        upd["title"] = payload.title.strip()[:160]
+    if payload.doc_type is not None:
+        upd["doc_type"] = payload.doc_type if payload.doc_type in LEGAL_DOC_TYPES else "otros"
+    if payload.expiry_date is not None:
+        upd["expiry_date"] = (payload.expiry_date or "").strip()[:10] or None
+    if not upd:
+        raise HTTPException(400, "Nada para actualizar")
+    res = await _legal_docs.update_one({"id": doc_id, "coach_id": uid}, {"$set": upd})
+    if not res.matched_count:
+        raise HTTPException(404, "Documento no encontrado")
+    d = await _legal_docs.find_one({"id": doc_id, "coach_id": uid}, {"_id": 0})
+    return d
+
+
+@router.post("/legal/sync-expiry")
+async def legal_sync_expiry(user=Depends(get_current_user_dep())):
+    """Escanea documentos legales con vencimiento y crea notificaciones (≤30 días o vencidos)."""
+    uid = _uid(user)
+    from routes.notifications import create_notification
+    today = datetime.now(timezone.utc).date()
+    docs = await _legal_docs.find(
+        {"coach_id": uid, "is_deleted": False, "expiry_date": {"$nin": [None, ""]}},
+        {"_id": 0}).to_list(2000)
+    created = 0
+    for d in docs:
+        try:
+            exp = datetime.fromisoformat(str(d.get("expiry_date"))[:10]).date()
+        except Exception:
+            continue
+        days = (exp - today).days
+        if days > 30:
+            continue
+        name = d.get("title") or d.get("original_filename") or "Documento"
+        who = f" · {d.get('prospect_name')}" if d.get("prospect_name") else ""
+        if days < 0:
+            title, msg, bucket = "⚠️ Documento legal vencido", f"{name}{who} venció hace {abs(days)} día(s).", "expired"
+        elif days == 0:
+            title, msg, bucket = "⚠️ Documento legal vence hoy", f"{name}{who} vence hoy.", "today"
+        else:
+            title, msg, bucket = "⏳ Documento legal por vencer", f"{name}{who} vence en {days} día(s) ({exp.isoformat()}).", "soon"
+        n = await create_notification(
+            uid, "legal_expiry", title, msg, link="scouting:legal",
+            meta={"doc_id": d["id"], "prospect_id": d.get("prospect_id"),
+                  "expiry_date": exp.isoformat(), "days": days},
+            dedupe_key=f"legal:{d['id']}:{bucket}", dedupe_hours=20)
+        if n:
+            created += 1
+    return {"created": created}
 
 
 @router.get("/legal-docs")

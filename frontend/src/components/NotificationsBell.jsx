@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Bell, Mail, TrendingUp, Check, X, Inbox, Rocket, Award, AlertTriangle, List } from 'lucide-react';
+import { Bell, Mail, TrendingUp, Check, X, Inbox, Rocket, Award, AlertTriangle, List, CalendarClock } from 'lucide-react';
 import NotificationCenter from './NotificationCenter';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -10,6 +10,7 @@ const iconFor = (type) => ({
   showcase_lead: Mail,
   recruiting_promote: Rocket,
   recruiting_levelup: Award,
+  legal_expiry: CalendarClock,
   health_alert: AlertTriangle,
 }[type] || Bell);
 const styleFor = (type) => ({
@@ -17,6 +18,7 @@ const styleFor = (type) => ({
   showcase_lead: 'bg-blue-100 text-blue-600',
   recruiting_promote: 'bg-violet-100 text-violet-600',
   recruiting_levelup: 'bg-amber-100 text-amber-600',
+  legal_expiry: 'bg-orange-100 text-orange-600',
   health_alert: 'bg-rose-100 text-rose-600',
 }[type] || 'bg-slate-100 text-slate-600');
 
@@ -81,6 +83,7 @@ export default function NotificationsBell({ onNavigate, onOpenWeeklySummary }) {
     Promise.allSettled([
       fetch(`${API_URL}/api/recruiting/showcase/weekly-digest`, { method: 'POST', headers: authHeaders() }),
       fetch(`${API_URL}/api/recruiting/notify-digest`, { method: 'POST', headers: authHeaders() }),
+      fetch(`${API_URL}/api/recruiting/legal/sync-expiry`, { method: 'POST', headers: authHeaders() }),
       fetch(`${API_URL}/api/notifications/sync-health`, { method: 'POST', headers: authHeaders() }),
     ]).finally(load);
     const iv = setInterval(load, 60000);

@@ -447,3 +447,10 @@
   - Frontend ScoutingLegal.js (reutilizable, prop scopeProspectId): tab "Legal" a nivel módulo (repositorio general + por prospecto) y tab "Legal" dentro del detalle del prospecto (asociación fija).
 - Testing: backend validado con curl (upload/list/download/delete OK); frontend E2E testing_agent 100% (iteration_122.json).
 - ACCIÓN USUARIO: REDEPLOY para reflejar en Producción.
+
+## 2026-07-14 (b) — Alertas de vencimiento legal + limpieza de Landing
+- Legal: campo opcional "Fecha de vencimiento" en cada documento (upload + edición inline con PATCH /api/recruiting/legal-docs/{id}). Badge de estado en la lista (Vencido / Vence hoy / Vence en Nd).
+- Centro de Notificaciones: nuevo tipo "legal_expiry". Endpoint POST /api/recruiting/legal/sync-expiry escanea documentos con vencimiento ≤30 días o vencidos y crea notificaciones (dedupe 20h, link scouting:legal). Se dispara desde NotificationsBell junto a sync-health. Íconos/estilos añadidos en NotificationsBell.jsx y NotificationCenter.jsx (CalendarClock, naranja).
+- Verificado backend con curl: upload+expiry, sync-expiry ("vence en 10 días"), PATCH limpia fecha, delete OK.
+- Landing Page: eliminados los "eyebrows" dorados que repetían el título en Scouting, Video Tutoriales, Pizarra Multi-Deporte, Funcionalidades, Audiencias, Cómo funciona, Confianza (testimonios) y Precios → ahora un solo título por sección. Reducido el padding vertical de secciones (py-14/16/20/24 → py-10/12/14) y márgenes internos → menos espacio en blanco. Verificado con screenshots.
+- ACCIÓN USUARIO: REDEPLOY para reflejar en Producción.

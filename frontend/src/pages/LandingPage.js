@@ -377,12 +377,11 @@ const TestimonialsCarousel = ({ t }) => {
   }, [totalPages]);
 
   return (
-    <section className="pt-24 pb-10 px-6 bg-zinc-950 relative overflow-hidden" data-testid="testimonials-section">
+    <section className="pt-14 pb-10 px-6 bg-zinc-950 relative overflow-hidden" data-testid="testimonials-section">
       <div className="max-w-[1120px] mx-auto relative z-10">
         {/* Header with nav arrows */}
         <Reveal direction="up">
-          <SectionTag>{t('landing.social.tag')}</SectionTag>
-          <div className="flex items-end justify-between mb-10">
+          <div className="flex items-end justify-between mb-8">
             <div>
               <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-2" style={{fontFamily:INT}}>{t('landing.social.title')}</h2>
               <p className="text-[14px] text-zinc-400">{t('landing.social.subtitle')}</p>
@@ -559,17 +558,16 @@ const ScoutingSection = ({ t }) => {
   ];
 
   return (
-    <section id="scouting" className="py-14 px-6 bg-zinc-950 relative overflow-hidden" data-testid="scouting-section">
+    <section id="scouting" className="py-10 px-6 bg-zinc-950 relative overflow-hidden" data-testid="scouting-section">
       {/* ambient glow */}
       <div className="absolute top-1/3 -left-32 w-96 h-96 rounded-full bg-[#D4AF37]/[0.04] blur-3xl pointer-events-none" />
       <div className="max-w-[1120px] mx-auto relative z-10">
         {/* Header */}
-        <Reveal direction="up" className="text-center mb-12">
-          <SectionTag>{t('landing.scouting.tag')}</SectionTag>
+        <Reveal direction="up" className="text-center mb-8">
           <h2 className="text-[28px] md:text-[40px] font-bold text-white leading-[1.12] mb-3" style={{fontFamily:INT}} data-testid="scouting-title">
             {t('landing.scouting.title_1')} <span className="text-[#D4AF37]">{t('landing.scouting.title_2')}</span>
           </h2>
-          <p className="text-zinc-300 text-[15px] md:text-[17px] max-w-[640px] mx-auto mb-4">
+          <p className="text-zinc-300 text-[15px] md:text-[17px] max-w-[640px] mx-auto mb-3">
             {t('landing.scouting.subtitle')}
           </p>
           <p className="text-zinc-400 text-[13px] md:text-[14px] leading-[1.7] max-w-[720px] mx-auto">
@@ -578,7 +576,7 @@ const ScoutingSection = ({ t }) => {
         </Reveal>
 
         {/* Image + Benefits */}
-        <div className="grid lg:grid-cols-2 gap-8 items-center mb-14">
+        <div className="grid lg:grid-cols-2 gap-8 items-center mb-10">
           <Reveal direction="left">
             <div className="relative rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl" data-testid="scouting-image">
               <ScoutingMedia alt={t('landing.scouting.badge_title')} />
@@ -627,7 +625,7 @@ const ScoutingSection = ({ t }) => {
         <Reveal direction="up" className="mb-4 text-center">
           <h3 className="text-[20px] md:text-[24px] font-bold text-white" style={{fontFamily:INT}}>{t('landing.scouting.tools_title')}</h3>
         </Reveal>
-        <div className="relative mb-12" data-testid="scouting-tools">
+        <div className="relative mb-8" data-testid="scouting-tools">
           <button onClick={() => {const el=document.getElementById('tools-carousel'); if(el) el.scrollBy({left:-el.clientWidth*0.8,behavior:'smooth'});}} aria-label="Anterior" data-testid="tools-carousel-prev" className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-zinc-900 border border-zinc-700 text-white items-center justify-center hover:bg-[#D4AF37] hover:text-[#09090b] transition-colors shadow-lg"><ChevronLeft className="w-5 h-5"/></button>
           <button onClick={() => {const el=document.getElementById('tools-carousel'); if(el) el.scrollBy({left:el.clientWidth*0.8,behavior:'smooth'});}} aria-label="Siguiente" data-testid="tools-carousel-next" className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-zinc-900 border border-zinc-700 text-white items-center justify-center hover:bg-[#D4AF37] hover:text-[#09090b] transition-colors shadow-lg"><ChevronRight className="w-5 h-5"/></button>
           <div id="tools-carousel" className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-1 px-1" style={{scrollbarWidth:'none'}}>
@@ -698,11 +696,10 @@ const VideoTutorialsSection = ({ t }) => {
   if (!videos.length) return null;
 
   return (
-    <section id="tutoriales" className="py-14 px-6 bg-zinc-950 relative overflow-hidden" data-testid="video-tutorials-section">
+    <section id="tutoriales" className="py-10 px-6 bg-zinc-950 relative overflow-hidden" data-testid="video-tutorials-section">
       <div className="absolute top-1/4 -right-32 w-96 h-96 rounded-full bg-[#D4AF37]/[0.04] blur-3xl pointer-events-none" />
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-8">
-          <SectionTag>Video Tutoriales</SectionTag>
           <h2 className="text-[28px] md:text-[40px] font-bold text-white leading-[1.12] mb-3" style={{fontFamily:INT}} data-testid="video-tutorials-title">
             Aprende a usar <span className="text-[#D4AF37]">LordTraining</span>
           </h2>
@@ -1100,7 +1097,7 @@ const LandingPage = () => {
     </section>
 
     {/* MINIATURAS CANCHAS — Jugadas animadas estilo pizarrón */}
-    <section className="py-16 px-6 bg-zinc-950 relative overflow-hidden" data-testid="sport-courts-gallery">
+    <section className="py-10 px-6 bg-zinc-950 relative overflow-hidden" data-testid="sport-courts-gallery">
       <style>{`
         @keyframes sport-ball { 0%,15% { transform: translate(0,0); opacity:0 } 20%,80% { opacity:1 } 50% { transform: translate(var(--bx,15px), var(--by,-20px)) } 85%,100% { transform: translate(var(--bx2,30px), var(--by2,-30px)); opacity:0 } }
         @keyframes sport-player { 0%,20% { transform: translate(0,0) } 60%,100% { transform: translate(var(--px,10px), var(--py,-12px)) } }
@@ -1115,8 +1112,7 @@ const LandingPage = () => {
         .sport-card svg .anim-pulse { animation: sport-pulse 1.8s ease-in-out infinite }
       `}</style>
       <div className="max-w-[1120px] mx-auto relative z-10">
-        <Reveal direction="up" className="text-center mb-10">
-          <SectionTag>{t('landing.multisport.tag')}</SectionTag>
+        <Reveal direction="up" className="text-center mb-8">
           <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-3" style={{fontFamily:INT}}>{t('landing.multisport.title_pre')} <span className="text-[#D4AF37]">30+ {t('landing.multisport.sports_word')}</span></h2>
           <p className="text-zinc-400 text-[14px] max-w-[520px] mx-auto">{t('landing.multisport.subtitle')}</p>
         </Reveal>
@@ -1186,10 +1182,9 @@ const LandingPage = () => {
     </section>
 
     {/* FEATURES — Dark cards */}
-    <section id="features" className="py-14 px-6 bg-zinc-950 relative overflow-hidden">
+    <section id="features" className="py-10 px-6 bg-zinc-950 relative overflow-hidden">
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-8">
-          <SectionTag>{t('landing.features.tag')}</SectionTag>
           <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15]" style={{fontFamily:INT}}>{t('landing.features.title')}</h2>
         </Reveal>
 
@@ -1450,14 +1445,13 @@ const LandingPage = () => {
     </section>
 
     {/* AUDIENCES — Impact + Segments + Trust */}
-    <section id="audiences" className="py-20 px-6 bg-zinc-950 relative overflow-hidden">
+    <section id="audiences" className="py-12 px-6 bg-zinc-950 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(212,175,55,0.03)_0%,transparent_60%)]" />
       <div className="max-w-[1120px] mx-auto relative z-10">
         {/* Impact intro */}
-        <Reveal direction="up" className="mb-16">
+        <Reveal direction="up" className="mb-10">
           <div className="max-w-[720px] mx-auto text-center">
-            <SectionTag>{t('landing.audiences.tag')}</SectionTag>
-            <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-5" style={{fontFamily:INT}} data-testid="audiences-title">{t('landing.audiences.title')}</h2>
+            <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-4" style={{fontFamily:INT}} data-testid="audiences-title">{t('landing.audiences.title')}</h2>
             <p className="text-[15px] text-zinc-400 leading-[1.8]" data-testid="audiences-impact">{t('landing.audiences.impact')}</p>
           </div>
         </Reveal>
@@ -1531,11 +1525,10 @@ const LandingPage = () => {
     </section>
 
     {/* HOW IT WORKS — 6-phase timeline */}
-    <section id="how-it-works" className="py-16 px-6 bg-zinc-900 relative overflow-hidden">
+    <section id="how-it-works" className="py-12 px-6 bg-zinc-900 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(212,175,55,0.03)_0%,transparent_50%)]" />
       <div className="max-w-[1120px] mx-auto relative z-10">
         <Reveal direction="up" className="text-center mb-6">
-          <SectionTag>{t('landing.howItWorks.tag')}</SectionTag>
           <h2 className="text-[28px] md:text-[36px] font-bold text-white leading-[1.15] mb-3" style={{fontFamily:INT}}>{t('landing.howItWorks.title')}</h2>
           <p className="text-[15px] text-zinc-400 max-w-[600px] mx-auto leading-[1.7]">{t('landing.howItWorks.subtitle')}</p>
         </Reveal>
@@ -1581,14 +1574,13 @@ const LandingPage = () => {
     <TestimonialsCarousel t={t} />
 
     {/* PRICING — Premium Cards */}
-    <section id="pricing" className="py-24 px-6 relative overflow-hidden" style={{background:'#070a10'}}>
+    <section id="pricing" className="py-14 px-6 relative overflow-hidden" style={{background:'#070a10'}}>
       {/* Subtle grid texture */}
       <div className="absolute inset-0 pointer-events-none" style={{backgroundImage:'radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize:'24px 24px'}} />
 
       <div className="max-w-[1120px] mx-auto relative z-10">
         {/* Header */}
-        <Reveal direction="up" className="text-center mb-10">
-          <SectionTag>{t('landing.pricing.tag')}</SectionTag>
+        <Reveal direction="up" className="text-center mb-8">
           <h2 className="text-[36px] md:text-[48px] font-extrabold text-white leading-[1.05] tracking-[-1px] mb-4" style={{fontFamily:INT}}>{t('landing.pricing.title')}</h2>
           <p className="text-[15px] text-white/30 max-w-[440px] mx-auto">{t('landing.pricing.subtitle')}</p>
         </Reveal>

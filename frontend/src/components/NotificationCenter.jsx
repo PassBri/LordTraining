@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { Bell, Mail, TrendingUp, X, Inbox, Rocket, Award, AlertTriangle, Settings, Check, Trash2 } from 'lucide-react';
+import { Bell, Mail, TrendingUp, X, Inbox, Rocket, Award, AlertTriangle, Settings, Check, Trash2, CalendarClock } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { enablePush, disablePush, pushPermission, pushSupported } from '../lib/webpush';
 
@@ -12,6 +12,7 @@ const META = {
   showcase_weekly: { Icon: TrendingUp, cls: 'bg-emerald-100 text-emerald-600', label: 'Resumen' },
   recruiting_promote: { Icon: Rocket, cls: 'bg-violet-100 text-violet-600', label: 'Promover' },
   recruiting_levelup: { Icon: Award, cls: 'bg-amber-100 text-amber-600', label: 'Nivel' },
+  legal_expiry: { Icon: CalendarClock, cls: 'bg-orange-100 text-orange-600', label: 'Legal' },
   health_alert: { Icon: AlertTriangle, cls: 'bg-rose-100 text-rose-600', label: 'Salud' },
 };
 const metaFor = (t) => META[t] || { Icon: Bell, cls: 'bg-slate-100 text-slate-600', label: 'Otro' };

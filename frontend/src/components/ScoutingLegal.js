@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import i18nInstance from '../i18n';
 import { useTranslation } from 'react-i18next';
-import { Loader2, Plus, FileText, Trash2, Download, ExternalLink, Scale, UploadCloud, X } from 'lucide-react';
+import { Loader2, Plus, FileText, Trash2, Download, ExternalLink, Scale, UploadCloud, X, CalendarClock } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -31,6 +31,19 @@ export const LEGAL_DOC_TYPES = [
 const typeMeta = (t) => LEGAL_DOC_TYPES.find(x => x[0] === t) || LEGAL_DOC_TYPES[7];
 const fmtSize = (b) => !b ? '' : b < 1024*1024 ? `${Math.round(b/1024)} KB` : `${(b/1048576).toFixed(1)} MB`;
 
+// Estado de vencimiento a partir de expiry_date (YYYY-MM-DD)
+const expiryStatus = (iso) => {
+  if (!iso) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const exp = new Date(`${String(iso).slice(0,10)}T00:00:00`);
+  if (isNaN(exp)) return null;
+  const days = Math.round((exp - today) / 86400000);
+  if (days < 0) return { days, label: `Vencido hace ${Math.abs(days)}d`, cls: 'bg-red-100 text-red-700 border-red-200' };
+  if (days === 0) return { days, label: 'Vence hoy', cls: 'bg-red-100 text-red-700 border-red-200' };
+  if (days <= 30) return { days, label: `Vence en ${days}d`, cls: 'bg-orange-100 text-orange-700 border-orange-200' };
+  return { days, label: `${exp.toLocaleDateString()}`, cls: 'bg-slate-100 text-slate-500 border-slate-200' };
+};
+
 const fileUrl = (path) => `${API_URL}/api/recruiting/files/${path}?auth=${token()}`;
 
 export default function ScoutingLegal({ prospects = [], scopeProspectId = null }) {
@@ -39,6 +52,7 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
   const [uploading, setUploading] = useState(false);
   const [docType, setDocType] = useState('contrato');
   const [title, setTitle] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
   const [targetProspect, setTargetProspect] = useState(scopeProspectId || 'general');
   const fileRef = useRef(null);
   const [file, setFile] = useState(null);
@@ -60,11 +74,12 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
       fd.append('file', file);
       fd.append('doc_type', docType);
       fd.append('title', title || file.name.replace(/\.pdf$/i, ''));
+      if (expiryDate) fd.append('expiry_date', expiryDate);
       const pid = scopeProspectId || (targetProspect === 'general' ? '' : targetProspect);
       if (pid) fd.append('prospect_id', pid);
       await api('/legal-docs', { method: 'POST', body: fd, raw: true });
       toast.success(tt('Documento subido'));
-      setFile(null); setTitle(''); if (fileRef.current) fileRef.current.value = '';
+      setFile(null); setTitle(''); setExpiryDate(''); if (fileRef.current) fileRef.current.value = '';
       load();
     } catch (e) {
       toast.error(tt('No se pudo subir el documento'));
@@ -76,6 +91,12 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
     if (!window.confirm(tt('¿Eliminar este documento legal?'))) return;
     try { await api(`/legal-docs/${id}`, { method: 'DELETE' }); toast.success(tt('Documento eliminado')); load(); }
     catch { toast.error(tt('Error')); }
+  };
+
+  const setExpiry = async (id, value) => {
+    setDocs(prev => prev.map(x => x.id === id ? { ...x, expiry_date: value || null } : x));
+    try { await api(`/legal-docs/${id}`, { method: 'PATCH', body: { expiry_date: value || '' } }); }
+    catch { toast.error(tt('Error')); load(); }
   };
 
   const download = async (d) => {
@@ -140,6 +161,12 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
             <Input value={title} onChange={e => setTitle(e.target.value)} maxLength={160}
               placeholder={tt('Ej. Contrato temporada 2026')} className="mt-1 bg-slate-50 h-9 text-[13px]" data-testid="legal-title-input" />
           </div>
+          <div className={compact ? '' : 'sm:col-span-2'}>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1"><CalendarClock className="w-3.5 h-3.5" />{tt('Fecha de vencimiento (opcional)')}</label>
+            <Input type="date" value={expiryDate} onChange={e => setExpiryDate(e.target.value)}
+              className="mt-1 bg-slate-50 h-9 text-[13px]" data-testid="legal-expiry-input" />
+            <p className="text-[10px] text-slate-400 mt-1">{tt('Recibirás una alerta en el Centro de Notificaciones cuando falten 30 días o menos.')}</p>
+          </div>
         </div>
         <div className="flex items-center gap-2 mt-3">
           <input ref={fileRef} type="file" accept="application/pdf,.pdf" className="hidden"
@@ -178,13 +205,19 @@ export default function ScoutingLegal({ prospects = [], scopeProspectId = null }
                       : <span className="text-slate-400">· {tt('General')}</span>)}
                     {d.size ? <span>· {fmtSize(d.size)}</span> : null}
                     {d.created_at ? <span>· {new Date(d.created_at).toLocaleDateString()}</span> : null}
+                    {(() => { const st = expiryStatus(d.expiry_date); return st ? <span className={`font-bold px-1.5 py-0.5 rounded border ${st.cls}`} data-testid={`legal-expiry-badge-${d.id}`}>{st.label}</span> : null; })()}
                   </div>
                 </div>
-                <a href={fileUrl(d.storage_path)} target="_blank" rel="noreferrer" data-testid={`legal-view-${d.id}`}>
-                  <Button size="sm" variant="outline" className="border-slate-300 px-2.5 h-8"><ExternalLink className="w-4 h-4" /></Button>
-                </a>
-                <Button size="sm" variant="outline" onClick={() => download(d)} className="border-slate-300 px-2.5 h-8" data-testid={`legal-download-${d.id}`}><Download className="w-4 h-4" /></Button>
-                <Button size="sm" variant="outline" onClick={() => del(d.id)} className="border-red-200 text-red-500 px-2.5 h-8" data-testid={`legal-del-${d.id}`}><Trash2 className="w-4 h-4" /></Button>
+                <div className="flex items-center gap-1 shrink-0">
+                  <input type="date" value={(d.expiry_date || '').slice(0,10)} onChange={e => setExpiry(d.id, e.target.value)}
+                    title={tt('Fecha de vencimiento')} data-testid={`legal-expiry-edit-${d.id}`}
+                    className="h-8 rounded-md border border-slate-200 bg-slate-50 px-2 text-[12px] text-slate-600 hidden md:block" />
+                  <a href={fileUrl(d.storage_path)} target="_blank" rel="noreferrer" data-testid={`legal-view-${d.id}`}>
+                    <Button size="sm" variant="outline" className="border-slate-300 px-2.5 h-8"><ExternalLink className="w-4 h-4" /></Button>
+                  </a>
+                  <Button size="sm" variant="outline" onClick={() => download(d)} className="border-slate-300 px-2.5 h-8" data-testid={`legal-download-${d.id}`}><Download className="w-4 h-4" /></Button>
+                  <Button size="sm" variant="outline" onClick={() => del(d.id)} className="border-red-200 text-red-500 px-2.5 h-8" data-testid={`legal-del-${d.id}`}><Trash2 className="w-4 h-4" /></Button>
+                </div>
               </div>
             );
           })}

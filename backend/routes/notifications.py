@@ -26,6 +26,7 @@ NOTIF_TYPES = {
     "showcase_weekly": "Vitrina · Resumen semanal",
     "recruiting_promote": "Reclutamiento · Listos para promover",
     "recruiting_levelup": "Reclutamiento · Subidas de nivel",
+    "legal_expiry": "Legal · Vencimiento de contratos/documentos",
     "health_alert": "Salud · Alertas ACWR y disponibilidad",
 }
 
