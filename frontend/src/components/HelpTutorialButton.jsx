@@ -92,7 +92,7 @@ const HelpTutorialButton = ({ category = 'general', variant = 'fab', collapsed =
           data-testid="help-tutorials-btn"
           title="Ver tutoriales de esta sección"
           className="group flex flex-col items-center gap-1 shrink-0 outline-none relative">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#0A0F1E] text-[#D4AF37] shadow-md border border-[#D4AF37]/40 hover:shadow-lg relative">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#252E3E] text-[#D4AF37] shadow-md border border-[#D4AF37]/40 hover:shadow-lg relative">
             <GraduationCap className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
             {unseenCount > 0 && (
               <span data-testid="help-tutorials-badge"

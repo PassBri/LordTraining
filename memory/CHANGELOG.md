@@ -480,3 +480,7 @@
 - Modo Pro (WhatsAppShell): el botón de Tutoriales se movió del flotante inferior al sidebar (sección HERRAMIENTAS), pasando tutorialCategory vía ctx. Se eliminó el botón flotante en Modo Pro.
 - Verificado con screenshot: aparece en el sidebar y abre el drawer (portal) sobre toda la pantalla.
 - ACCIÓN USUARIO: REDEPLOY para Producción.
+
+## 2026-07-14 (g) — Suavizado del contraste de botones de la barra
+- El relleno de los botones de la barra (Modo Clásico) pasó de negro puro (#0A0F1E) a un slate oscuro más suave (#252E3E) para reducir el contraste duro sobre el header blanco, manteniendo el look uniforme y el estado activo con anillo/punto. Aplicado también en NotificationsBell, ThemeToggle, LanguageSelector (fabStyle) y HelpTutorialButton (topbar).
+- Verificado con screenshot. ACCIÓN USUARIO: REDEPLOY para Producción.

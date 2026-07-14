@@ -118,7 +118,7 @@ export default function NotificationsBell({ onNavigate, onOpenWeeklySummary }) {
     <div className="relative">
       <button onClick={() => setOpen(o => !o)} data-testid="notifications-bell"
         className="group flex flex-col items-center gap-1 shrink-0 outline-none relative">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#0A0F1E] shadow-sm border hover:bg-white/10 hover:text-[#38A0FF] ${pulse ? 'text-[#38A0FF] border-[#38A0FF] animate-bounce' : 'text-slate-400 border-white/10'}`}>
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#252E3E] shadow-sm border hover:bg-white/10 hover:text-[#38A0FF] ${pulse ? 'text-[#38A0FF] border-[#38A0FF] animate-bounce' : 'text-slate-400 border-white/10'}`}>
           <Bell className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
           {unread > 0 && (
             <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] px-1 rounded-full bg-[#007AFF] border-2 border-white flex items-center justify-center text-[9px] font-bold text-white" data-testid="notifications-count-badge">

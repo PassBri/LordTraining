@@ -4301,8 +4301,8 @@ const DashboardPage = () => {
                   >
                     <div className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                       isActive
-                        ? `bg-[#0A0F1E] shadow-lg shadow-black/30 ring-2 ${nav.ring}`
-                        : 'bg-[#0A0F1E] shadow-sm border border-white/10 hover:bg-white/10'
+                        ? `bg-[#252E3E] shadow-lg shadow-black/30 ring-2 ${nav.ring}`
+                        : 'bg-[#252E3E] shadow-sm border border-white/10 hover:bg-white/10'
                     }`}>
                       <NavIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? nav.accent : 'text-slate-400 group-hover:text-white'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                       {isActive && <span className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ${nav.dot} border-2 border-white`} />}
@@ -4323,7 +4323,7 @@ const DashboardPage = () => {
                 data-testid="tab-planes"
                 title={t('data.planes_de_entrenamiento', { defaultValue: 'Planes de Entrenamiento' })}
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#0A0F1E] text-slate-400 shadow-sm border border-white/10 hover:bg-white/10 hover:text-white">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#252E3E] text-slate-400 shadow-sm border border-white/10 hover:bg-white/10 hover:text-white">
                   <ListChecks className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={1.8} />
                 </div>
                 <span className="text-[8px] tracking-wide leading-tight text-center max-w-[56px] transition-colors duration-300 text-slate-400 font-medium group-hover:text-slate-600">
@@ -4341,7 +4341,7 @@ const DashboardPage = () => {
                     data-testid="tab-scouting"
                     title={t('data.recruiting_talent_id_identifica_el_talento')}
                   >
-                    <div className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${scoutActive ? 'bg-[#0A0F1E] shadow-lg shadow-black/30 ring-2 ring-[#CCFF00]' : 'bg-[#0A0F1E] shadow-sm border border-white/10 hover:bg-white/10'}`}>
+                    <div className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${scoutActive ? 'bg-[#252E3E] shadow-lg shadow-black/30 ring-2 ring-[#CCFF00]' : 'bg-[#252E3E] shadow-sm border border-white/10 hover:bg-white/10'}`}>
                       <Target className="w-[18px] h-[18px] transition-transform duration-300 text-[#CCFF00]" strokeWidth={scoutActive ? 2.5 : 2} />
                       {scoutActive && <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#CCFF00] border-2 border-white" />}
                     </div>
@@ -4359,7 +4359,7 @@ const DashboardPage = () => {
                 data-testid="header-master-report-btn"
                 title={t('data.reporte_maestro_5_estilos_seleccion_de_sec')}
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#0A0F1E] text-[#CCFF00] shadow-sm border border-white/10 hover:bg-white/10">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#252E3E] text-[#CCFF00] shadow-sm border border-white/10 hover:bg-white/10">
                   <FileBarChart2 className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
                 </div>
                 <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-500 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
@@ -4380,7 +4380,7 @@ const DashboardPage = () => {
                 data-testid="header-sessions-export-btn"
                 title={t('data.exportar_sesiones_especificas_a_pdf_combin')}
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#0A0F1E] text-sky-400 shadow-sm border border-white/10 hover:bg-white/10">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#252E3E] text-sky-400 shadow-sm border border-white/10 hover:bg-white/10">
                   <CalendarDays className="w-[18px] h-[18px] transition-transform duration-300" strokeWidth={2} />
                 </div>
                 <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-500 group-hover:text-slate-900 transition-colors duration-300 max-w-[60px]">
@@ -4414,8 +4414,8 @@ const DashboardPage = () => {
                     >
                       <div className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                         isActive
-                          ? `bg-[#0A0F1E] shadow-lg shadow-black/30 ring-2 ${colors.border.replace('border-', 'ring-')}`
-                          : `bg-[#0A0F1E] text-slate-400 border border-white/10 shadow-sm hover:bg-white/10`
+                          ? `bg-[#252E3E] shadow-lg shadow-black/30 ring-2 ${colors.border.replace('border-', 'ring-')}`
+                          : `bg-[#252E3E] text-slate-400 border border-white/10 shadow-sm hover:bg-white/10`
                       }`}>
                         <SectionIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? colors.text : 'text-slate-400 group-hover:text-white'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                         {isActive && <span className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ${colors.bg} border-2 border-white`} />}
@@ -4447,8 +4447,8 @@ const DashboardPage = () => {
                         >
                           <div className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
                             isActive
-                              ? `bg-[#0A0F1E] shadow-lg shadow-black/30 ring-2 ${currentColors.border.replace('border-', 'ring-')}`
-                              : `bg-[#0A0F1E] text-slate-400 border border-white/10 shadow-sm hover:bg-white/10`
+                              ? `bg-[#252E3E] shadow-lg shadow-black/30 ring-2 ${currentColors.border.replace('border-', 'ring-')}`
+                              : `bg-[#252E3E] text-slate-400 border border-white/10 shadow-sm hover:bg-white/10`
                           }`}>
                             <ItemIcon className={`w-[18px] h-[18px] transition-transform duration-300 ${isActive ? currentColors.text : 'text-slate-400 group-hover:text-white'}`} strokeWidth={isActive ? 2.5 : 1.8} />
                             {isActive && <span className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ${currentColors.bg} border-2 border-white`} />}
@@ -4489,7 +4489,7 @@ const DashboardPage = () => {
                 data-testid="demo-data-fab"
                 title={t('data.cargar_o_quitar_datos_de_ejemplo')}
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#0A0F1E] text-[#CCFF00] shadow-sm border border-white/10 hover:bg-white/10">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#252E3E] text-[#CCFF00] shadow-sm border border-white/10 hover:bg-white/10">
                   <Sparkles className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
                 </div>
                 <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-500 group-hover:text-slate-700 transition-colors duration-300">
@@ -4531,7 +4531,7 @@ const DashboardPage = () => {
                 data-testid="org-team-btn"
                 title={user?.is_super_admin ? 'Panel Super Admin' : (canManageOrg ? 'Gestionar equipo de entrenadores' : 'Disponible en plan Club / Institucional')}
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out shadow-sm border border-white/10 bg-[#0A0F1E] ${
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out shadow-sm border border-white/10 bg-[#252E3E] ${
                   user?.is_super_admin
                     ? 'text-purple-300 hover:bg-white/10'
                     : canManageOrg
@@ -4562,7 +4562,7 @@ const DashboardPage = () => {
                 className="group flex flex-col items-center gap-1 shrink-0 outline-none"
                 data-testid="subscription-btn"
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#0A0F1E] text-slate-400 shadow-sm border border-white/10 hover:bg-white/10 hover:text-violet-400">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#252E3E] text-slate-400 shadow-sm border border-white/10 hover:bg-white/10 hover:text-violet-400">
                   <CreditCard className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-violet-400" strokeWidth={1.8} />
                 </div>
                 <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-violet-600 transition-colors duration-300">
@@ -4581,7 +4581,7 @@ const DashboardPage = () => {
               data-testid="coach-ai-topbar-btn"
               title="Coach AI"
             >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#0A0F1E] text-white shadow-sm border border-white/10 hover:bg-white/10">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#252E3E] text-white shadow-sm border border-white/10 hover:bg-white/10">
                 <Brain className="w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110" strokeWidth={1.8} />
               </div>
               <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-slate-700 transition-colors duration-300">
@@ -4598,7 +4598,7 @@ const DashboardPage = () => {
               className="group flex flex-col items-center gap-1 shrink-0 outline-none"
               data-testid="logout-btn"
             >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#0A0F1E] text-slate-400 shadow-sm border border-white/10 hover:bg-white/10 hover:text-red-400">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out bg-[#252E3E] text-slate-400 shadow-sm border border-white/10 hover:bg-white/10 hover:text-red-400">
                 <LogOut className="w-[18px] h-[18px] transition-transform duration-300 group-hover:text-red-400" strokeWidth={1.8} />
               </div>
               <span className="text-[8px] font-bold tracking-wide leading-tight text-center text-slate-400 group-hover:text-red-500 transition-colors duration-300">

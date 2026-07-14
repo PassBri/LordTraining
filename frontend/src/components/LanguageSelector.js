@@ -116,8 +116,8 @@ export const LanguageSelector = ({ variant = 'light', compact = false, fabStyle 
         >
           <div className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
             open
-              ? 'bg-[#0A0F1E] shadow-lg shadow-black/30 ring-2 ring-teal-400'
-              : 'bg-[#0A0F1E] text-slate-400 shadow-sm border border-white/10 hover:bg-white/10'
+              ? 'bg-[#252E3E] shadow-lg shadow-black/30 ring-2 ring-teal-400'
+              : 'bg-[#252E3E] text-slate-400 shadow-sm border border-white/10 hover:bg-white/10'
           }`}>
             <Globe className={`w-[18px] h-[18px] transition-transform duration-300 ${open ? 'text-teal-400' : 'text-slate-400 group-hover:text-teal-400'}`} strokeWidth={open ? 2.5 : 1.8} />
             {open && <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-teal-400 border-2 border-white" />}
