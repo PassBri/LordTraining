@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -106,6 +106,35 @@ const DashboardPage = () => {
   const [proSidebarCollapsed, setProSidebarCollapsed] = useState(false);
   const [proSearch, setProSearch] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // ── Arrastre horizontal (click-sostenido) de la barra superior de FABs ──
+  const contextBarRef = useRef(null);
+  const barDrag = useRef({ down: false, startX: 0, scrollLeft: 0, moved: false });
+  const onBarMouseDown = (e) => {
+    const el = contextBarRef.current;
+    if (!el || e.button !== 0) return;
+    barDrag.current = { down: true, startX: e.pageX, scrollLeft: el.scrollLeft, moved: false };
+    el.classList.add('grabbing');
+    const onMove = (ev) => {
+      const s = barDrag.current;
+      if (!s.down) return;
+      const dx = ev.pageX - s.startX;
+      if (Math.abs(dx) > 4) s.moved = true;
+      el.scrollLeft = s.scrollLeft - dx;
+    };
+    const onUp = () => {
+      barDrag.current.down = false;
+      el.classList.remove('grabbing');
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+  const onBarClickCapture = (e) => {
+    if (barDrag.current.moved) { e.preventDefault(); e.stopPropagation(); barDrag.current.moved = false; }
+  };
+
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [updatingProfile, setUpdatingProfile] = useState(false);
   
@@ -4273,7 +4302,9 @@ const DashboardPage = () => {
        <>
       {/* ====== GLOBAL CONTEXT BAR - Material Floating FABs ====== */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl shadow-sm" data-testid="global-context-bar">
-        <div className="flex items-start px-3 pt-2.5 pb-1.5 gap-0 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div ref={contextBarRef} onMouseDown={onBarMouseDown} onClickCapture={onBarClickCapture}
+          className="flex items-start px-3 pt-2.5 pb-1.5 gap-0 overflow-x-auto scrollbar-hide select-none cursor-grab [&.grabbing]:cursor-grabbing"
+          style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Left: Logo + Main Nav FABs */}
           <div className="flex items-start gap-3 shrink-0 pr-2">
             {/* Logo */}

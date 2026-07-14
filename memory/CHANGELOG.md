@@ -501,3 +501,9 @@
 - Se reemplazaron los SVG con jugadores/jugadas y las tarjetas genéricas por plantillas de CANCHA REAL por tipo de deporte (solo líneas del terreno, sin jugadores ni flechas) → look profesional y uniforme.
 - Nuevos helpers en LandingPage: COURTS (13 plantillas: field, rugby, basket, volley, racket, combat, lane, target, diamond, track, pool, golf, climb), SPORT_TYPE (mapa deporte→tipo), courtFor() y SPORTS_LIST (32 deportes). Render único con courtFor(name), preserveAspectRatio meet + padding.
 - Verificado con screenshots (fútbol/baloncesto/voleibol/tenis/rugby/handball/futsal/pádel/bádminton/squash correctos). ACCIÓN USUARIO: REDEPLOY para Producción.
+
+## 2026-07-14 (k) — Barra superior arrastrable + fix cancha baloncesto
+- Barra superior del Dashboard (Modo Clásico): ahora se puede desplazar con clic sostenido y arrastre (drag-to-scroll) además del scroll nativo, con la barra de scroll oculta (scrollbar-hide) y cursor grab/grabbing. Implementado con contextBarRef + handlers de mouse (window listeners) y supresión de click tras arrastrar. Añadido useRef al import de React en DashboardPage.
+- Cancha de Baloncesto (COURTS.basket en LandingPage): corregida la línea de 3 puntos (antes arcos incorrectos) por la geometría real (segmentos rectos desde línea de fondo + arco "bomba"), más zona pintada, círculos de tiro libre arriba/abajo, aro y tablero. Verificado con screenshot.
+- Nota: el drag-to-scroll no se pudo reproducir con la herramienta de screenshot (fuerza viewport 1920px sin desbordar), pero el patrón es estándar y funcionará en pantallas reales pequeñas.
+- ACCIÓN USUARIO: REDEPLOY para Producción.
