@@ -52,6 +52,15 @@ const Reveal = ({ children, delay = 0, direction = 'up', className = '', ...prop
   );
 };
 
+/* ═══ TABLERO VERDE — limpia el SVG de cancha: quita fondo/gradiente, animaciones y deja solo líneas de tiza ═══ */
+const chalkCourt = (svg) => (svg || '')
+  .replace(/<defs>[\s\S]*?<\/defs>/g, '')
+  .replace(/<rect\s+width="100"\s+height="140"[^>]*\/>/, '')
+  .replace(/\sclass="anim-[a-z]+"/g, '');
+const GENERIC_COURT = `<rect x="6" y="6" width="88" height="128" fill="none" stroke="#eafff2" stroke-width="0.8" opacity="0.8"/><line x1="6" y1="70" x2="94" y2="70" stroke="#eafff2" stroke-width="0.8" opacity="0.8"/><circle cx="50" cy="70" r="11" fill="none" stroke="#eafff2" stroke-width="0.8" opacity="0.8"/><circle cx="50" cy="70" r="1" fill="#eafff2"/><rect x="30" y="6" width="40" height="14" fill="none" stroke="#eafff2" stroke-width="0.8" opacity="0.8"/><rect x="30" y="120" width="40" height="14" fill="none" stroke="#eafff2" stroke-width="0.8" opacity="0.8"/>`;
+const BOARD_BG = 'repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 26px), repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 26px), linear-gradient(160deg, #12543a 0%, #0d3f2b 55%, #082a1d 100%)';
+
+
 /* ═══ SECTION TAG — Material Design ═══ */
 const SectionTag = ({ children, center = true }) => (
   <div className={`flex items-center gap-3 mb-4 ${center ? 'justify-center' : ''}`}>
@@ -1094,8 +1103,8 @@ const LandingPage = () => {
         @keyframes sport-arrow { 0%,30% { stroke-dashoffset: 100 } 70%,100% { stroke-dashoffset: 0 } }
         @keyframes sport-pulse { 0%,100% { opacity:0.6 } 50% { opacity:1 } }
         .sport-card { will-change: transform }
-        .sport-card svg { filter: grayscale(1) brightness(0.6) contrast(1.08) sepia(0.28) hue-rotate(178deg) saturate(0.5); transition: filter 0.3s ease; }
-        .sport-card:hover svg { filter: grayscale(1) brightness(0.74) contrast(1.08) sepia(0.28) hue-rotate(178deg) saturate(0.5); }
+        .sport-card svg { transition: filter 0.3s ease; }
+        .sport-card:hover svg { filter: brightness(1.12); }
         .sport-card svg .anim-ball { animation: sport-ball 4s ease-in-out infinite }
         .sport-card svg .anim-player { animation: sport-player 4s ease-in-out infinite }
         .sport-card svg .anim-arrow { stroke-dasharray:100; animation: sport-arrow 4s ease-in-out infinite }
@@ -1123,14 +1132,10 @@ const LandingPage = () => {
             {name:'Rugby', svg:`<defs><linearGradient id="gradRgb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C3C9D4"/><stop offset="100%" stop-color="#14532d"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradRgb)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="22" x2="97" y2="22"/><line x1="3" y1="118" x2="97" y2="118"/><line x1="3" y1="70" x2="97" y2="70" stroke-dasharray="3 2"/><line x1="3" y1="35" x2="97" y2="35" stroke-dasharray="1 2"/><line x1="3" y1="105" x2="97" y2="105" stroke-dasharray="1 2"/></g><ellipse cx="50" cy="70" rx="4.5" ry="7" fill="#78350f" stroke="#fff" stroke-width="0.6" transform="rotate(15 50 70)"/><line class="anim-arrow" x1="30" y1="55" x2="70" y2="85" stroke="#D4AF37" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="3 2"/><circle cx="30" cy="55" r="3.2" fill="#C6864E" stroke="#fff" stroke-width="0.6"/><circle cx="70" cy="85" r="3.2" fill="#8FCFE6" stroke="#fff" stroke-width="0.6"/>`},
             {name:'Hockey', svg:`<defs><linearGradient id="gradHck" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8FCFE6"/><stop offset="100%" stop-color="#8FCFE6"/></linearGradient></defs><rect width="100" height="140" fill="url(#gradHck)"/><g fill="none" stroke="#fff" stroke-width="0.7"><rect x="3" y="3" width="94" height="134"/><line x1="3" y1="70" x2="97" y2="70"/><circle cx="50" cy="70" r="7"/><rect x="30" y="3" width="40" height="12"/><rect x="30" y="125" width="40" height="12"/></g><circle cx="50" cy="70" r="0.8" fill="#fff"/><circle cx="42" cy="55" r="3.2" fill="#C6864E" stroke="#fff" stroke-width="0.6"/><path d="M 40,53 L 36,45" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/><circle cx="62" cy="90" r="3.2" fill="#D4AF37" stroke="#fff" stroke-width="0.6"/><path d="M 60,88 L 64,80" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/><line class="anim-arrow" x1="42" y1="55" x2="62" y2="85" stroke="#D4AF37" stroke-width="1.2" stroke-dasharray="2 2"/><circle cx="42" cy="55" r="1.4" fill="#0a0a0a" class="anim-ball" style="--bx:20px;--by:30px;--bx2:20px;--by2:32px"/>`},
           ].map((sport, i) => (
-            <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="sport-card group relative shrink-0 snap-start w-[180px] sm:w-[200px] md:w-[220px] rounded-2xl overflow-hidden border border-zinc-800 hover:border-[#D4AF37]/60 transition-all hover:scale-[1.04] hover:shadow-[0_14px_32px_-6px_rgba(212,175,55,0.28)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
-              <div className="aspect-[3/4] relative">
-                <svg viewBox="0 0 100 140" className="w-full h-full block" preserveAspectRatio="xMidYMid slice" dangerouslySetInnerHTML={{__html: sport.svg}} />
-                <div className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(to top, rgba(9,9,11,0.92) 0%, rgba(9,9,11,0.15) 45%, rgba(9,9,11,0.35) 100%)'}}/>
-                <div className="absolute top-2 right-2 flex items-center gap-1.5 px-2 py-1 rounded-md bg-black/55 backdrop-blur-sm border border-[#D4AF37]/25">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"/>
-                  <span className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#D4AF37]" style={{fontFamily:BC}}>LIVE</span>
-                </div>
+            <a key={i} href="/tactical-board.html" onClick={handleBoardClick} className="sport-card group relative shrink-0 snap-start w-[180px] sm:w-[200px] md:w-[220px] rounded-2xl overflow-hidden border border-emerald-200/15 hover:border-[#D4AF37]/60 transition-all hover:scale-[1.04] hover:shadow-[0_14px_32px_-6px_rgba(212,175,55,0.28)]" data-testid={`sport-card-${sport.name.toLowerCase()}`}>
+              <div className="aspect-[3/4] relative" style={{background: BOARD_BG}}>
+                <svg viewBox="0 0 100 140" className="w-full h-full block" preserveAspectRatio="xMidYMid slice" dangerouslySetInnerHTML={{__html: chalkCourt(sport.svg)}} />
+                <div className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(to top, rgba(6,26,18,0.92) 0%, rgba(6,26,18,0.05) 45%, rgba(6,26,18,0.25) 100%)'}}/>
                 <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between">
                   <span className="text-[13px] font-black text-white uppercase tracking-[0.06em]" style={{fontFamily:BC}}>{sport.name}</span>
                   <ArrowRight className="w-4 h-4 text-[#D4AF37] transition-transform group-hover:translate-x-0.5"/>
@@ -1147,14 +1152,13 @@ const LandingPage = () => {
             {name:'Ciclismo'},{name:'Natacion'},{name:'Boxeo'},
             {name:'Karate'},{name:'Taekwondo'},{name:'MMA'},{name:'Judo'}
           ].map((sp, i) => (
-            <a key={`extra-${i}`} href="/tactical-board.html" onClick={handleBoardClick} className="group relative shrink-0 snap-start w-[180px] sm:w-[200px] md:w-[220px] rounded-2xl overflow-hidden border border-zinc-800 hover:border-[#D4AF37]/60 transition-all hover:scale-[1.04]" data-testid={`extra-sport-${sp.name.toLowerCase().replace(/\s+/g,'-')}`}>
-              <div className="aspect-[3/4] relative flex flex-col items-center justify-center p-3" style={{background:'linear-gradient(160deg, rgba(212,175,55,0.10) 0%, #18181b 55%, #09090b 100%)'}}>
-                <div className="absolute inset-0" style={{backgroundImage:'radial-gradient(circle at 50% 30%, rgba(255,255,255,0.06) 0%, transparent 55%)'}}/>
-                <div className="absolute top-0 left-0 right-0 h-[2px]" style={{background:'#D4AF37', opacity:0.6}}/>
-                <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/40 backdrop-blur border border-[#D4AF37]/25"><span className="text-[7.5px] font-black tracking-[0.1em] text-[#D4AF37]" style={{fontFamily:BC}}>3D</span></div>
-                <div className="relative z-10 text-center">
-                  <div className="w-14 h-14 mx-auto mb-2 rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center backdrop-blur-sm"><span className="text-[20px] font-black text-white" style={{fontFamily:BC}}>{sp.name[0]}</span></div>
-                  <div className="text-[12px] font-black uppercase tracking-[0.05em] text-white leading-tight" style={{fontFamily:BC}}>{sp.name}</div>
+            <a key={`extra-${i}`} href="/tactical-board.html" onClick={handleBoardClick} className="sport-card group relative shrink-0 snap-start w-[180px] sm:w-[200px] md:w-[220px] rounded-2xl overflow-hidden border border-emerald-200/15 hover:border-[#D4AF37]/60 transition-all hover:scale-[1.04]" data-testid={`extra-sport-${sp.name.toLowerCase().replace(/\s+/g,'-')}`}>
+              <div className="aspect-[3/4] relative" style={{background: BOARD_BG}}>
+                <svg viewBox="0 0 100 140" className="w-full h-full block" preserveAspectRatio="xMidYMid slice" dangerouslySetInnerHTML={{__html: GENERIC_COURT}} />
+                <div className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(to top, rgba(6,26,18,0.92) 0%, rgba(6,26,18,0.05) 45%, rgba(6,26,18,0.25) 100%)'}}/>
+                <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between">
+                  <span className="text-[13px] font-black text-white uppercase tracking-[0.06em]" style={{fontFamily:BC}}>{sp.name}</span>
+                  <ArrowRight className="w-4 h-4 text-[#D4AF37] transition-transform group-hover:translate-x-0.5"/>
                 </div>
               </div>
             </a>

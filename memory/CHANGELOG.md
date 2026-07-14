@@ -484,3 +484,9 @@
 ## 2026-07-14 (g) — Suavizado del contraste de botones de la barra
 - El relleno de los botones de la barra (Modo Clásico) pasó de negro puro (#0A0F1E) a un slate oscuro más suave (#252E3E) para reducir el contraste duro sobre el header blanco, manteniendo el look uniforme y el estado activo con anillo/punto. Aplicado también en NotificationsBell, ThemeToggle, LanguageSelector (fabStyle) y HelpTutorialButton (topbar).
 - Verificado con screenshot. ACCIÓN USUARIO: REDEPLOY para Producción.
+
+## 2026-07-14 (h) — Galería de pizarras unificada (tablero verde estático)
+- Sección "Pizarra Multi-Deporte" de la landing: todas las tarjetas ahora comparten el mismo formato de tablero verde tipo pizarra táctica.
+- Se quitó el movimiento (animaciones anim-ball/arrow/player/pulse) y el badge "LIVE"; los SVG de cancha se limpian con chalkCourt() (quita defs/gradiente/fondo y clases de animación) dejando solo líneas de tiza blanca + marcadores estáticos sobre fondo verde (BOARD_BG con textura de rejilla).
+- Los 22 deportes "extra" (antes círculos con inicial + badge 3D) ahora usan una cancha genérica (GENERIC_COURT) en el mismo tablero verde, para formato 100% consistente.
+- Verificado con screenshot. ACCIÓN USUARIO: REDEPLOY para Producción.
